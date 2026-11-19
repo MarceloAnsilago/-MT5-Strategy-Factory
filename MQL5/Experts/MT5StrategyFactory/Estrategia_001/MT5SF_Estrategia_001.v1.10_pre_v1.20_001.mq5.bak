@@ -1,0 +1,829 @@
+// MT5 Strategy Factory - Estrategia 001 v1.10. STRATEGY TESTER ONLY.
+// Closed-bar EMA crossover. No grid, martingale, pyramiding or reversal.
+// All entry requests contain SL and TP. FOK only.
+// Recovery: at most ONE repair and ONE close request per position identifier,
+// and ONE removal request per active order ticket. Budgets are recorded in
+// emulated Tester global variables BEFORE checking/sending, surviving EA reinit
+// while that Tester environment retains them. No timer or retry loops.
+// On reinitialization the actual exposure and complete position history are
+// inspected again. Previous in-memory flags are NEVER treated as evidence.
+// Percentages are nominal distances, NOT guaranteed realized loss/profit limits.
+// Gaps/slippage can exceed 1%. Recovery can be rejected by market/server rules.
+// Unknown/mixed ownership => ALERT + HALT, never change third-party exposure.
+// Magic must be exclusive: another program using the same magic is indistinguishable.
+#property strict
+#property version "1.10"
+#property description "EMA crossover with bounded protection recovery; Tester only"
+#include <Trade/Trade.mqh>
+
+input string             InpSymbol          = "PETR4";
+input ENUM_TIMEFRAMES    InpTimeframe       = PERIOD_M5;
+input int                InpFastPeriod      = 9;
+input int                InpSlowPeriod      = 21;
+input ENUM_APPLIED_PRICE InpAppliedPrice    = PRICE_CLOSE;
+input double             InpShares          = 100.0;
+input double             InpStopLossPercent = 1.0;
+input double             InpTakeProfitPercent = 2.0;
+input ulong              InpMagic           = 20261118001;
+input ulong              InpDeviationPoints = 5;
+
+CTrade g_trade;
+int g_fast = INVALID_HANDLE, g_slow = INVALID_HANDLE;
+datetime g_bar = 0;
+bool g_busy = false, g_auditing = false, g_halted = false;
+bool g_foreign_alert = false;
+ulong g_last_order = 0, g_last_deal = 0;
+double g_requested_price = 0;
+ENUM_ORDER_TYPE g_requested_side = ORDER_TYPE_BUY;
+struct PositionTrack
+{
+   ulong id;
+   ulong ticket;
+   ulong origin_order;
+   ulong origin_deal;
+   bool repair_used;
+   bool close_used;
+   bool ownership_alert;
+   double logged_volume;
+   double logged_entry;
+   double logged_sl;
+   double logged_tp;
+};
+PositionTrack g_positions[];
+ulong g_cancel_attempts[];
+
+void LogBlock(const string reason) { Print("MT5SF001: entrada bloqueada: ", reason); }
+void Halt(const string reason)
+{
+   if(!g_halted) Print("MT5SF001 CRITICO: ", reason, ". Novas entradas bloqueadas.");
+   g_halted = true;
+}
+
+bool IsTester() { return (bool)MQLInfoInteger(MQL_TESTER); }
+bool IsNetting()
+{
+   return AccountInfoInteger(ACCOUNT_MARGIN_MODE) != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING;
+}
+
+int Track(const ulong id, const ulong ticket)
+{
+   for(int i=0; i<ArraySize(g_positions); ++i)
+      if(g_positions[i].id==id) { g_positions[i].ticket=ticket; return i; }
+   int n=ArraySize(g_positions);
+   if(ArrayResize(g_positions,n+1)!=n+1) { Halt("memoria de rastreamento indisponivel"); return -1; }
+   g_positions[n].id=id;
+   g_positions[n].ticket=ticket;
+   g_positions[n].origin_order=0;
+   g_positions[n].origin_deal=0;
+   g_positions[n].repair_used=false;
+   g_positions[n].close_used=false;
+   g_positions[n].ownership_alert=false;
+   g_positions[n].logged_volume=-1;
+   g_positions[n].logged_entry=0;
+   g_positions[n].logged_sl=0;
+   g_positions[n].logged_tp=0;
+   return n;
+}
+
+
+// Markers exist only in the Strategy Tester's emulated global-variable store,
+// not in live terminal globals. Reinitialization never clears them.
+// If persistence fails, deny the operation. Collisions fail closed.
+// A wholly new Tester environment may reset markers; history/ownership is still
+// reconstructed and no state from a previous independent run is assumed.
+bool ConsumeBudget(const string kind,const ulong id)
+{
+   if(!IsTester() || id==0) return false;
+   string key=StringFormat("MT5SF110.%I64u.%I64u.%s",InpMagic,id,kind);
+   if(GlobalVariableCheck(key)) return false;
+   if(GlobalVariableSet(key,1.0)==0)
+   {
+      Halt("nao foi possivel registrar limite de recuperacao");
+      return false;
+   }
+   return true;
+}
+
+bool FOKAllowed()
+{
+   return (SymbolInfoInteger(InpSymbol,SYMBOL_FILLING_MODE)&SYMBOL_FILLING_FOK)!=0;
+}
+
+bool HasForeignOrder()
+{
+   for(int i=OrdersTotal()-1;i>=0;--i)
+   {
+      if(OrderGetTicket(i)==0) return true;
+      if(OrderGetString(ORDER_SYMBOL)==InpSymbol &&
+         (ulong)OrderGetInteger(ORDER_MAGIC)!=InpMagic) return true;
+   }
+   return false;
+}
+
+// Strict ownership proof: current magic + stable identifier + complete available
+// deal/order chain + signed volume reconciliation. No action based on magic alone.
+// History synchronization may temporarily fail: refuse mutation, audit again later.
+bool ProveOwnership(const ulong ticket, ulong &id, ulong &first_order,
+                    ulong &first_deal, string &why)
+{
+   id=0; first_order=0; first_deal=0;
+   if(!PositionSelectByTicket(ticket)) { why="posicao nao selecionavel"; return false; }
+   if(PositionGetString(POSITION_SYMBOL)!=InpSymbol ||
+      (ulong)PositionGetInteger(POSITION_MAGIC)!=InpMagic)
+   { why="simbolo/magic diferente"; return false; }
+   id=(ulong)PositionGetInteger(POSITION_IDENTIFIER);
+   double live_volume=PositionGetDouble(POSITION_VOLUME);
+   long live_type=PositionGetInteger(POSITION_TYPE);
+   if(id==0 || live_volume<=0 || (IsNetting() && HasForeignOrder()))
+   { why="identificador invalido ou ordem de terceiro em netting"; return false; }
+   if(!HistorySelectByPosition(id) || HistoryDealsTotal()==0)
+   { why="historico da posicao indisponivel"; return false; }
+   double signed_volume=0;
+   int count=0;
+   for(int i=0;i<HistoryDealsTotal();++i)
+   {
+      ulong deal=HistoryDealGetTicket(i);
+      if(deal==0) { why="negocio historico ilegivel"; return false; }
+      long type=HistoryDealGetInteger(deal,DEAL_TYPE);
+      if(type!=DEAL_TYPE_BUY && type!=DEAL_TYPE_SELL) continue;
+      ulong order=(ulong)HistoryDealGetInteger(deal,DEAL_ORDER);
+      if(HistoryDealGetString(deal,DEAL_SYMBOL)!=InpSymbol ||
+         (ulong)HistoryDealGetInteger(deal,DEAL_MAGIC)!=InpMagic ||
+         (ulong)HistoryDealGetInteger(deal,DEAL_POSITION_ID)!=id ||
+         order==0 ||
+         (ulong)HistoryOrderGetInteger(order,ORDER_MAGIC)!=InpMagic ||
+         HistoryOrderGetString(order,ORDER_SYMBOL)!=InpSymbol ||
+         (ulong)HistoryOrderGetInteger(order,ORDER_POSITION_ID)!=id)
+      { why="historico misto, incompleto ou sem propriedade exclusiva"; return false; }
+      if(count==0)
+      {
+         // A truncated history starting with an exit/reversal is not proof.
+         if(HistoryDealGetInteger(deal,DEAL_ENTRY)!=DEAL_ENTRY_IN)
+         { why="inicio do historico nao comprova abertura"; return false; }
+         first_deal=deal; first_order=order;
+      }
+      double volume=HistoryDealGetDouble(deal,DEAL_VOLUME);
+      if(volume<=0) { why="volume historico invalido"; return false; }
+      signed_volume+=(type==DEAL_TYPE_BUY?volume:-volume);
+      count++;
+   }
+   double expected=(live_type==POSITION_TYPE_BUY?live_volume:-live_volume);
+   double step=SymbolInfoDouble(InpSymbol,SYMBOL_VOLUME_STEP);
+   if(count==0 || MathAbs(signed_volume-expected)>MathMax(1e-8,step*1e-6))
+   { why="volume historico nao reconcilia com exposicao atual"; return false; }
+   // Reselect and compare after history inspection; never operate on stale ticket.
+   if(!PositionSelectByTicket(ticket) ||
+      (ulong)PositionGetInteger(POSITION_IDENTIFIER)!=id ||
+      (ulong)PositionGetInteger(POSITION_MAGIC)!=InpMagic ||
+      MathAbs(PositionGetDouble(POSITION_VOLUME)-live_volume)>1e-8 ||
+      PositionGetInteger(POSITION_TYPE)!=live_type)
+   { why="posicao mudou durante a verificacao"; return false; }
+   return true;
+}
+
+// Input volume is SHARES. MQL5 trade volume is in symbol lots/contracts.
+// PETR4 normally has contract_size=1: 100 shares -> volume 100.
+// Conversion is explicit and never rounds volume up or changes the share count.
+bool GetVolume(double &volume, string &reason)
+{
+   double contract = SymbolInfoDouble(InpSymbol, SYMBOL_TRADE_CONTRACT_SIZE);
+   double minimum = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_MIN);
+   double maximum = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_MAX);
+   double step = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_STEP);
+   double limit = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_LIMIT);
+   if(contract <= 0 || minimum <= 0 || maximum < minimum || step <= 0)
+   {
+      reason = "propriedades de volume invalidas";
+      return false;
+   }
+   volume = InpShares / contract;
+   double units = volume / step;
+   double eps = 1e-8 * MathMax(1.0, MathAbs(units));
+   if(!MathIsValidNumber(volume) || volume < minimum - 1e-9 ||
+      volume > maximum + 1e-9 || MathAbs(units - MathRound(units)) > eps ||
+      (limit > 0 && volume > limit + 1e-9))
+   {
+      reason = StringFormat("volume %.8f incompativel: min=%.8f max=%.8f step=%.8f limit=%.8f",
+                            volume, minimum, maximum, step, limit);
+      return false;
+   }
+   // Remove floating point noise only after validating the original share count.
+   volume = NormalizeDouble(MathRound(units) * step, 8);
+   return true;
+}
+
+// Block all exposure on the symbol, including other magic numbers.
+// Never close, modify or cancel anything. This also prevents netting merges.
+// Fail closed if a ticket cannot be inspected reliably.
+bool HasExposure()
+{
+   for(int i = PositionsTotal() - 1; i >= 0; --i)
+   {
+      ulong ticket = PositionGetTicket(i);
+      if(ticket == 0) return true;
+      if(PositionGetString(POSITION_SYMBOL) == InpSymbol) return true;
+   }
+   for(int i = OrdersTotal() - 1; i >= 0; --i)
+   {
+      ulong ticket = OrderGetTicket(i);
+      if(ticket == 0) return true;
+      if(OrderGetString(ORDER_SYMBOL) == InpSymbol) return true;
+   }
+   return false;
+}
+
+
+bool Permissions(const ENUM_ORDER_TYPE side, string &reason)
+{
+   if(!MQLInfoInteger(MQL_TESTER) ||
+      !MQLInfoInteger(MQL_TRADE_ALLOWED) ||
+      !TerminalInfoInteger(TERMINAL_TRADE_ALLOWED) ||
+      !AccountInfoInteger(ACCOUNT_TRADE_ALLOWED) ||
+      !AccountInfoInteger(ACCOUNT_TRADE_EXPERT))
+   {
+      reason = "ambiente Tester ou permissao de negociacao indisponivel";
+      return false;
+   }
+   long mode = SymbolInfoInteger(InpSymbol, SYMBOL_TRADE_MODE);
+   if(mode == SYMBOL_TRADE_MODE_DISABLED || mode == SYMBOL_TRADE_MODE_CLOSEONLY ||
+      (side == ORDER_TYPE_BUY && mode == SYMBOL_TRADE_MODE_SHORTONLY) ||
+      (side == ORDER_TYPE_SELL && mode == SYMBOL_TRADE_MODE_LONGONLY))
+   {
+      reason = "direcao proibida pelo simbolo";
+      return false;
+   }
+   long flags = SymbolInfoInteger(InpSymbol, SYMBOL_ORDER_MODE);
+   if((flags & SYMBOL_ORDER_MARKET) == 0 ||
+      (flags & SYMBOL_ORDER_SL) == 0 || (flags & SYMBOL_ORDER_TP) == 0)
+   {
+      reason = "simbolo nao permite entrada a mercado com SL e TP";
+      return false;
+   }
+   return true;
+}
+
+double TickFloor(const double price, const double tick, const int digits)
+{
+   return NormalizeDouble(MathFloor(price / tick + 1e-9) * tick, digits);
+}
+
+double TickCeil(const double price, const double tick, const int digits)
+{
+   return NormalizeDouble(MathCeil(price / tick - 1e-9) * tick, digits);
+}
+
+// Round stop loss TOWARD entry (do not intentionally exceed percentage risk).
+// Round take profit toward entry too. Both levels must remain valid after rounding.
+// Minimum stops are measured from current Bid for buys and Ask for sells.
+// Never widen stops to satisfy a broker restriction: discard that signal instead.
+bool BuildStops(const ENUM_ORDER_TYPE side, const MqlTick &quote,
+                double &price, double &sl, double &tp, string &reason)
+{
+   double tick = SymbolInfoDouble(InpSymbol, SYMBOL_TRADE_TICK_SIZE);
+   double point = SymbolInfoDouble(InpSymbol, SYMBOL_POINT);
+   int digits = (int)SymbolInfoInteger(InpSymbol, SYMBOL_DIGITS);
+   if(tick <= 0 || point <= 0 || quote.bid <= 0 || quote.ask < quote.bid ||
+      !MathIsValidNumber(quote.bid) || !MathIsValidNumber(quote.ask))
+   {
+      reason = "cotacao ou tick size invalido";
+      return false;
+   }
+   price = side == ORDER_TYPE_BUY ? quote.ask : quote.bid;
+   if(MathAbs(price / tick - MathRound(price / tick)) > 1e-6)
+   {
+      reason = "preco de entrada fora da grade de ticks";
+      return false;
+   }
+   double loss = InpStopLossPercent / 100.0;
+   double gain = InpTakeProfitPercent / 100.0;
+   double distance = (double)SymbolInfoInteger(InpSymbol, SYMBOL_TRADE_STOPS_LEVEL) * point;
+   double eps = tick * 1e-6;
+   if(side == ORDER_TYPE_BUY)
+   {
+      sl = TickCeil(price * (1.0 - loss), tick, digits);
+      tp = TickFloor(price * (1.0 + gain), tick, digits);
+      if(sl <= 0 || sl >= quote.bid || tp <= quote.ask ||
+         quote.bid - sl + eps < distance || tp - quote.bid + eps < distance)
+      {
+         reason = "SL/TP de compra invalidos ou menores que stops_level";
+         return false;
+      }
+   }
+   else
+   {
+      sl = TickFloor(price * (1.0 + loss), tick, digits);
+      tp = TickCeil(price * (1.0 - gain), tick, digits);
+      if(tp <= 0 || tp >= quote.bid || sl <= quote.ask ||
+         sl - quote.ask + eps < distance || quote.ask - tp + eps < distance)
+      {
+         reason = "SL/TP de venda invalidos ou menores que stops_level";
+         return false;
+      }
+   }
+   return true;
+}
+
+
+bool ReadSignal(int &signal)
+{
+   signal = 0;
+   if(BarsCalculated(g_fast) < InpSlowPeriod + 3 ||
+      BarsCalculated(g_slow) < InpSlowPeriod + 3) return false;
+   double fast[2], slow[2];
+   // CopyBuffer stores oldest first: [0] is shift 2, [1] is shift 1.
+   if(CopyBuffer(g_fast, 0, 1, 2, fast) != 2 ||
+      CopyBuffer(g_slow, 0, 1, 2, slow) != 2) return false;
+   for(int i = 0; i < 2; ++i)
+      if(fast[i] == EMPTY_VALUE || slow[i] == EMPTY_VALUE ||
+         !MathIsValidNumber(fast[i]) || !MathIsValidNumber(slow[i])) return false;
+   if(fast[0] <= slow[0] && fast[1] > slow[1]) signal = 1;
+   else if(fast[0] >= slow[0] && fast[1] < slow[1]) signal = -1;
+   return true;
+}
+
+
+// Return values are inspected for every request. Check success does not guarantee
+// fill; the state is always re-read. No recovery is sent outside Strategy Tester.
+bool CheckRequest(MqlTradeRequest &request)
+{
+   if(!IsTester()) return false;
+   MqlTradeCheckResult check={};
+   ResetLastError();
+   bool ok=OrderCheck(request,check);
+   PrintFormat("MT5SF001 CHECK action=%d position=%I64u order=%I64u ok=%s code=%u error=%d comment=%s",
+               (int)request.action,request.position,request.order,
+               ok?"true":"false",check.retcode,GetLastError(),check.comment);
+   return ok && (check.retcode==0 || check.retcode==TRADE_RETCODE_DONE);
+}
+
+bool SendRecovery(MqlTradeRequest &request)
+{
+   if(!IsTester() || g_busy) return false;
+   g_busy=true;
+   MqlTradeResult result={};
+   ResetLastError();
+   bool ok=OrderSend(request,result);
+   g_busy=false;
+   PrintFormat("MT5SF001 RECOVERY action=%d position=%I64u requested=%.8f executed=%.8f volume=%.8f SL=%.8f TP=%.8f order=%I64u deal=%I64u ok=%s code=%u error=%d comment=%s",
+               (int)request.action,request.position,request.price,result.price,
+               result.volume,request.sl,request.tp,result.order,result.deal,
+               ok?"true":"false",result.retcode,GetLastError(),result.comment);
+   if(result.order!=0) g_last_order=result.order;
+   if(result.deal!=0) g_last_deal=result.deal;
+   return ok && result.retcode==TRADE_RETCODE_DONE;
+}
+
+bool OwnActiveOrder(const ulong ticket)
+{
+   return OrderSelect(ticket) && OrderGetString(ORDER_SYMBOL)==InpSymbol &&
+          (ulong)OrderGetInteger(ORDER_MAGIC)==InpMagic;
+}
+
+bool CancellationUsed(const ulong ticket)
+{
+   for(int i=0;i<ArraySize(g_cancel_attempts);++i)
+      if(g_cancel_attempts[i]==ticket) return true;
+   int n=ArraySize(g_cancel_attempts);
+   if(ArrayResize(g_cancel_attempts,n+1)!=n+1)
+   { Halt("memoria de cancelamentos indisponivel"); return true; }
+   g_cancel_attempts[n]=ticket; // consume before any operation, including failed check
+   return !ConsumeBudget("cancel",ticket);
+}
+
+void CancelOwnResiduals()
+{
+   // This strategy never deliberately leaves an active/pending entry order.
+   // Any own active order is an unexpected residual, even after a restart.
+   ulong orders[];
+   for(int i=OrdersTotal()-1;i>=0;--i)
+   {
+      ulong ticket=OrderGetTicket(i);
+      if(ticket==0) { Halt("ordem ativa ilegivel"); continue; }
+      if(OrderGetString(ORDER_SYMBOL)!=InpSymbol ||
+         (ulong)OrderGetInteger(ORDER_MAGIC)!=InpMagic) continue;
+      int n=ArraySize(orders);
+      if(ArrayResize(orders,n+1)!=n+1) { Halt("memoria indisponivel"); return; }
+      orders[n]=ticket;
+   }
+   for(int i=0;i<ArraySize(orders);++i)
+   {
+      ulong ticket=orders[i];
+      Halt("saldo de ordem propria detectado");
+      if(CancellationUsed(ticket) || !OwnActiveOrder(ticket)) continue;
+      MqlTradeRequest request={};
+      request.action=TRADE_ACTION_REMOVE;
+      request.order=ticket;
+      request.magic=InpMagic;
+      request.symbol=InpSymbol;
+      request.comment="MT5SF001_CANCEL";
+      if(!CheckRequest(request) || !OwnActiveOrder(ticket))
+      {
+         PrintFormat("MT5SF001 CRITICO: cancelamento nao enviado order=%I64u; sem retry",ticket);
+         continue;
+      }
+      bool ok=SendRecovery(request);
+      PrintFormat("MT5SF001 cancelamento order=%I64u confirmado=%s ainda_ativo=%s",
+                  ticket,ok?"true":"false",OrderSelect(ticket)?"true":"false");
+      // If still active, leave halted. Never cancel a different/foreign ticket.
+   }
+}
+
+bool HasOwnActiveOrder()
+{
+   for(int i=OrdersTotal()-1;i>=0;--i)
+   {
+      ulong ticket=OrderGetTicket(i);
+      if(ticket==0) return true;
+      if(OrderGetString(ORDER_SYMBOL)==InpSymbol &&
+         (ulong)OrderGetInteger(ORDER_MAGIC)==InpMagic) return true;
+   }
+   return false;
+}
+
+// A stop is inadequate when absent, on the wrong side, off tick grid, or when
+// nominal risk exceeds the configured distance (allow one tick rounding).
+// A closer profitable stop is preserved; do not widen an existing protective SL.
+// TP distance differences are logged but do not justify increasing position risk.
+bool ProtectionAdequate(const ulong ticket)
+{
+   if(!PositionSelectByTicket(ticket)) return false;
+   double entry=PositionGetDouble(POSITION_PRICE_OPEN);
+   double sl=PositionGetDouble(POSITION_SL),tp=PositionGetDouble(POSITION_TP);
+   double tick=SymbolInfoDouble(InpSymbol,SYMBOL_TRADE_TICK_SIZE);
+   bool buy=PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY;
+   if(!MathIsValidNumber(entry) || !MathIsValidNumber(sl) || !MathIsValidNumber(tp) ||
+      entry<=0 || sl<=0 || tp<=0 || tick<=0) return false;
+   if(MathAbs(sl/tick-MathRound(sl/tick))>1e-6 ||
+      MathAbs(tp/tick-MathRound(tp/tick))>1e-6) return false;
+   if((buy && (tp<=entry || sl>=tp)) || (!buy && (tp>=entry || sl<=tp))) return false;
+   double risk=buy?entry-sl:sl-entry;
+   return risk<=entry*InpStopLossPercent/100.0+tick+1e-8;
+}
+
+void LogPosition(const int index)
+{
+   ulong ticket=g_positions[index].ticket;
+   if(!PositionSelectByTicket(ticket)) return;
+   double volume=PositionGetDouble(POSITION_VOLUME);
+   double entry=PositionGetDouble(POSITION_PRICE_OPEN);
+   double sl=PositionGetDouble(POSITION_SL),tp=PositionGetDouble(POSITION_TP);
+   if(volume==g_positions[index].logged_volume && entry==g_positions[index].logged_entry &&
+      sl==g_positions[index].logged_sl && tp==g_positions[index].logged_tp) return;
+   bool buy=PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY;
+   double tick=SymbolInfoDouble(InpSymbol,SYMBOL_TRADE_TICK_SIZE);
+   double risk=sl>0 && entry>0 ? 100.0*(buy?entry-sl:sl-entry)/entry : -1;
+   double gain=tp>0 && entry>0 ? 100.0*(buy?tp-entry:entry-tp)/entry : -1;
+   PrintFormat("MT5SF001 POSITION id=%I64u ticket=%I64u origin_order=%I64u origin_deal=%I64u volume=%.8f entry=%.8f SL=%.8f TP=%.8f nominal_SL=%.6f%% effective_SL_distance=%.6f%% effective_TP_distance=%.6f%% tick=%.8f",
+               g_positions[index].id,ticket,g_positions[index].origin_order,
+               g_positions[index].origin_deal,volume,entry,sl,tp,
+               InpStopLossPercent,risk,gain,tick);
+   Print("MT5SF001: distancia nominal nao garante perda realizada; gaps/slippage podem exceder o SL.");
+   g_positions[index].logged_volume=volume;
+   g_positions[index].logged_entry=entry;
+   g_positions[index].logged_sl=sl;
+   g_positions[index].logged_tp=tp;
+}
+
+bool BuildRepair(const ulong ticket, double &sl, double &tp, string &why)
+{
+   if(!PositionSelectByTicket(ticket)) return false;
+   bool buy=PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY;
+   double entry=PositionGetDouble(POSITION_PRICE_OPEN);
+   double old_sl=PositionGetDouble(POSITION_SL);
+   MqlTick q={};
+   double tick=SymbolInfoDouble(InpSymbol,SYMBOL_TRADE_TICK_SIZE);
+   double point=SymbolInfoDouble(InpSymbol,SYMBOL_POINT);
+   int digits=(int)SymbolInfoInteger(InpSymbol,SYMBOL_DIGITS);
+   if(entry<=0 || tick<=0 || point<=0 || !SymbolInfoTick(InpSymbol,q) ||
+      q.bid<=0 || q.ask<q.bid) { why="cotacao/propriedades indisponiveis"; return false; }
+   double stops=(double)SymbolInfoInteger(InpSymbol,SYMBOL_TRADE_STOPS_LEVEL)*point;
+   double freeze=(double)SymbolInfoInteger(InpSymbol,SYMBOL_TRADE_FREEZE_LEVEL)*point;
+   double distance=MathMax(stops,freeze)+tick; // conservative, do not widen nominal risk
+   if(buy)
+   {
+      sl=TickCeil(entry*(1-InpStopLossPercent/100.0),tick,digits);
+      tp=TickFloor(entry*(1+InpTakeProfitPercent/100.0),tick,digits);
+      if(old_sl>0 && old_sl<q.bid) sl=MathMax(sl,old_sl);
+      if(sl<=0 || tp<=entry || q.bid-sl<distance || tp-q.bid<distance)
+      { why="stops/freeze ou mercado ja ultrapassou niveis nominais"; return false; }
+   }
+   else
+   {
+      sl=TickFloor(entry*(1+InpStopLossPercent/100.0),tick,digits);
+      tp=TickCeil(entry*(1-InpTakeProfitPercent/100.0),tick,digits);
+      if(old_sl>q.ask) sl=MathMin(sl,old_sl);
+      if(tp<=0 || tp>=entry || sl-q.ask<distance || q.ask-tp<distance)
+      { why="stops/freeze ou mercado ja ultrapassou niveis nominais"; return false; }
+   }
+   return true;
+}
+
+bool SameOwner(const ulong ticket,const ulong expected_id)
+{
+   ulong id,order,deal;
+   string why;
+   bool ok=ProveOwnership(ticket,id,order,deal,why) && id==expected_id;
+   if(!ok) PrintFormat("MT5SF001 CRITICO: mutacao recusada ticket=%I64u ownership=%s",ticket,why);
+   return ok;
+}
+
+void RecoverPosition(const int index)
+{
+   ulong ticket=g_positions[index].ticket,id=g_positions[index].id;
+   Halt("protecao propria inadequada; recuperacao limitada");
+   if(!SameOwner(ticket,id)) return;
+   if(!g_positions[index].repair_used && ConsumeBudget("repair",id))
+   {
+      g_positions[index].repair_used=true;
+      double sl,tp; string why;
+      MqlTradeRequest request={};
+      request.action=TRADE_ACTION_SLTP;
+      request.position=ticket;
+      request.symbol=InpSymbol;
+      request.magic=InpMagic;
+      request.comment="MT5SF001_REPAIR";
+      if(BuildRepair(ticket,sl,tp,why))
+      {
+         request.sl=sl; request.tp=tp;
+         if(CheckRequest(request) && SameOwner(ticket,id))
+         {
+            bool ok=SendRecovery(request);
+            PrintFormat("MT5SF001 reparo id=%I64u confirmado=%s",id,ok?"true":"false");
+         }
+      }
+      else PrintFormat("MT5SF001 reparo inviavel id=%I64u motivo=%s",id,why);
+   }
+   if(!PositionSelectByTicket(ticket)) return; // already exited; NEVER reopen
+   if(!SameOwner(ticket,id)) return;
+   if(ProtectionAdequate(ticket)) { LogPosition(index); return; }
+   if(g_positions[index].close_used || !ConsumeBudget("close",id)) return;
+   g_positions[index].close_used=true;
+   // Do not send another deal while a residual could fill and recreate exposure.
+   if(HasOwnActiveOrder() || !FOKAllowed())
+   {
+      PrintFormat("MT5SF001 CRITICO: fechamento nao enviado id=%I64u: saldo ativo ou FOK indisponivel; revisao manual",id);
+      return;
+   }
+   if(!SameOwner(ticket,id)) return;
+   bool buy=PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY;
+   double volume=PositionGetDouble(POSITION_VOLUME);
+   MqlTick q={};
+   if(!SymbolInfoTick(InpSymbol,q) || q.bid<=0 || q.ask<q.bid)
+   {
+      PrintFormat("MT5SF001 CRITICO: sem cotacao para fechamento id=%I64u",id);
+      return;
+   }
+   MqlTradeRequest request={};
+   request.action=TRADE_ACTION_DEAL;
+   request.position=ticket;
+   request.symbol=InpSymbol;
+   request.magic=InpMagic;
+   request.volume=volume;
+   request.type=buy?ORDER_TYPE_SELL:ORDER_TYPE_BUY;
+   request.price=buy?q.bid:q.ask;
+   request.deviation=InpDeviationPoints;
+   request.type_filling=ORDER_FILLING_FOK;
+   request.type_time=ORDER_TIME_GTC;
+   request.comment="MT5SF001_CLOSE";
+   if(CheckRequest(request) && SameOwner(ticket,id))
+   {
+      // Reread volume immediately before send to prevent an oversized close.
+      if(MathAbs(PositionGetDouble(POSITION_VOLUME)-volume)>1e-8)
+      { Print("MT5SF001 CRITICO: volume mudou; fechamento recusado."); return; }
+      bool ok=SendRecovery(request);
+      PrintFormat("MT5SF001 fechamento id=%I64u confirmado=%s ainda_aberta=%s; sem retry",
+                  id,ok?"true":"false",PositionSelectByTicket(ticket)?"true":"false");
+   }
+   else PrintFormat("MT5SF001 CRITICO: fechamento recusado id=%I64u; sem retry",id);
+}
+
+// One snapshot pass only. No recursion, sleep, timer or unbounded repair loop.
+// Recovery remains enabled while g_halted blocks entries.
+void AuditExposure()
+{
+   if(!IsTester() || g_auditing || g_busy) return;
+   g_auditing=true;
+   CancelOwnResiduals();
+   ulong tickets[];
+   for(int i=PositionsTotal()-1;i>=0;--i)
+   {
+      ulong ticket=PositionGetTicket(i);
+      if(ticket==0) { Halt("posicao ilegivel"); continue; }
+      if(PositionGetString(POSITION_SYMBOL)!=InpSymbol) continue;
+      int n=ArraySize(tickets);
+      if(ArrayResize(tickets,n+1)!=n+1) { Halt("memoria indisponivel"); break; }
+      tickets[n]=ticket;
+   }
+   if(ArraySize(tickets)>1) Halt("mais de uma posicao no simbolo");
+   for(int i=0;i<ArraySize(tickets);++i)
+   {
+      ulong ticket=tickets[i];
+      if(!PositionSelectByTicket(ticket)) continue;
+      if((ulong)PositionGetInteger(POSITION_MAGIC)!=InpMagic)
+      {
+         Halt("exposicao de terceiro ou mista; nenhuma mutacao automatica");
+         if(!g_foreign_alert)
+         {
+            Print("MT5SF001 CRITICO: exposicao de outro magic preservada. Netting nao permite separar parcelas.");
+            g_foreign_alert=true;
+         }
+         continue;
+      }
+      ulong id=(ulong)PositionGetInteger(POSITION_IDENTIFIER),order,deal;
+      int index=Track(id,ticket);
+      if(index<0) continue;
+      string why;
+      if(!ProveOwnership(ticket,id,order,deal,why))
+      {
+         Halt("propriedade exclusiva nao comprovada");
+         if(!g_positions[index].ownership_alert)
+         {
+            PrintFormat("MT5SF001 CRITICO: sem mutacao ticket=%I64u id=%I64u motivo=%s",ticket,id,why);
+            g_positions[index].ownership_alert=true;
+         }
+         continue;
+      }
+      g_positions[index].origin_order=order;
+      g_positions[index].origin_deal=deal;
+      LogPosition(index);
+      if(!ProtectionAdequate(ticket)) RecoverPosition(index);
+   }
+   g_auditing=false;
+}
+
+void Enter(const int signal)
+{
+   if(!IsTester() || g_busy || g_halted || HasExposure()) return;
+   ENUM_ORDER_TYPE side=signal>0?ORDER_TYPE_BUY:ORDER_TYPE_SELL;
+   string why;
+   double volume,price,sl,tp;
+   MqlTick q={};
+   if(!FOKAllowed()) { LogBlock("FOK nao permitido; nenhum fallback IOC/RETURN"); return; }
+   if(!Permissions(side,why) || !GetVolume(volume,why)) { LogBlock(why); return; }
+   if(!SymbolInfoTick(InpSymbol,q) || q.time<=0) { LogBlock("sem cotacao"); return; }
+   if(!BuildStops(side,q,price,sl,tp,why)) { LogBlock(why); return; }
+   MqlTradeRequest request={};
+   request.action=TRADE_ACTION_DEAL;
+   request.magic=InpMagic;
+   request.symbol=InpSymbol;
+   request.volume=volume;
+   request.price=price;
+   request.sl=sl;
+   request.tp=tp;
+   request.deviation=InpDeviationPoints;
+   request.type=side;
+   request.type_filling=ORDER_FILLING_FOK;
+   request.type_time=ORDER_TIME_GTC;
+   request.comment="MT5SF001_ENTRY";
+   if(!CheckRequest(request) || HasExposure() || g_halted) return;
+   g_requested_price=price;
+   g_requested_side=side;
+   g_trade.SetTypeFilling(ORDER_FILLING_FOK);
+   g_busy=true;
+   bool sent=g_trade.PositionOpen(InpSymbol,side,volume,price,sl,tp,request.comment);
+   uint code=g_trade.ResultRetcode();
+   g_last_order=g_trade.ResultOrder();
+   g_last_deal=g_trade.ResultDeal();
+   double actual=g_trade.ResultPrice();
+   double tick=SymbolInfoDouble(InpSymbol,SYMBOL_TRADE_TICK_SIZE);
+   double adverse=(side==ORDER_TYPE_BUY?actual-price:price-actual);
+   g_busy=false;
+   PrintFormat("MT5SF001 ENTRY sent=%s code=%u description=%s order=%I64u deal=%I64u requested=%.8f executed=%.8f adverse_slippage=%.8f adverse_ticks=%.3f requested_volume=%.8f actual_volume=%.8f SL=%.8f TP=%.8f",
+               sent?"true":"false",code,g_trade.ResultRetcodeDescription(),
+               g_last_order,g_last_deal,price,actual,actual>0?adverse:0,
+               actual>0 && tick>0?adverse/tick:0,volume,g_trade.ResultVolume(),sl,tp);
+   if(!sent || code!=TRADE_RETCODE_DONE || g_last_deal==0 ||
+      MathAbs(g_trade.ResultVolume()-volume)>1e-8)
+      Halt("entrada rejeitada, parcial ou incerta; nao repetir");
+   AuditExposure(); // inspect actual state even when the result was not definitive
+}
+
+ulong g_logged_deals[];
+void LogDeal(const ulong deal)
+{
+   if(deal==0) return;
+   for(int i=0;i<ArraySize(g_logged_deals);++i) if(g_logged_deals[i]==deal) return;
+   if(!HistoryDealSelect(deal)) { Halt("negocio ainda indisponivel para rastreamento"); return; }
+   if(HistoryDealGetString(deal,DEAL_SYMBOL)!=InpSymbol ||
+      (ulong)HistoryDealGetInteger(deal,DEAL_MAGIC)!=InpMagic) return;
+   int n=ArraySize(g_logged_deals);
+   if(ArrayResize(g_logged_deals,n+1)!=n+1) { Halt("memoria de negocios indisponivel"); return; }
+   g_logged_deals[n]=deal;
+   ulong order=(ulong)HistoryDealGetInteger(deal,DEAL_ORDER);
+   ulong id=(ulong)HistoryDealGetInteger(deal,DEAL_POSITION_ID);
+   double actual=HistoryDealGetDouble(deal,DEAL_PRICE);
+   bool known=(order==g_last_order && g_requested_price>0 &&
+               HistoryDealGetInteger(deal,DEAL_ENTRY)==DEAL_ENTRY_IN);
+   double adverse=known?(g_requested_side==ORDER_TYPE_BUY?
+                         actual-g_requested_price:g_requested_price-actual):0;
+   PrintFormat("MT5SF001 DEAL deal=%I64u order=%I64u position_id=%I64u entry_kind=%d volume=%.8f executed=%.8f requested_known=%s requested=%.8f adverse_slippage=%.8f SL=%.8f TP=%.8f reason=%d profit=%.2f",
+               deal,order,id,(int)HistoryDealGetInteger(deal,DEAL_ENTRY),
+               HistoryDealGetDouble(deal,DEAL_VOLUME),actual,known?"true":"false",
+               known?g_requested_price:0,adverse,HistoryDealGetDouble(deal,DEAL_SL),
+               HistoryDealGetDouble(deal,DEAL_TP),(int)HistoryDealGetInteger(deal,DEAL_REASON),
+               HistoryDealGetDouble(deal,DEAL_PROFIT));
+}
+
+int OnInit()
+{
+   if(!IsTester())
+   {
+      Print("MT5SF001: inicializacao recusada fora do Strategy Tester.");
+      return INIT_FAILED;
+   }
+   if(InpSymbol=="" || InpSymbol!=_Symbol || InpTimeframe==PERIOD_CURRENT ||
+      InpTimeframe!=(ENUM_TIMEFRAMES)_Period ||
+      InpFastPeriod<1 || InpSlowPeriod<=InpFastPeriod || InpSlowPeriod>100000 ||
+      InpMagic==0 || !MathIsValidNumber(InpShares) || InpShares<=0 ||
+      !MathIsValidNumber(InpStopLossPercent) || InpStopLossPercent<=0 ||
+      InpStopLossPercent>=100 || !MathIsValidNumber(InpTakeProfitPercent) ||
+      InpTakeProfitPercent<=0 || InpTakeProfitPercent>=100)
+      return INIT_PARAMETERS_INCORRECT;
+   if(!SymbolInfoInteger(InpSymbol,SYMBOL_SELECT)) return INIT_FAILED;
+   g_trade.SetExpertMagicNumber(InpMagic);
+   g_trade.SetDeviationInPoints(InpDeviationPoints);
+   g_trade.SetAsyncMode(false);
+   g_trade.SetMarginMode();
+   g_trade.SetTypeFilling(ORDER_FILLING_FOK);
+   // Reconstruct ownership from actual positions/orders/history before entries.
+   // Do NOT trust or assume any prior g_halted value after reinitialization.
+   AuditExposure();
+   double volume; string why;
+   if(!GetVolume(volume,why))
+   {
+      LogBlock(why);
+      Halt("volume configurado invalido; auditoria continua ativa");
+   }
+   if(!FOKAllowed())
+   {
+      LogBlock("FOK indisponivel; entradas bloqueadas");
+      Halt("simbolo sem FOK");
+   }
+   g_fast=iMA(InpSymbol,InpTimeframe,InpFastPeriod,0,MODE_EMA,InpAppliedPrice);
+   g_slow=iMA(InpSymbol,InpTimeframe,InpSlowPeriod,0,MODE_EMA,InpAppliedPrice);
+   if(g_fast==INVALID_HANDLE || g_slow==INVALID_HANDLE)
+   {
+      // Keep EA attached to audit exposure, but never trade on invalid handles.
+      Halt("indicadores indisponiveis");
+   }
+   g_bar=iTime(InpSymbol,InpTimeframe,0);
+   Print("MT5SF001 v1.10: Tester only. FOK only. Auditoria na inicializacao,",
+         " transacoes, OnTrade e ticks. Uma tentativa de reparo/fechamento por",
+         " identificador e cancelamento por ticket, registrados no ambiente Tester.");
+   Print("MT5SF001: apos reinicializacao, exposicao e propriedade sao reavaliadas;",
+         " limites persistidos no Tester sao respeitados. SL nao garante perda maxima de 1%.");
+   return INIT_SUCCEEDED;
+}
+
+void OnDeinit(const int reason)
+{
+   if(g_fast!=INVALID_HANDLE) IndicatorRelease(g_fast);
+   if(g_slow!=INVALID_HANDLE) IndicatorRelease(g_slow);
+   PrintFormat("MT5SF001: deinit reason=%d halted=%s; nenhuma ordem enviada no deinit",
+               reason,g_halted?"true":"false");
+}
+
+void OnTick()
+{
+   if(!IsTester()) return;
+   AuditExposure(); // ALWAYS audit, even when entries are halted
+   if(g_halted || g_busy) return;
+   datetime bar=iTime(InpSymbol,InpTimeframe,0);
+   if(bar<=0) return;
+   if(g_bar==0) { g_bar=bar; return; }
+   if(bar<=g_bar) return;
+   g_bar=bar; // consume before evaluation: no repeat on the same closed candle
+   if(HasExposure()) return;
+   int signal;
+   if(!ReadSignal(signal)) { LogBlock("dados EMA indisponiveis; candle descartado"); return; }
+   if(signal!=0) Enter(signal);
+}
+
+void OnTradeTransaction(const MqlTradeTransaction &trans,
+                        const MqlTradeRequest &request,
+                        const MqlTradeResult &result)
+{
+   if(!IsTester()) return;
+   bool own_request=(trans.type==TRADE_TRANSACTION_REQUEST &&
+                     request.symbol==InpSymbol && request.magic==InpMagic);
+   if(trans.symbol!=InpSymbol && !own_request) return;
+   if(own_request)
+   {
+      PrintFormat("MT5SF001 TRANSACTION action=%d position=%I64u order=%I64u deal=%I64u request_id=%u retcode=%u comment=%s",
+                  (int)request.action,request.position,result.order,result.deal,
+                  result.request_id,result.retcode,result.comment);
+      if(result.retcode!=TRADE_RETCODE_DONE)
+         Halt("retorno transacional nao final ou rejeitado");
+   }
+   if(trans.type==TRADE_TRANSACTION_DEAL_ADD) LogDeal(trans.deal);
+   // Audit HERE, not just on the next tick. Event ordering is not guaranteed:
+   // incomplete ownership proof means no mutation until a later reconciliation.
+   AuditExposure();
+}
+
+void OnTrade()
+{
+   // Additional reconciliation after one or more trade transactions.
+   // No retries beyond the per-identifier budgets.
+   if(IsTester()) AuditExposure();
+}

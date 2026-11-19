@@ -1,0 +1,34 @@
+# Exemplo INATIVO. Nao instalar automaticamente em .codex/config.toml.
+# URLs sao exemplos oficiais; conferir no Copy de cada aplicativo.
+# Tokens sao variaveis locais propostas pelo projeto, nunca valores versionados.
+# Na primeira conexao, reduzir enabled_tools a ["get_workspace_info"].
+# Lista ampliada abaixo destina-se somente ao laboratorio isolado homologado.
+# Fontes: https://www.metatrader5.com/en/terminal/help/mcp_and_ai/capabilities
+# https://developers.openai.com/codex/mcp
+
+[mcp_servers.metaeditor]
+url = "http://127.0.0.1:22345/mcp"
+enabled = false
+bearer_token_env_var = "MT5_METAEDITOR_TOKEN"
+enabled_tools = [
+  "get_workspace_info",
+  "create_new_file", "create_new_folder",
+  "write_file", "replace_text_in_file",
+  "read_file", "read_file_by_lines", "list_directory",
+  "compile_file", "build_project", "syntax_check"
+]
+
+[mcp_servers.terminal]
+url = "http://127.0.0.1:22346/mcp"
+enabled = false
+bearer_token_env_var = "MT5_TERMINAL_TOKEN"
+enabled_tools = [
+  "get_workspace_info",
+  "tester_prepare_config", "tester_prepare_inputs",
+  "tester_run_backtest", "tester_run_optimization",
+  "tester_get_status", "tester_wait", "tester_stop",
+  "tester_get_configuration", "tester_get_report", "get_tester_journal"
+]
+
+# Sem marketdata remoto, shell, web, trading ou ferramentas de anexacao a graficos.
+# Filtros de ferramentas nao restringem caminhos: proteger producao no sistema.

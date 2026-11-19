@@ -1,0 +1,420 @@
+// MT5 Strategy Factory - Estrategia 001. Experimental, Strategy Tester only.
+// Independent of GeraSet and Uni.mql5. No files, DLLs, timers or network access.
+// Signals: EMA fast/slow crossover on closed bars 2 and 1.
+// Exit: attached SL/TP only. Opposite signals are ignored while exposed.
+// IMPORTANT: market fills and stop exits can slip. Attached stops are calculated
+// from the requested quote, not an unknowable future fill. They cannot guarantee
+// exact percentage loss/profit. Actual protection is audited without removing it.
+// No automatic retry, reversal, position increase or third-party modification.
+#property strict
+#property version "1.00"
+#property description "EMA crossover, closed bars, protected entries, Tester only"
+
+#include <Trade/Trade.mqh>
+
+input string             InpSymbol          = "PETR4";
+input ENUM_TIMEFRAMES    InpTimeframe       = PERIOD_M5;
+input int                InpFastPeriod      = 9;
+input int                InpSlowPeriod      = 21;
+input ENUM_APPLIED_PRICE InpAppliedPrice    = PRICE_CLOSE;
+input double             InpShares          = 100.0;
+input double             InpStopLossPercent = 1.0;
+input double             InpTakeProfitPercent = 2.0;
+input ulong              InpMagic           = 20261118001;
+input ulong              InpDeviationPoints = 5;
+
+CTrade g_trade;
+int g_fast = INVALID_HANDLE;
+int g_slow = INVALID_HANDLE;
+datetime g_bar = 0;
+bool g_busy = false;
+bool g_halted = false;
+bool g_audit_pending = false;
+ulong g_last_audited = 0;
+
+void LogBlock(const string reason)
+{
+   Print("MT5SF001: entrada bloqueada: ", reason);
+}
+
+void Halt(const string reason)
+{
+   g_halted = true;
+   Print("MT5SF001 CRITICO: ", reason,
+         ". Novas entradas bloqueadas ate reinicializacao; revisar journal.");
+}
+
+// Input volume is SHARES. MQL5 trade volume is in symbol lots/contracts.
+// PETR4 normally has contract_size=1: 100 shares -> volume 100.
+// Conversion is explicit and never rounds volume up or changes the share count.
+bool GetVolume(double &volume, string &reason)
+{
+   double contract = SymbolInfoDouble(InpSymbol, SYMBOL_TRADE_CONTRACT_SIZE);
+   double minimum = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_MIN);
+   double maximum = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_MAX);
+   double step = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_STEP);
+   double limit = SymbolInfoDouble(InpSymbol, SYMBOL_VOLUME_LIMIT);
+   if(contract <= 0 || minimum <= 0 || maximum < minimum || step <= 0)
+   {
+      reason = "propriedades de volume invalidas";
+      return false;
+   }
+   volume = InpShares / contract;
+   double units = volume / step;
+   double eps = 1e-8 * MathMax(1.0, MathAbs(units));
+   if(!MathIsValidNumber(volume) || volume < minimum - 1e-9 ||
+      volume > maximum + 1e-9 || MathAbs(units - MathRound(units)) > eps ||
+      (limit > 0 && volume > limit + 1e-9))
+   {
+      reason = StringFormat("volume %.8f incompativel: min=%.8f max=%.8f step=%.8f limit=%.8f",
+                            volume, minimum, maximum, step, limit);
+      return false;
+   }
+   // Remove floating point noise only after validating the original share count.
+   volume = NormalizeDouble(MathRound(units) * step, 8);
+   return true;
+}
+
+// Block all exposure on the symbol, including other magic numbers.
+// Never close, modify or cancel anything. This also prevents netting merges.
+// Fail closed if a ticket cannot be inspected reliably.
+bool HasExposure()
+{
+   for(int i = PositionsTotal() - 1; i >= 0; --i)
+   {
+      ulong ticket = PositionGetTicket(i);
+      if(ticket == 0) return true;
+      if(PositionGetString(POSITION_SYMBOL) == InpSymbol) return true;
+   }
+   for(int i = OrdersTotal() - 1; i >= 0; --i)
+   {
+      ulong ticket = OrderGetTicket(i);
+      if(ticket == 0) return true;
+      if(OrderGetString(ORDER_SYMBOL) == InpSymbol) return true;
+   }
+   return false;
+}
+
+bool GetFilling(ENUM_ORDER_TYPE_FILLING &filling)
+{
+   long flags = SymbolInfoInteger(InpSymbol, SYMBOL_FILLING_MODE);
+   long mode = SymbolInfoInteger(InpSymbol, SYMBOL_TRADE_EXEMODE);
+   if((flags & SYMBOL_FILLING_FOK) != 0) filling = ORDER_FILLING_FOK;
+   else if((flags & SYMBOL_FILLING_IOC) != 0) filling = ORDER_FILLING_IOC;
+   else if(mode != SYMBOL_TRADE_EXECUTION_MARKET) filling = ORDER_FILLING_RETURN;
+   else return false;
+   return true;
+}
+
+bool Permissions(const ENUM_ORDER_TYPE side, string &reason)
+{
+   if(!MQLInfoInteger(MQL_TESTER) ||
+      !MQLInfoInteger(MQL_TRADE_ALLOWED) ||
+      !TerminalInfoInteger(TERMINAL_TRADE_ALLOWED) ||
+      !AccountInfoInteger(ACCOUNT_TRADE_ALLOWED) ||
+      !AccountInfoInteger(ACCOUNT_TRADE_EXPERT))
+   {
+      reason = "ambiente Tester ou permissao de negociacao indisponivel";
+      return false;
+   }
+   long mode = SymbolInfoInteger(InpSymbol, SYMBOL_TRADE_MODE);
+   if(mode == SYMBOL_TRADE_MODE_DISABLED || mode == SYMBOL_TRADE_MODE_CLOSEONLY ||
+      (side == ORDER_TYPE_BUY && mode == SYMBOL_TRADE_MODE_SHORTONLY) ||
+      (side == ORDER_TYPE_SELL && mode == SYMBOL_TRADE_MODE_LONGONLY))
+   {
+      reason = "direcao proibida pelo simbolo";
+      return false;
+   }
+   long flags = SymbolInfoInteger(InpSymbol, SYMBOL_ORDER_MODE);
+   if((flags & SYMBOL_ORDER_MARKET) == 0 ||
+      (flags & SYMBOL_ORDER_SL) == 0 || (flags & SYMBOL_ORDER_TP) == 0)
+   {
+      reason = "simbolo nao permite entrada a mercado com SL e TP";
+      return false;
+   }
+   return true;
+}
+
+double TickFloor(const double price, const double tick, const int digits)
+{
+   return NormalizeDouble(MathFloor(price / tick + 1e-9) * tick, digits);
+}
+
+double TickCeil(const double price, const double tick, const int digits)
+{
+   return NormalizeDouble(MathCeil(price / tick - 1e-9) * tick, digits);
+}
+
+// Round stop loss TOWARD entry (do not intentionally exceed percentage risk).
+// Round take profit toward entry too. Both levels must remain valid after rounding.
+// Minimum stops are measured from current Bid for buys and Ask for sells.
+// Never widen stops to satisfy a broker restriction: discard that signal instead.
+bool BuildStops(const ENUM_ORDER_TYPE side, const MqlTick &quote,
+                double &price, double &sl, double &tp, string &reason)
+{
+   double tick = SymbolInfoDouble(InpSymbol, SYMBOL_TRADE_TICK_SIZE);
+   double point = SymbolInfoDouble(InpSymbol, SYMBOL_POINT);
+   int digits = (int)SymbolInfoInteger(InpSymbol, SYMBOL_DIGITS);
+   if(tick <= 0 || point <= 0 || quote.bid <= 0 || quote.ask < quote.bid ||
+      !MathIsValidNumber(quote.bid) || !MathIsValidNumber(quote.ask))
+   {
+      reason = "cotacao ou tick size invalido";
+      return false;
+   }
+   price = side == ORDER_TYPE_BUY ? quote.ask : quote.bid;
+   if(MathAbs(price / tick - MathRound(price / tick)) > 1e-6)
+   {
+      reason = "preco de entrada fora da grade de ticks";
+      return false;
+   }
+   double loss = InpStopLossPercent / 100.0;
+   double gain = InpTakeProfitPercent / 100.0;
+   double distance = (double)SymbolInfoInteger(InpSymbol, SYMBOL_TRADE_STOPS_LEVEL) * point;
+   double eps = tick * 1e-6;
+   if(side == ORDER_TYPE_BUY)
+   {
+      sl = TickCeil(price * (1.0 - loss), tick, digits);
+      tp = TickFloor(price * (1.0 + gain), tick, digits);
+      if(sl <= 0 || sl >= quote.bid || tp <= quote.ask ||
+         quote.bid - sl + eps < distance || tp - quote.bid + eps < distance)
+      {
+         reason = "SL/TP de compra invalidos ou menores que stops_level";
+         return false;
+      }
+   }
+   else
+   {
+      sl = TickFloor(price * (1.0 + loss), tick, digits);
+      tp = TickCeil(price * (1.0 - gain), tick, digits);
+      if(tp <= 0 || tp >= quote.bid || sl <= quote.ask ||
+         sl - quote.ask + eps < distance || quote.ask - tp + eps < distance)
+      {
+         reason = "SL/TP de venda invalidos ou menores que stops_level";
+         return false;
+      }
+   }
+   return true;
+}
+
+// Audit only positions bearing this strategy's magic and symbol.
+// Preserve the original protective orders: no post-fill modification is sent.
+// A material discrepancy blocks future entries and is explicit in the journal.
+void AuditProtection()
+{
+   if(!g_audit_pending) return;
+   bool found = false;
+   for(int i = PositionsTotal() - 1; i >= 0; --i)
+   {
+      ulong ticket = PositionGetTicket(i);
+      if(ticket == 0)
+      {
+         Halt("nao foi possivel inspecionar posicao apos envio");
+         return;
+      }
+      if(PositionGetString(POSITION_SYMBOL) != InpSymbol ||
+         (ulong)PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+      found = true;
+      if(ticket == g_last_audited) continue;
+      double entry = PositionGetDouble(POSITION_PRICE_OPEN);
+      double sl = PositionGetDouble(POSITION_SL);
+      double tp = PositionGetDouble(POSITION_TP);
+      bool buy = PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY;
+      double tick = SymbolInfoDouble(InpSymbol, SYMBOL_TRADE_TICK_SIZE);
+      if(entry <= 0 || sl <= 0 || tp <= 0 ||
+         (buy && (sl >= entry || tp <= entry)) ||
+         (!buy && (sl <= entry || tp >= entry)))
+      {
+         Halt("protecao ausente ou incoerente apos execucao; requer revisao manual");
+         return;
+      }
+      double loss = (buy ? entry - sl : sl - entry);
+      double gain = (buy ? tp - entry : entry - tp);
+      PrintFormat("MT5SF001: protecao auditada: entrada=%.8f SL=%.8f TP=%.8f risco=%.6f%% alvo=%.6f%%",
+                  entry, sl, tp, 100.0 * loss / entry, 100.0 * gain / entry);
+      if(MathAbs(loss - entry * InpStopLossPercent / 100.0) > tick + 1e-8 ||
+         MathAbs(gain - entry * InpTakeProfitPercent / 100.0) > tick + 1e-8)
+         Halt("percentuais efetivos divergem mais de um tick; possivel slippage");
+      g_last_audited = ticket;
+   }
+   // OnTradeTransaction requests another audit for every change to own exposure.
+   if(found) g_audit_pending = false;
+}
+
+bool ReadSignal(int &signal)
+{
+   signal = 0;
+   if(BarsCalculated(g_fast) < InpSlowPeriod + 3 ||
+      BarsCalculated(g_slow) < InpSlowPeriod + 3) return false;
+   double fast[2], slow[2];
+   // CopyBuffer stores oldest first: [0] is shift 2, [1] is shift 1.
+   if(CopyBuffer(g_fast, 0, 1, 2, fast) != 2 ||
+      CopyBuffer(g_slow, 0, 1, 2, slow) != 2) return false;
+   for(int i = 0; i < 2; ++i)
+      if(fast[i] == EMPTY_VALUE || slow[i] == EMPTY_VALUE ||
+         !MathIsValidNumber(fast[i]) || !MathIsValidNumber(slow[i])) return false;
+   if(fast[0] <= slow[0] && fast[1] > slow[1]) signal = 1;
+   else if(fast[0] >= slow[0] && fast[1] < slow[1]) signal = -1;
+   return true;
+}
+
+void Enter(const int signal)
+{
+   if(g_busy || g_halted || !MQLInfoInteger(MQL_TESTER) || HasExposure()) return;
+   ENUM_ORDER_TYPE side = signal > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL;
+   string reason;
+   double volume, price, sl, tp;
+   MqlTick quote = {};
+   ENUM_ORDER_TYPE_FILLING filling;
+   if(!Permissions(side, reason) || !GetVolume(volume, reason))
+   {
+      LogBlock(reason);
+      return;
+   }
+   if(!SymbolInfoTick(InpSymbol, quote) || quote.time <= 0)
+   {
+      LogBlock("cotacao indisponivel");
+      return;
+   }
+   if(!BuildStops(side, quote, price, sl, tp, reason))
+   {
+      LogBlock(reason);
+      return;
+   }
+   if(!GetFilling(filling))
+   {
+      LogBlock("nenhum preenchimento compativel");
+      return;
+   }
+   MqlTradeRequest request = {};
+   MqlTradeCheckResult check = {};
+   request.action = TRADE_ACTION_DEAL;
+   request.magic = InpMagic;
+   request.symbol = InpSymbol;
+   request.volume = volume;
+   request.price = price;
+   request.sl = sl;
+   request.tp = tp;
+   request.deviation = InpDeviationPoints;
+   request.type = side;
+   request.type_filling = filling;
+   request.type_time = ORDER_TIME_GTC;
+   request.comment = "MT5SF_Estrategia_001";
+   ResetLastError();
+   // OrderCheck success can return 0 (documented) or TRADE_RETCODE_DONE.
+   if(!OrderCheck(request, check) ||
+      (check.retcode != 0 && check.retcode != TRADE_RETCODE_DONE))
+   {
+      PrintFormat("MT5SF001: OrderCheck rejeitado: retcode=%u erro=%d comentario=%s",
+                  check.retcode, GetLastError(), check.comment);
+      return;
+   }
+   // Final exposure check before a single synchronous request.
+   if(HasExposure() || g_halted) return;
+   g_trade.SetTypeFilling(filling);
+   g_busy = true;
+   g_last_audited = 0;
+   g_audit_pending = true;
+   bool sent = g_trade.PositionOpen(InpSymbol, side, volume, price, sl, tp, request.comment);
+   uint code = g_trade.ResultRetcode();
+   PrintFormat("MT5SF001: envio=%s retcode=%u descricao=%s volume=%.8f solicitado=%.8f executado=%.8f SL=%.8f TP=%.8f",
+               sent ? "true" : "false", code, g_trade.ResultRetcodeDescription(),
+               g_trade.ResultVolume(), price, g_trade.ResultPrice(), sl, tp);
+   g_busy = false;
+   if(!sent || code != TRADE_RETCODE_DONE || g_trade.ResultDeal() == 0 ||
+      MathAbs(g_trade.ResultVolume() - volume) > 1e-8)
+   {
+      // Conservative latch for ANY non-final/full result, including rejection,
+      // timeout, accepted order and partial fill. No retry or extra volume.
+      Halt("envio rejeitado, parcial ou nao confirmado integralmente");
+   }
+   AuditProtection();
+}
+
+int OnInit()
+{
+   if(!MQLInfoInteger(MQL_TESTER))
+   {
+      Print("MT5SF001: inicializacao recusada fora do Strategy Tester.");
+      return INIT_FAILED;
+   }
+   if(InpSymbol == "" || InpSymbol != _Symbol || InpTimeframe == PERIOD_CURRENT ||
+      InpTimeframe != (ENUM_TIMEFRAMES)_Period ||
+      InpFastPeriod < 1 || InpSlowPeriod <= InpFastPeriod ||
+      InpSlowPeriod > 100000 || InpMagic == 0 ||
+      !MathIsValidNumber(InpShares) || InpShares <= 0 ||
+      !MathIsValidNumber(InpStopLossPercent) || InpStopLossPercent <= 0 ||
+      InpStopLossPercent >= 100 || !MathIsValidNumber(InpTakeProfitPercent) ||
+      InpTakeProfitPercent <= 0 || InpTakeProfitPercent >= 100)
+   {
+      Print("MT5SF001: inputs invalidos ou simbolo/timeframe diferentes do teste.");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(!SymbolInfoInteger(InpSymbol, SYMBOL_SELECT))
+   {
+      Print("MT5SF001: simbolo nao selecionado.");
+      return INIT_FAILED;
+   }
+   string reason;
+   double volume;
+   if(!GetVolume(volume, reason))
+   {
+      LogBlock(reason);
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(SymbolInfoDouble(InpSymbol, SYMBOL_TRADE_TICK_SIZE) <= 0)
+      return INIT_FAILED;
+   g_trade.SetExpertMagicNumber(InpMagic);
+   g_trade.SetDeviationInPoints(InpDeviationPoints);
+   g_trade.SetAsyncMode(false);
+   g_trade.SetMarginMode();
+   g_fast = iMA(InpSymbol, InpTimeframe, InpFastPeriod, 0, MODE_EMA, InpAppliedPrice);
+   g_slow = iMA(InpSymbol, InpTimeframe, InpSlowPeriod, 0, MODE_EMA, InpAppliedPrice);
+   if(g_fast == INVALID_HANDLE || g_slow == INVALID_HANDLE)
+   {
+      Print("MT5SF001: falha ao criar indicadores.");
+      return INIT_FAILED;
+   }
+   // First valid bar only establishes the baseline; no historical entry at start.
+   g_bar = iTime(InpSymbol, InpTimeframe, 0);
+   Print("MT5SF001: inicializado no Tester. SL/TP anexados a entrada; percentuais",
+         " podem variar por tick size, slippage e gaps. Nenhum ajuste posterior automatico.");
+   return INIT_SUCCEEDED;
+}
+
+void OnDeinit(const int reason)
+{
+   if(g_fast != INVALID_HANDLE) IndicatorRelease(g_fast);
+   if(g_slow != INVALID_HANDLE) IndicatorRelease(g_slow);
+}
+
+void OnTick()
+{
+   if(!MQLInfoInteger(MQL_TESTER)) return;
+   AuditProtection();
+   if(g_halted || g_busy) return;
+   datetime bar = iTime(InpSymbol, InpTimeframe, 0);
+   if(bar <= 0) return;
+   if(g_bar == 0) { g_bar = bar; return; }
+   if(bar <= g_bar) return;
+   // Consume the bar before evaluating anything: no retries within this candle,
+   // even after unavailable data, permissions, market closure or server rejection.
+   g_bar = bar;
+   if(HasExposure()) return;
+   int signal;
+   if(!ReadSignal(signal))
+   {
+      LogBlock("indicadores ainda sem dados validos; candle descartado");
+      return;
+   }
+   if(signal != 0) Enter(signal);
+}
+
+void OnTradeTransaction(const MqlTradeTransaction &trans,
+                        const MqlTradeRequest &request,
+                        const MqlTradeResult &result)
+{
+   if(trans.symbol != InpSymbol) return;
+   // No trade actions here. Audit can only inspect own positions.
+   g_last_audited = 0;
+   g_audit_pending = true;
+}
