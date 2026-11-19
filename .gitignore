@@ -5,6 +5,10 @@
 !/README.md
 !/ESTADO_DO_PROJETO.md
 !/DOSSIE_BACKTEST_001_V122_20261118.md
+!/REVISAO_001_V123.md
+!/tests/
+/tests/*
+!/tests/test_report_contract.py
 !/REVISAO_DO_BACKUP.md
 !/DIAGNOSTICO_MT5_RICO.md
 !/INTEGRACAO_MCP_MT5.md
@@ -84,3 +88,4 @@ logs/
 *.hcs
 *.hc
 # Não ignorar *.mq5.bak: são revisões históricas deliberadamente preservadas.
+!/VALIDACAO_001_V123.md

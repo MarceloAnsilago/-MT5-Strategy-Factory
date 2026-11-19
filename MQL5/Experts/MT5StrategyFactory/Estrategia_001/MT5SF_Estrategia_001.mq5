@@ -1,4 +1,4 @@
-// MT5 Strategy Factory - Estrategia 001 v1.22. STRATEGY TESTER ONLY.
+// MT5 Strategy Factory - Estrategia 001 v1.23. STRATEGY TESTER ONLY.
 // Ownership has three outcomes. Failed reads are inconclusive, never assumed mixed.
 // Read-only reconciliation has a finite input-controlled attempt budget.
 // Diagnostic caps affect logging only, never safety decisions or recovery budgets.
@@ -15,7 +15,7 @@
 // Unknown/mixed ownership => ALERT + HALT, never change third-party exposure.
 // Magic must be exclusive: another program using the same magic is indistinguishable.
 #property strict
-#property version "1.22"
+#property version "1.23"
 #property description "EMA crossover with bounded protection recovery; Tester only"
 #include <Trade/Trade.mqh>
 
@@ -1355,6 +1355,7 @@ void ReconcileDeals()
 
 
 // -------- Final read-only accounting, independent from callback counters --------
+#include "FinalReportTotals.mqh"
 // These snapshots are recreated on each final call. No ownership proof, trading
 // decision or callback counter uses a cached final result.
 struct FinalOrder
@@ -1392,6 +1393,7 @@ bool g_final_eligible=false;
 bool g_final_seen=false;
 string g_final_printed_signature="";
 bool g_final_details_capped=false;
+bool g_final_tester_seen=false; // reporting availability, never a trading gate
 
 bool CallbackSawDeal(const ulong ticket)
 {
@@ -1587,14 +1589,67 @@ bool FinalOriginOwned(const long position_id,const FinalDeal &deals[],
    return FinalDealLinkOwned(deals[earliest],orders,why);
 }
 
+bool FinalReadStatistic(const ENUM_STATISTICS property,double &value)
+{
+   if(!IsTester() || !g_final_eligible || !g_final_tester_seen) return false;
+   ResetLastError();
+   value=TesterStatistics(property);
+   return GetLastError()==0 && MathIsValidNumber(value);
+}
+
+bool FinalReportGlobal(const string phase,double &profit)
+{
+   double deposit=0,deals=0,trades=0;
+   bool ok_profit=FinalReadStatistic(STAT_PROFIT,profit);
+   bool ok_deposit=FinalReadStatistic(STAT_INITIAL_DEPOSIT,deposit);
+   bool ok_deals=FinalReadStatistic(STAT_DEALS,deals);
+   bool ok_trades=FinalReadStatistic(STAT_TRADES,trades);
+   bool available=ok_profit && ok_deposit && ok_deals && ok_trades && deposit>0 &&
+                  deals>=0 && trades>=0 && deals==MathFloor(deals) && trades==MathFloor(trades);
+   FinalReportLine(phase,"GLOBAL",StringFormat("scope=TESTER_ALL net=%s deposit=%s attribution=NOT_ASSUMED",
+                   FinalReportMoney(available,profit),FinalReportMoney(available,deposit)));
+   FinalReportLine(phase,"GLOBAL_COUNTS",StringFormat("deals=%s trades=%s source=TesterStatistics",
+                   available?DoubleToString(deals,0):"UNAVAILABLE",
+                   available?DoubleToString(trades,0):"UNAVAILABLE"));
+   if(!available)
+      FinalReportLine(phase,"GLOBAL_STATUS","UNAVAILABLE: final statistics not established, failed read or invalid value");
+   return available;
+}
+
+void FinalReportGroup(const string phase,const string label,const FinalReportTotals &total,
+                      const bool complete)
+{
+   bool available=FinalReportAvailable(total,complete);
+   FinalReportLine(phase,label,StringFormat("observed_records=%d membership_complete=%s net=%s",
+                   total.records,complete?"true":"false",FinalReportMoney(available,total.net)));
+   FinalReportLine(phase,label+"_MONEY",StringFormat("gross=%s costs=%s money_available=%s",
+                   FinalReportMoney(available,total.gross),FinalReportMoney(available,total.costs),
+                   available?"true":"false"));
+   FinalReportLine(phase,label+"_CALLBACKS",StringFormat("observed=%d history_only=%d processed_own=%d",
+                   total.callback_seen,total.history_only,total.callback_processed));
+}
+
+void FinalReportUnavailable(const string phase,const string why)
+{
+   double global_profit=0;
+   FinalReportGlobal(phase,global_profit);
+   FinalReportLine(phase,"STATUS","history_complete=false classification=UNAVAILABLE");
+   FinalReportLine(phase,"CONFIRMED","records=UNAVAILABLE net=UNAVAILABLE");
+   FinalReportLine(phase,"INCONCLUSIVE","records=UNAVAILABLE net=UNAVAILABLE attribution=NOT_ASSUMED");
+   FinalReportLine(phase,"CALLBACKS",StringFormat("observed_all=%d processed_own=%I64u history_only=UNAVAILABLE",
+                   ArraySize(g_pending_deals),g_own_deals));
+   FinalReportLine(phase,"UNAVAILABLE_REASON",why);
+}
+
 void ReconcileFinal(const string phase)
 {
    if(!IsTester()) return;
    if(!g_final_eligible)
    {
-      PrintFormat("MT5SF001 FINAL phase=%s skipped=initialization_not_validated",phase);
+      FinalReportUnavailable(phase,"initialization_not_validated");
       return;
    }
+   if(phase=="OnTester") g_final_tester_seen=true;
    // Only called from OnTester/OnDeinit. Never call AuditExposure, LogDeal,
    // OrderCheck, OrderSend, CTrade, repair, close or cancel from this routine.
    FinalOrder orders[];
@@ -1602,8 +1657,7 @@ void ReconcileFinal(const string phase)
    string why;
    if(!ReadFinalSnapshots(orders,deals,why))
    {
-      PrintFormat("MT5SF001 FINAL phase=%s complete=false result=INCONCLUSIVE reason=%s callbacks_processed=%I64u",
-                  phase,why,g_own_deals);
+      FinalReportUnavailable(phase,why);
       return;
    }
    int count=ArraySize(deals);
@@ -1613,13 +1667,16 @@ void ReconcileFinal(const string phase)
       ArrayResize(seen,count)!=count || ArrayResize(processed,count)!=count ||
       ArrayResize(possible_end,count)!=count || ArrayResize(reasons,count)!=count)
    {
-      PrintFormat("MT5SF001 FINAL phase=%s complete=false result=INCONCLUSIVE allocation_failed",phase);
+      FinalReportUnavailable(phase,"allocation_failed");
       return;
    }
    int confirmed=0,uncertain=0,other=0,nonmarket=0,unreadable=0;
    int entries=0,exits=0,sl=0,tp=0,history_without_callback=0,missing_processed=0;
    int callback_without_history=0,unprocessed_callbacks=0;
-   double profit=0,costs=0;
+   int market_callback_seen=0,market_history_only=0;
+   FinalReportTotals confirmed_totals,inconclusive_totals;
+   FinalReportReset(confirmed_totals);
+   FinalReportReset(inconclusive_totals);
    bool snapshot_complete=true;
    long end_msc=(long)TimeCurrent()*1000;
    string signature="";
@@ -1644,13 +1701,19 @@ void ReconcileFinal(const string phase)
                   deals[i].order,deals[i].entry,deals[i].reason,deals[i].time_msc,
                   deals[i].type,deals[i].volume,deals[i].price,deals[i].profit,
                   deals[i].readable?"1":"0");
+      signature+=StringFormat("money=%.16g/%.16g/%.16g|callback=%s/%s;",
+                   deals[i].commission,deals[i].swap,deals[i].fee,
+                   seen[i]?"1":"0",processed[i]?"1":"0");
       if(!deals[i].readable)
       {
          unreadable++; uncertain++; snapshot_complete=false; candidate[i]=true;
          reasons[i]="unreadable record; no ownership attribution";
+         FinalReportAdd(inconclusive_totals,seen[i],processed[i],false,0,0,0,0);
          continue;
       }
       if(!FinalMarketDeal(deals[i])) { nonmarket++; continue; }
+      if(seen[i]) market_callback_seen++;
+      else market_history_only++;
       if(deals[i].symbol!=InpSymbol) { other++; continue; }
       bool own_origin=FinalOriginOwned(deals[i].position_id,deals,orders);
       candidate[i]=(deals[i].symbol==InpSymbol &&
@@ -1665,14 +1728,20 @@ void ReconcileFinal(const string phase)
       possible_end[i]=exit && !seen[i] && deals[i].time_msc>=end_msc-1000 &&
                       deals[i].time_msc<=end_msc+999 &&
                       deals[i].reason!=DEAL_REASON_SL && deals[i].reason!=DEAL_REASON_TP;
-      if(!owned[i]) { uncertain++; continue; }
+      if(!owned[i])
+      {
+         uncertain++;
+         FinalReportAdd(inconclusive_totals,seen[i],processed[i],deals[i].readable,
+                        deals[i].profit,deals[i].commission,deals[i].swap,deals[i].fee);
+         continue;
+      }
       confirmed++;
       if(deals[i].entry==DEAL_ENTRY_IN) entries++;
       if(exit) exits++;
       if(deals[i].reason==DEAL_REASON_SL) sl++;
       if(deals[i].reason==DEAL_REASON_TP) tp++;
-      profit+=deals[i].profit;
-      costs+=deals[i].commission+deals[i].swap+deals[i].fee;
+      FinalReportAdd(confirmed_totals,seen[i],processed[i],deals[i].readable,
+                     deals[i].profit,deals[i].commission,deals[i].swap,deals[i].fee);
       if(!seen[i]) history_without_callback++;
       if(!processed[i]) missing_processed++;
    }
@@ -1685,38 +1754,69 @@ void ReconcileFinal(const string phase)
    for(int i=0;i<ArraySize(g_pending_deals);++i)
       if(!CallbackProcessedDeal(g_pending_deals[i].ticket)) unprocessed_callbacks++;
 
-   // Tester-wide statistics are not automatically attributable to this EA.
-   double stat_deals=TesterStatistics(STAT_DEALS);
-   double stat_trades=TesterStatistics(STAT_TRADES);
-   double stat_profit=TesterStatistics(STAT_PROFIT);
-   signature+=StringFormat("|orders=%d|confirmed=%d|uncertain=%d|callbacks=%I64u|seen=%d|stats=%.8f/%.8f/%.8f|costs=%.8f",
-                ArraySize(orders),confirmed,uncertain,g_own_deals,
-                ArraySize(g_pending_deals),stat_deals,stat_trades,stat_profit,costs);
+   // Global totals are independent of candidate attribution and history availability.
+   double stat_profit=0;
+   bool global_available=FinalReportGlobal(phase,stat_profit);
+   signature+=StringFormat("|global=%s/%.16g|complete=%s|confirmed_money=%s|inconclusive_money=%s",
+                   global_available?"1":"0",stat_profit,snapshot_complete?"1":"0",
+                   confirmed_totals.money_available?"1":"0",inconclusive_totals.money_available?"1":"0");
    bool unchanged=g_final_seen && signature==g_final_printed_signature;
-   // A fresh final result is computed above even when the print is unchanged.
-   PrintFormat("MT5SF001 FINAL phase=%s snapshot_unchanged=%s scan_complete=%s history_confirmed_own_deals=%d history_own_entries=%d history_own_exits=%d history_SL=%d history_TP=%d inconclusive_records=%d unreadable=%d other_market_deals=%d nonmarket_records=%d callback_observed_all=%d callback_processed_own=%I64u history_own_without_callback=%d history_own_without_processed_callback=%d processed_callback_without_history=%d queued_unprocessed=%d history_own_gross_profit=%.2f history_own_costs=%.2f history_own_net=%.2f tester_ALL_deals=%.0f tester_ALL_trades=%.0f tester_ALL_profit=%.2f",
-               phase,unchanged?"true":"false",snapshot_complete?"true":"false",
-               confirmed,entries,exits,sl,tp,uncertain,unreadable,other,nonmarket,
-               ArraySize(g_pending_deals),g_own_deals,history_without_callback,missing_processed,
-               callback_without_history,unprocessed_callbacks,profit,costs,profit+costs,
-               stat_deals,stat_trades,stat_profit);
-   PrintFormat("MT5SF001 FINAL_DIFFERENCES phase=%s history_confirmed_minus_callback_processed=%I64d tester_ALL_minus_history_confirmed_deals=%.0f tester_ALL_minus_history_confirmed_net=%.2f attribution_of_tester_totals=NOT_ASSUMED",
-               phase,(long)confirmed-(long)g_own_deals,stat_deals-(double)confirmed,
-               stat_profit-(profit+costs));
-   Print("MT5SF001 FINAL: TesterStatistics abrange TODO o teste; fechamento de fim",
-         " de teste e apenas candidato quando indicado. Nenhuma negociacao na reconciliacao.");
+   FinalReportLine(phase,"STATUS",StringFormat("scan_complete=%s snapshot_unchanged=%s unreadable=%d inconclusive_records=%d",
+                   snapshot_complete?"true":"false",unchanged?"true":"false",unreadable,uncertain));
+   FinalReportGroup(phase,"CONFIRMED",confirmed_totals,snapshot_complete);
+   FinalReportGroup(phase,"INCONCLUSIVE",inconclusive_totals,snapshot_complete);
+   FinalReportLine(phase,"SCOPE",StringFormat("candidates_only=true other_market_deals=%d nonmarket_records=%d attribution=NOT_ASSUMED",
+                   other,nonmarket));
+   FinalReportLine(phase,"EXITS",StringFormat("confirmed_entries=%d confirmed_exits=%d SL=%d TP=%d",
+                   entries,exits,sl,tp));
+   FinalReportLine(phase,"CALLBACKS",StringFormat("observed_all=%d processed_own=%I64u unprocessed_or_filtered=%d processed_without_history=%d",
+                   ArraySize(g_pending_deals),g_own_deals,unprocessed_callbacks,callback_without_history));
+   FinalReportLine(phase,"HISTORY_MARKET",StringFormat("scope=readable_all_symbols callback_seen=%d history_only=%d unreadable_excluded=%d",
+                   market_callback_seen,market_history_only,unreadable));
+   FinalReportLine(phase,"CONFIRMED_DIFFERENCES",StringFormat("without_callback=%d without_processed_callback=%d history_minus_processed=%I64d",
+                   history_without_callback,missing_processed,(long)confirmed-(long)g_own_deals));
+   bool candidate_money=snapshot_complete && confirmed_totals.money_available && inconclusive_totals.money_available;
+   double candidate_net=confirmed_totals.net+inconclusive_totals.net;
+   candidate_money=candidate_money && MathIsValidNumber(candidate_net);
+   double difference=stat_profit-candidate_net;
+   bool difference_available=global_available && candidate_money && MathIsValidNumber(difference);
+   FinalReportLine(phase,"RECONCILIATION",StringFormat("candidate_net=%s global_minus_candidates=%s attribution=NOT_ASSUMED",
+                   FinalReportMoney(candidate_money,candidate_net),FinalReportMoney(difference_available,difference)));
+   if(!snapshot_complete)
+      FinalReportLine(phase,"UNAVAILABLE_REASON","incomplete snapshot: group membership/totals cannot be certified; counts are observed only");
+   else if(!candidate_money)
+      FinalReportLine(phase,"UNAVAILABLE_REASON","invalid or unavailable monetary fields; no zero assumed");
    if(!unchanged)
    {
       for(int i=0;i<count;++i)
       {
          if(!candidate[i]) continue;
          if(!FinalDetailAllowed()) break;
-         PrintFormat("MT5SF001 FINAL_DEAL phase=%s ticket=%I64u result=%s symbol=%s magic=%I64d position_id=%I64d order=%I64d entry=%I64d reason=%I64d time_msc=%I64d price=%.8f volume=%.8f profit=%.2f callback_seen=%s callback_processed=%s possible_end_of_test=%s evidence=%s",
-                     phase,deals[i].ticket,owned[i]?"CONFIRMED":"INCONCLUSIVE",
-                     deals[i].symbol,deals[i].magic,deals[i].position_id,deals[i].order,
-                     deals[i].entry,deals[i].reason,deals[i].time_msc,deals[i].price,
-                     deals[i].volume,deals[i].profit,seen[i]?"true":"false",
-                     processed[i]?"true":"false",possible_end[i]?"true":"false",reasons[i]);
+         string key=StringFormat("DEAL_%I64u",deals[i].ticket);
+         FinalReportLine(phase,key,StringFormat("result=%s symbol=%s magic=%s position_id=%s order=%s",
+                        owned[i]?"CONFIRMED":"INCONCLUSIVE",
+                        deals[i].readable?deals[i].symbol:"UNAVAILABLE",
+                        deals[i].readable?StringFormat("%I64d",deals[i].magic):"UNAVAILABLE",
+                        deals[i].readable?StringFormat("%I64d",deals[i].position_id):"UNAVAILABLE",
+                        deals[i].readable?StringFormat("%I64d",deals[i].order):"UNAVAILABLE"));
+         FinalReportLine(phase,key+"_EXECUTION",StringFormat("entry=%s reason=%s time_msc=%s price=%s volume=%s",
+                        deals[i].readable?StringFormat("%I64d",deals[i].entry):"UNAVAILABLE",
+                        deals[i].readable?StringFormat("%I64d",deals[i].reason):"UNAVAILABLE",
+                        deals[i].readable?StringFormat("%I64d",deals[i].time_msc):"UNAVAILABLE",
+                        deals[i].readable && MathIsValidNumber(deals[i].price)?DoubleToString(deals[i].price,8):"UNAVAILABLE",
+                        deals[i].readable && MathIsValidNumber(deals[i].volume)?DoubleToString(deals[i].volume,8):"UNAVAILABLE"));
+         FinalReportTotals detail;
+         FinalReportReset(detail);
+         FinalReportAdd(detail,seen[i],processed[i],deals[i].readable,
+                        deals[i].profit,deals[i].commission,deals[i].swap,deals[i].fee);
+         FinalReportLine(phase,key+"_MONEY",StringFormat("gross=%s costs=%s net=%s",
+                        FinalReportMoney(detail.money_available,detail.gross),
+                        FinalReportMoney(detail.money_available,detail.costs),
+                        FinalReportMoney(detail.money_available,detail.net)));
+         FinalReportLine(phase,key+"_OBSERVATION",StringFormat("callback_seen=%s callback_processed=%s history_only=%s possible_end_of_test=%s",
+                        seen[i]?"true":"false",processed[i]?"true":"false",
+                        seen[i]?"false":"true",possible_end[i]?"true":"false"));
+         FinalReportLine(phase,key+"_EVIDENCE",reasons[i]);
       }
    }
    g_final_seen=true;
@@ -1785,7 +1885,7 @@ int OnInit()
       Halt("indicadores indisponiveis");
    }
    g_bar=iTime(InpSymbol,InpTimeframe,0);
-   Print("MT5SF001 v1.22: Tester only. FOK only. Auditoria na inicializacao,",
+   Print("MT5SF001 v1.23: Tester only. FOK only. Auditoria na inicializacao,",
          " transacoes, OnTrade e ticks. Uma tentativa de reparo/fechamento por",
          " identificador e cancelamento por ticket, registrados no ambiente Tester.");
    Print("MT5SF001: apos reinicializacao, exposicao e propriedade sao reavaliadas;",
@@ -1800,14 +1900,19 @@ void OnDeinit(const int reason)
    if(g_slow!=INVALID_HANDLE) IndicatorRelease(g_slow);
    ObserveEquity();
    Diagnostic("DEINIT");
-   PrintFormat("MT5SF001 SUMMARY evaluated_signals=%I64u entry_requests=%I64u logged_own_deals=%I64u exit_deals=%I64u SL_exits=%I64u TP_exits=%I64u observed_equity_high=%.8f observed_equity_low=%.8f diag_records=%d ownership_records=%d uncertain=%s",
-               g_signal_count,g_entry_requests,g_own_deals,g_exit_deals,g_sl_exits,g_tp_exits,
-               g_equity_high,g_equity_low,g_diagnostic_count,g_ownership_count,g_uncertain?"true":"false");
-   PrintFormat("MT5SF001 LOG_SUMMARY ownership_success_printed=%d ownership_failure_printed=%d success_suppressed=%I64u failure_suppressed=%I64u final_detail_printed=%d",
-               g_ownership_count,g_ownership_failure_count,g_ownership_success_suppressed,
-               g_ownership_failure_suppressed,g_final_details);
-   PrintFormat("MT5SF001: deinit reason=%d halted=%s; nenhuma ordem enviada no deinit",
-               reason,g_halted?"true":"false");
+   FinalReportLine("OnDeinit","RUNTIME_SIGNALS",StringFormat("evaluated=%I64u entry_requests=%I64u",
+                   g_signal_count,g_entry_requests));
+   FinalReportLine("OnDeinit","RUNTIME_CALLBACKS",StringFormat("processed_own=%I64u exits=%I64u SL=%I64u TP=%I64u scope=callbacks_only",
+                   g_own_deals,g_exit_deals,g_sl_exits,g_tp_exits));
+   FinalReportLine("OnDeinit","RUNTIME_EQUITY",StringFormat("observed_high=%s observed_low=%s",
+                   FinalReportMoney(g_final_eligible && g_equity_high!=0,g_equity_high),
+                   FinalReportMoney(g_final_eligible && g_equity_high!=0,g_equity_low)));
+   FinalReportLine("OnDeinit","LOG_COUNTS",StringFormat("diag=%d ownership_success=%d ownership_failure=%d final_detail=%d",
+                   g_diagnostic_count,g_ownership_count,g_ownership_failure_count,g_final_details));
+   FinalReportLine("OnDeinit","LOG_SUPPRESSED",StringFormat("success=%I64u failure=%I64u",
+                   g_ownership_success_suppressed,g_ownership_failure_suppressed));
+   FinalReportLine("OnDeinit","RUNTIME_STATUS",StringFormat("reason=%d halted=%s uncertain=%s scope=runtime_not_final_attribution no_orders_sent_in_deinit=true",
+                   reason,g_halted?"true":"false",g_uncertain?"true":"false"));
 }
 
 

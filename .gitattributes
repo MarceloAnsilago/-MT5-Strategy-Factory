@@ -1,5 +1,10 @@
 # Preservar os bytes dos arquivos autorizados no backup inicial.
 # Sem conversao de fim de linha ou filtros de conteudo.
+/REVISAO_001_V123.md -text -filter -ident -working-tree-encoding
+/tests/test_report_contract.py -text -filter -ident -working-tree-encoding
+/MQL5/Experts/MT5StrategyFactory/Estrategia_001/MT5SF_Estrategia_001.v1.22_pre_v1.23_001.mq5.bak -text -filter -ident -working-tree-encoding
+/MQL5/Experts/MT5StrategyFactory/Estrategia_001/FinalReportTotals.mqh -text -filter -ident -working-tree-encoding
+/MQL5/Experts/MT5StrategyFactory/Estrategia_001/tests/TestFinalReport.mq5 -text -filter -ident -working-tree-encoding
 /.gitattributes -text -filter -ident -working-tree-encoding
 /.gitignore -text -filter -ident -working-tree-encoding
 /DIAGNOSTICO_MT5_RICO.md -text -filter -ident -working-tree-encoding
@@ -40,3 +45,4 @@
 /config/tester/MT5SF_Estrategia_001_v122_PETR4_M5_20261116_20261118_everytick.ini -text -filter -ident -working-tree-encoding
 /config/tester/MT5SF_Homologacao_001.PETR4.M1.20261117_20261118.200.ini -text -filter -ident -working-tree-encoding
 /config/tester/MT5SF_Homologacao_001_PETR4_M1_20261117.ini -text -filter -ident -working-tree-encoding
+/VALIDACAO_001_V123.md -text -filter -ident -working-tree-encoding
