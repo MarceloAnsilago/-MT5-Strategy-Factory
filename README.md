@@ -166,6 +166,13 @@ e journal e uma CLI offline. **66 testes aprovados**, com fixtures identificadas
 como sintéticas. A Estratégia 001 foi preservada.
 
 Consulte [HOMOLOGACAO_002.md](HOMOLOGACAO_002.md) para cenário exato, configurações
-de agentes locais, compilação, uso da análise e limitações. O primeiro backtest
-com operações deste EA aguarda autorização explícita; nenhuma rentabilidade ou
-precisão financeira em execução real foi presumida.
+de agentes locais, compilação, uso da análise e limitações. Após autorização
+explícita, uma única execução com operações foi concluída e reconciliada; os
+relatórios e resultados detalhados permanecem locais, fora do Git.
+
+O adaptador agora trata a convenção nativa de perda bruta como magnitude,
+os nomes de operações vencedoras/perdedoras e drawdown relativo. Cálculos de
+drawdown absoluto e acerto têm proveniência separada dos campos publicados.
+**69 testes aprovados** após as correções; não houve repetição do backtest.
+Campos ausentes continuam indisponíveis e validação parcial não é promovida
+a completa. Não há conclusão sobre rentabilidade comercial.

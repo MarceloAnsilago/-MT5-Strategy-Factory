@@ -1,11 +1,13 @@
-# Fase 2.3 — preparação, sem execução autorizada
+# Fase 2.3 — preparação e homologação autorizada
 
 Em 20/11/2026, o EA exclusivo `MT5SF_Homologacao_002.mq5` foi criado em
 `MQL5/Experts/MT5StrategyFactory/Homologacao_002/`. A cópia no MetaEditor Rico
 foi relida e corresponde ao texto do repositório. Compilação final via MCP:
 **0 erros, 0 avisos**, compilador build 6230, AVX2 + FMA3, 479 ms.
-O EX5 fica somente na instalação MT5, fora do Git. Nenhum backtest desta fase
-foi iniciado. Estratégia 001, GeraSet, Uni.mql5, DPAPI e inicializador preservados.
+O EX5 fica somente na instalação MT5, fora do Git. A preparação foi concluída
+sem iniciar backtest; uma execução única foi posteriormente autorizada e concluída,
+conforme atualização ao final. Estratégia 001, GeraSet, Uni.mql5, DPAPI e
+inicializador preservados.
 
 ## EA e limites operacionais
 
@@ -32,7 +34,7 @@ Inputs propostos: `InpFastPeriod=9`, `InpSlowPeriod=21`,
 `InpMagic=20261123002`, `InpDeviationPoints=5`.
 Estão fixados no arquivo `.set`; não são parâmetros de otimização.
 
-## Cenário aguardando autorização
+## Cenário preparado e posteriormente autorizado
 
 | Parâmetro | Valor preparado |
 |---|---|
@@ -47,19 +49,19 @@ Estão fixados no arquivo `.set`; não são parâmetros de otimização.
 | Timeout do executor | 180 s |
 | Otimização / forward / visual | Desligados |
 | Agentes | `UseLocal=1`, `UseRemote=0`, `UseCloud=0` |
-| Repetições | Uma tentativa após autorização, sem repetição automática |
+| Repetições | Uma tentativa autorizada, sem repetição automática |
 
 A consulta M5 não retornou barras de 02/11, por isso o início foi ajustado para
 03/11. A consulta de ticks de 03/11 retornou vazia e informou disponibilidade a
 partir de 16/11. Não se assume cobertura de ticks reais para o intervalo desejado;
 o modelo gerado foi escolhido explicitamente. Barras disponíveis não garantem
-qualidade futura de geração nem operações vencedoras/perdedoras. Nenhum resultado
-financeiro real desta estratégia existe nesta etapa.
+qualidade futura de geração nem operações vencedoras/perdedoras. Na preparação,
+nenhum resultado financeiro foi presumido.
 
 Os arquivos `config/tester/MT5SF_Homologacao_002_phase23.ini` e `.set` foram
 copiados por MCP, sem sobrescrita, para `MQL5\Profiles\Tester` e o INI foi relido.
 Só há seção `[Tester]`, sem configurações de conta ou negociação operacional.
-Não carregar esses arquivos no Tester antes da autorização.
+Qualquer nova execução requer uma nova autorização; a tentativa autorizada foi consumida.
 
 Após autorização, usar `TesterRunner.run(..., simulate=False, authorized=True,
 timeout=180, prepared_config_path=<INI inspecionado>, inputs_path=<SET>)` por
@@ -121,7 +123,43 @@ ganhos, perdas e empate, contagens distintas, saldos e métricas conhecidas.
 Testes cobrem extração, divergências, sentinelas, dados incompletos, vínculo entre
 execuções, configuração de agentes e guardas do EA. **66 testes Python aprovados**,
 incluindo os contratos existentes. Compilar não equivale a validar comportamento;
-a precisão financeira com operações reais do Tester permanece pendente.
+a precisão financeira com operações do Tester exigia a execução autorizada descrita abaixo.
+
+## Atualização após a única execução autorizada
+
+O fluxo foi concluído pelo MCP, com o EA e cenário preparados, sem alterar a
+Estratégia 001 ou o código MQL5. O journal confirmou agente local, nuvem desligada,
+inputs, inicialização restrita ao Tester e conclusão normal. Não houve repetição.
+Status, relatório bruto, journal completo, tempos e reconciliação permanecem em
+`runs/phase23_execution/` e no diretório exclusivo da execução, fora do Git.
+Valores da conta de teste e relatórios não são publicados neste documento.
+
+O JSON Rico com operações expõe `gross_loss` como magnitude positiva. O adaptador
+agora normaliza esse campo para perda negativa **somente** no schema nativo Rico
+identificado, preservando valor de origem e operação em `native_mapping`.
+JSON normalizado genérico continua rejeitando perda positiva como ambígua.
+`profit_trades`/`loss_trades` são mapeados separadamente; contagens de ordens e
+posições ausentes não são deduzidas da quantidade de negócios.
+
+Drawdown relativo usa `rel_drawdown_percent_balance` e
+`rel_drawdown_percent_equity`, não o percentual associado ao drawdown máximo
+em dinheiro. Drawdown absoluto pode ser calculado a partir do depósito e mínimo
+nativos; taxa de acerto pode ser calculada a partir de operações vencedoras e
+total de operações. Esses cálculos ficam em `derived_metrics`, com fórmula e
+operandos; não preenchem campos ausentes em `metrics`. A reconciliação os compara
+com os marcadores `TesterStatistics` do journal como verificações próprias.
+
+Foram confirmadas diferenças de arredondamento entre JSON e journal dentro das
+tolerâncias definidas, sem divergência financeira nos campos comparáveis após
+a normalização. A avaliação global continua parcial/inconclusiva porque faltam
+campos no relatório JSON: não se promove evidência parcial a validação completa.
+`margin_level` pode conter DBL_MAX e não é usado como medida financeira útil.
+Não há conclusão de rentabilidade ou generalização para ticks reais.
+
+Correções verificadas exclusivamente com reanálise dos arquivos salvos e
+fixtures sintéticas adicionais: **69 testes Python aprovados**. O teste original
+e seus arquivos de análise foram preservados; a reconciliação corrigida é uma
+nova saída local. Nenhuma correção exigiu recompilação ou outro backtest.
 
 Referências: [estatísticas nativas MQL5](https://www.mql5.com/en/docs/constants/environment_state/statistics),
 [relatório do Tester](https://www.metatrader5.com/en/terminal/help/algotrading/testing_report),

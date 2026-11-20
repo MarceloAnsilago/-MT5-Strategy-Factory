@@ -31,6 +31,40 @@ class FinancialTests(unittest.TestCase):
         self.assertEqual(result['metrics']['winning_trades'],2)
         self.assertEqual(result['metrics']['losing_trades'],1)
 
+    def test_native_magnitude_counts_and_relative_drawdown_mapping(self):
+        native={'run_id':'synthetic-native','generated_bars':100,'generated_ticks':1000,
+                'initial_deposit':10000,'profit':-50,'trades':4,'deals':9,
+                'gross_profit':150,'gross_loss':200,'profit_trades':1,'loss_trades':3,
+                'balance_min':9900,'equity_min':9850,'max_drawdown_equity':240,
+                'drawdown_percent_equity':2.3,'rel_drawdown_percent_equity':2.4,
+                'rel_drawdown_percent_balance':1.1}
+        result=analyze_report(native)
+        self.assertEqual(result['metrics']['gross_loss'],-200)
+        self.assertEqual(result['native_mapping']['gross_loss']['raw'],'200')
+        self.assertEqual(result['metrics']['winning_trades'],1)
+        self.assertEqual(result['metrics']['losing_trades'],3)
+        self.assertEqual(result['derived_metrics']['win_rate']['value'],25)
+        self.assertEqual(result['metrics']['equity_drawdown_relative'],2.4)
+        self.assertIsNone(result['metrics']['equity_drawdown_absolute'])
+        self.assertEqual(result['derived_metrics']['equity_drawdown_absolute']['value'],150)
+        self.assertIsNone(result['metrics']['orders'])
+        self.assertIsNone(result['metrics']['positions'])
+        self.assertEqual(native['gross_loss'],200) # Preserve raw input.
+
+    def test_positive_normalized_gross_loss_stays_ambiguous(self):
+        self.assertIsNone(analyze_report({'statistics':{'gross_loss':200}})['metrics']['gross_loss'])
+
+    def test_native_calculation_reconciles_with_journal_without_filling_report(self):
+        native={'run_id':'synthetic','generated_bars':10,'generated_ticks':100,
+                'initial_deposit':10000,'profit':-50,'trades':2,
+                'balance_min':9900,'equity_min':9850}
+        journal='MT5SF002 STAT name=balance_drawdown_absolute value=100\nMT5SF002 STAT name=equity_drawdown_absolute value=150'
+        result=validate_financial(native,journal=journal,run_id='synthetic',journal_run_id='synthetic')
+        checks=[c for c in result['checks'] if c['source']=='native_calculation_vs_journal']
+        self.assertEqual(len(checks),2)
+        self.assertTrue(all(c['status']=='match' for c in checks))
+        self.assertIsNone(result['report']['metrics']['balance_drawdown_absolute'])
+
     def test_complete_fixture_matches_independent_native_reference_and_journal(self):
         result = validate_financial(self.fixture,journal=self.journal(),run_id=self.fixture['run_id'],
                                     journal_run_id=self.fixture['run_id'],native_reference=copy.deepcopy(self.fixture),

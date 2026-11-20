@@ -81,6 +81,8 @@ def validate_financial(source, *, journal=None, run_id=None, journal_run_id=None
             provenance_issues.extend(errors)
             for key in ALIASES:
                 compare(key, report['metrics'][key], journal_analysis['metrics'][key], tolerance(key), 'journal')
+            for key,derived in report.get('derived_metrics',{}).items():
+                compare(key,derived['value'],journal_analysis['metrics'][key],tolerance(key),'native_calculation_vs_journal')
     reference = None
     if native_reference is not None:
         if run_id is None or str(reference_run_id)!=str(run_id) or provenance_issues:

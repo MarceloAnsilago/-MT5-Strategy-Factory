@@ -88,11 +88,14 @@ def analyze_report(source):
     if isinstance(raw, str) and raw.lstrip().startswith('{'):
         raw = json.loads(raw)
     found = {}
+    native_mapping = {}
+    derived_metrics = {}
     if isinstance(raw, dict):
         # Rico's native backtest JSON uses profit for total test profit.
         # Require its identifying fields; do not reinterpret arbitrary profit objects.
         if all(key in raw for key in ('run_id', 'generated_bars', 'generated_ticks', 'initial_deposit', 'profit', 'trades')) and 'statistics' not in raw:
             raw = dict(raw)
+            original = dict(raw)
             # Conflicting aliases must not silently prefer one value.
             if 'net_profit' in raw and raw['net_profit'] != raw['profit']:
                 raw['net_profit'] = None
@@ -102,6 +105,42 @@ def analyze_report(source):
                 raw['initial_balance'] = None
             else:
                 raw['initial_balance'] = raw['initial_deposit']
+            # The Rico JSON reports gross_loss as a positive magnitude, unlike
+            # TesterStatistics/normalized JSON where losing money is negative.
+            if 'gross_loss' in raw:
+                try:
+                    value = -abs(number(raw['gross_loss']))
+                    raw['gross_loss'] = value
+                    native_mapping['gross_loss'] = {'field':'gross_loss','raw':str(original['gross_loss']),
+                                                   'operation':'negative magnitude','value':value}
+                except (ValueError, TypeError):
+                    pass
+            for target,field in (('winning_trades','profit_trades'),('losing_trades','loss_trades'),
+                    ('balance_drawdown_relative','rel_drawdown_percent_balance'),
+                    ('equity_drawdown_relative','rel_drawdown_percent_equity')):
+                if field in raw:
+                    raw[target] = raw[field] if target not in raw or raw[target]==raw[field] else None
+                    native_mapping[target] = {'field':field,'raw':str(original[field])}
+            # These are explicit calculations, kept separate from reported metrics.
+            for target,field in (('balance_drawdown_absolute','balance_min'),('equity_drawdown_absolute','equity_min')):
+                try:
+                    initial,minimum = number(original['initial_deposit']),number(original[field])
+                    if initial<0 or max(abs(initial),abs(minimum))>=1e100:
+                        raise ValueError('invalid native balance')
+                    derived_metrics[target] = {'value':max(0,initial-minimum),
+                       'formula':'max(0, initial_deposit - '+field+')',
+                       'operands':{'initial_deposit':initial,field:minimum}}
+                except (KeyError,ValueError,TypeError):
+                    pass
+            try:
+                wins,trades = number(original['profit_trades']),number(original['trades'])
+                if not (wins.is_integer() and trades.is_integer() and 0<=wins<=trades and trades>0):
+                    raise ValueError('invalid trade counts')
+                derived_metrics['win_rate'] = {'value':100*wins/trades,
+                    'formula':'100 * profit_trades / trades',
+                    'operands':{'profit_trades':int(wins),'trades':int(trades)}}
+            except (KeyError,ValueError,TypeError):
+                pass
         stats = raw.get('statistics', raw)
         if isinstance(stats, dict):
             found = {k: [v] for k, v in stats.items() if k in ALIASES and v is not None}
@@ -196,5 +235,6 @@ def analyze_report(source):
         issues.append('report: fonte declarou resultado incompleto ou falha')
     return {'status': 'complete' if not issues else 'inconclusive', 'metrics': metrics,
             'availability': availability,
+            'native_mapping': native_mapping, 'derived_metrics':derived_metrics,
             'source_values': {key:[str(value) for value in values] for key,values in found.items()},
             'period_results': periods, 'issues': issues}
