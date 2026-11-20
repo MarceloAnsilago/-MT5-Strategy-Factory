@@ -1,5 +1,12 @@
 # Fase 2.4 — resumos e comparação offline
 
+Atualização da Fase 2.5: o resumo atual é **1.1**, com registro de confirmações
+por campo. Resumos 1.0 continuam aceitos nas comparações, com limitações explícitas.
+`parameter_provenance` passa a `field_level_traceability`; o campo `parameters`
+mantém o cenário solicitado. As regras históricas abaixo foram ampliadas:
+hashes informados pelo chamador não bastam para habilitar deltas sem evidências
+de configuração, custos e histórico. Consulte [RASTREABILIDADE.md](RASTREABILIDADE.md).
+
 Esta etapa não executa backtests, otimizações, ordens ou chamadas MCP. Não altera
 os EAs, o inicializador ou credenciais. Reutiliza `reports.analyze_report` e
 `financial.validate_financial`; não cria outro cálculo financeiro independente.

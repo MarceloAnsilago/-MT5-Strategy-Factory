@@ -32,8 +32,17 @@ def main():
         costs_fingerprint=hashlib.sha256(b'SYNTHETIC costs').hexdigest())
     summaries = []
     for index, report in enumerate((first,second),1):
+        effective_inputs={'InpFastPeriod':9 if index==1 else 5,'InpSlowPeriod':21}
+        report['inputs']=effective_inputs
+        report['tester_settings']=dict(parameters,optimization=False,forward_mode=0,visual=False,
+            use_local=True,use_remote=False,use_cloud=False,terminal_build=6230)
+        report['costs']=dict(currency='BRL',spread_model='SYNTHETIC_variable',commission_model='SYNTHETIC_none',
+            swap_model='SYNTHETIC_none',fee_model='SYNTHETIC_none',configuration_sha256=context['costs_fingerprint'])
+        report['history']=dict(origin='SYNTHETIC',available_from=parameters['from_date'],
+            available_to=parameters['to_date'],tick_source='generated',coverage_complete=True,
+            content_sha256=context['history_fingerprint'])
         summary = summarize_run(report,parameters=parameters,
-            run_id=report['run_id'],inputs={'InpFastPeriod':9 if index==1 else 5,'InpSlowPeriod':21},
+            run_id=report['run_id'],inputs=effective_inputs,
             execution={'status':'completed'},data_context=context,synthetic=True,
             native_reference=deepcopy(report),reference_run_id=report['run_id'])
         write_artifact(args.output_dir/f'synthetic_summary_{index}.json',summary)

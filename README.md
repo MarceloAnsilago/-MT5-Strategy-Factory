@@ -190,3 +190,17 @@ Não há executor de lote, ranking, geração de estratégias ou otimização.
 Consulte [ANALISE_AUTOMATIZADA.md](ANALISE_AUTOMATIZADA.md) para comandos, schema,
 classificações e limitações, e `examples/analyze_synthetic.py` para um exemplo
 inteiramente sintético. **94 testes aprovados**; nenhum backtest nesta etapa.
+
+### Fase 2.5 — rastreabilidade e enriquecimento
+
+`strategy_factory.traceability` acrescenta evidências por campo ao resumo **1.1**:
+solicitado, confirmado pelo MT5, divergente ou não verificável. Inputs efetivos
+podem ser extraídos do journal vinculado; INI/SET e snapshots de ativo/histórico
+continuam separados como observações/valores solicitados. Custos ausentes não
+viram zero. Comparações aceitam resumos 1.0 e 1.1 e exigem confirmações adicionais
+antes de habilitar deltas; hashes opacos de contexto não comprovam dados efetivos.
+
+Consulte [RASTREABILIDADE.md](RASTREABILIDADE.md) para contrato de evidências,
+comandos, limitações e requisitos que ainda faltam para lotes. **115 testes
+aprovados**; evidências históricas preservadas. Nenhum backtest, otimização,
+ordem ou alteração de configuração de negociação foi realizado nesta fase.

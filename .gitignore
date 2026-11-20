@@ -103,3 +103,5 @@ logs/
 /examples/*
 !/examples/analyze_synthetic.py
 !/ANALISE_AUTOMATIZADA.md
+!/tests/test_traceability.py
+!/RASTREABILIDADE.md

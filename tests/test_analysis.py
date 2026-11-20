@@ -36,7 +36,7 @@ class AnalysisTests(unittest.TestCase):
 
     def test_schema_complete_financial_data_and_explicit_provenance(self):
         result = self.summary()
-        self.assertEqual(result['schema_version'],'1.0')
+        self.assertEqual(result['schema_version'],'1.1')
         self.assertEqual(result['run_id'],'synthetic-a')
         self.assertEqual(result['evidence_kind'],'synthetic')
         self.assertEqual(result['strategy']['expert'],'Expert.ex5')
@@ -147,8 +147,8 @@ class AnalysisTests(unittest.TestCase):
         a,b=self.summary('a'),self.summary('b')
         b['strategy']['inputs']['InpFastPeriod']=5
         result=compare_runs([a,b])
-        self.assertEqual(result['pairs'][0]['classification'],'comparable')
-        self.assertEqual(result['pairs'][0]['delta_right_minus_left']['net_profit'],0)
+        self.assertEqual(result['pairs'][0]['classification'],'conditional')
+        self.assertIsNone(result['pairs'][0]['delta_right_minus_left']['net_profit'])
         self.assertIsNone(result['ranking'])
         self.assertFalse(result['execution_enabled'])
 
