@@ -129,13 +129,14 @@ class TesterRunner:
         release = True
         terminal_lock = None
         run_id = None
-        deadline = self.clock() + timeout
+        orchestration_start = self.clock()
+        deadline = orchestration_start + timeout
 
         def call(name, args):
             return payload(self.call_tool(name, args))
 
         def stopped(data):
-            return isinstance(data, dict) and data.get('status') in ('stopped', 'completed', 'finished')
+            return isinstance(data, dict) and data.get('tester_status', data.get('status')) in ('stopped', 'completed', 'finished')
 
         try:
             workspace = call('get_workspace_info', {})
@@ -165,6 +166,7 @@ class TesterRunner:
             run_id = started.get('run_id')
             if not isinstance(run_id, str) or not run_id:
                 raise TesterError('start returned no run_id; reconcile lock manually')
+            tester_start = self.clock()
             write_new(run_dir / 'remote_run.json', {'run_id': run_id})
             index = 0
             while True:
@@ -173,21 +175,31 @@ class TesterRunner:
                 status = call('tester_get_status', {'run_id': run_id})
                 write_new(run_dir / f'status_{index:06d}.json', status)
                 index += 1
+                state = status.get('tester_status', status.get('status'))
+                if state in ('started', 'running') and str(status.get('run_id', run_id)) != run_id:
+                    # Never stop a different client's job.
+                    run_id = None
+                    raise TesterError('tester reports another active run; lock retained')
                 if stopped(status):
                     release = True
                     if status.get('error') or status.get('success') is False:
                         raise TesterError('tester reported failure')
                     break
-                if status.get('status') in ('failed', 'error', 'cancelled'):
+                if state in ('failed', 'error', 'cancelled'):
                     raise TesterError('tester did not complete successfully')
-                if status.get('status') not in ('started', 'running'):
+                if state not in ('started', 'running'):
                     raise TesterError('unknown tester status; refusing to infer completion')
                 self.sleep(min(poll_interval, max(0, deadline - self.clock())))
             report = call('tester_get_report', {'run_id': run_id, 'file_format': 'json'})
             write_new(run_dir / 'report.json', report)
+            if not isinstance(report, dict) or str(report.get('run_id', run_id)) != run_id:
+                raise TesterError('report does not belong to requested run')
             analysis = analyze_report(report)
             write_new(run_dir / 'analysis.json', analysis)
-            write_new(run_dir / 'result.json', {'status': 'completed', 'analysis_status': analysis['status']})
+            write_new(run_dir / 'result.json', {'status': 'completed', 'analysis_status': analysis['status'],
+                      'elapsed_seconds': self.clock() - orchestration_start,
+                      'tester_observation_seconds': self.clock() - tester_start,
+                      'timeout_seconds': timeout})
         except Exception as exc:
             if run_id and not release:
                 try:

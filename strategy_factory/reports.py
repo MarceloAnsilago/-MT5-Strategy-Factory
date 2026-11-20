@@ -77,7 +77,11 @@ def analyze_report(source):
         raw = json.loads(raw)
     found = {}
     if isinstance(raw, dict):
-        # Explicit normalized contract only; unknown native schemas are preserved by runner.
+        # Rico's native backtest JSON uses profit for total test profit.
+        # Require its identifying fields; do not reinterpret arbitrary profit objects.
+        if all(key in raw for key in ('run_id', 'generated_bars', 'generated_ticks', 'initial_deposit', 'profit', 'trades')) and 'statistics' not in raw:
+            raw = dict(raw)
+            raw.setdefault('net_profit', raw['profit'])
         stats = raw.get('statistics', raw)
         if isinstance(stats, dict):
             found = {k: [v] for k, v in stats.items() if k in ALIASES and v is not None}

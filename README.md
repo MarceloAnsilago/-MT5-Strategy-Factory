@@ -129,3 +129,29 @@ de credenciais DPAPI, compilação ou otimização no executor.
 
 Validação local desta fase: **33 testes Python aprovados**, incluindo os 11
 existentes; extração do HTML histórico confirmada sem executar o MT5.
+
+### Fase 2.2 — compatibilidade observada com o MCP Rico
+
+Uma única homologação autorizada confirmou o fluxo nativo por meio do callable
+autenticado da extensão, sem copiar tokens para Python. O EA de homologação
+existente recusa execução fora do Tester e tem `OnTick` vazio. A Estratégia 001
+foi preservada. Configuração, retornos, histórico e journal permanecem em `runs/`,
+fora do Git; nenhuma repetição automática foi realizada.
+
+O status nativo usa `tester_status`, e pode retornar `run_id="0"` quando o Tester
+está ocioso. O executor aceita esse campo, preserva o retorno original e não para
+um job ativo que pertença a outro identificador. Relatórios com um `run_id`
+explícito diferente do solicitado são preservados e rejeitados para análise.
+
+O relatório JSON mínimo observado contém `run_id`, `generated_bars`,
+`generated_ticks`, `symbol`, `initial_deposit`, `withdrawal`, `profit`, `deals` e
+`trades`. Nesse formato identificado, `profit` alimenta `net_profit`. A ausência
+de Profit Factor, drawdown, acerto, expectativa ou períodos continua produzindo
+`null`, inclusive em homologação com zero operações. Não deduzir essas métricas
+de um saldo inalterado. Tempos do journal do agente e tempo de orquestração têm
+escopos distintos; o resultado do executor agora registra também tempos de
+orquestração/observação e o timeout configurado.
+
+Validação após as correções: **37 testes Python aprovados**. Os testes continuam
+offline; a execução controlada usa os resultados reais preservados localmente,
+sem publicar logs ou relatórios da conta de teste.

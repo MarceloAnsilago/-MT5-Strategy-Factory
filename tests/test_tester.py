@@ -123,6 +123,40 @@ class TesterTests(unittest.TestCase):
             TesterRunner(self.root, fake).run(config(), simulate=False, authorized=True)
         self.assertNotIn('tester_get_report', [n for n, _ in fake.calls])
 
+    def test_native_tester_status_field(self):
+        fake = FakeMCP()
+        def native(name, args):
+            result = fake(name, args)
+            if name == 'tester_get_status':
+                data = result['structuredContent']
+                data['tester_status'] = data.pop('status')
+                data['run_id'] = '0'
+            return result
+        directory = TesterRunner(self.root, native).run(config(), simulate=False, authorized=True)
+        self.assertTrue((directory / 'report.json').exists())
+
+    def test_report_for_another_run_is_rejected_and_preserved(self):
+        fake = FakeMCP()
+        def wrong_report(name, args):
+            if name == 'tester_get_report':
+                return {'structuredContent': {'run_id':'another', 'profit':123}}
+            return fake(name, args)
+        with self.assertRaises(TesterError):
+            TesterRunner(self.root, wrong_report).run(config(), simulate=False, authorized=True)
+        self.assertTrue(next(self.root.glob('*/report.json')).exists())
+        self.assertFalse(list(self.root.glob('*/analysis.json')))
+
+    def test_other_active_run_is_never_stopped(self):
+        fake = FakeMCP()
+        def native(name, args):
+            if name == 'tester_get_status':
+                return {'structuredContent': {'tester_status':'started', 'run_id':'other'}}
+            return fake(name, args)
+        with self.assertRaises(TesterError):
+            TesterRunner(self.root, native).run(config(), simulate=False, authorized=True)
+        self.assertNotIn('tester_stop', [name for name, _ in fake.calls])
+        self.assertTrue(self.shared_lock.exists())
+
     def test_timeout_confirmed_stop_releases_both_locks(self):
         fake = FakeMCP(['running', 'stopped'])
         tick = [0]
@@ -203,6 +237,16 @@ class TesterTests(unittest.TestCase):
 
 
 class ReportTests(unittest.TestCase):
+    def test_native_rico_profit_and_missing_statistics(self):
+        native = {'run_id':'synthetic', 'generated_bars':12, 'generated_ticks':120,
+                  'initial_deposit':10000, 'profit':0, 'deals':0, 'trades':0}
+        result = analyze_report(native)
+        self.assertEqual(result['metrics']['net_profit'], 0)
+        self.assertEqual(result['metrics']['trades'], 0)
+        for key in ('profit_factor', 'expected_payoff', 'win_rate', 'balance_drawdown_absolute'):
+            self.assertIsNone(result['metrics'][key])
+        self.assertIsNone(analyze_report({'profit':999})['metrics']['net_profit'])
+
     def test_historical_html_read_only(self):
         path = Path(__file__).resolve().parents[1] / 'MT5StrategyFactoryPOC/reports/EMA_EURUSD_M15_2025Q1.html'
         report = analyze_report(path)
