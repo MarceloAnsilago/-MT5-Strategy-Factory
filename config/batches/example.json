@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "batch-demo-001",
+  "revision": 1,
+  "policy": {
+    "simulation_default": true,
+    "environment": "strategy_tester",
+    "optimization": false,
+    "forward_mode": 0,
+    "local_agents_only": true,
+    "allow_live_trading": false,
+    "automatic_retries": false
+  },
+  "budget": {
+    "max_strategies": 1,
+    "max_backtests": 2,
+    "timeout_per_test_seconds": 180,
+    "timeout_batch_seconds": 360,
+    "max_attempts_per_test": 1,
+    "max_concurrency": 1,
+    "max_artifact_bytes": 1048576,
+    "max_run_artifact_bytes": 262144,
+    "min_free_disk_bytes": 67108864
+  },
+  "strategies": [{
+    "strategy_id": "homologacao-002",
+    "version": "1.00",
+    "ea": {
+      "path": "C:\\MT5-LAB\\MQL5\\Experts\\Homologacao_002\\MT5SF_Homologacao_002.ex5",
+      "compiled_sha256": null,
+      "source_sha256": null
+    }
+  }],
+  "runs": [{
+    "run_id": "petr4-first",
+    "strategy_id": "homologacao-002",
+    "parameters": {
+      "symbol": "PETR4", "timeframe": "M5",
+      "from_date": "2026-11-03", "to_date": "2026-11-07",
+      "deposit": 10000, "currency": "BRL", "leverage": 1,
+      "model": "every tick", "execution_delay": 0
+    },
+    "inputs": {"InpFastPeriod": 9, "InpSlowPeriod": 21, "InpStopLossPercent": 1, "InpTakeProfitPercent": 2,
+               "InpMagic": 20261123002, "InpDeviationPoints": 5}
+  }, {
+    "run_id": "petr4-second",
+    "strategy_id": "homologacao-002",
+    "parameters": {
+      "symbol": "PETR4", "timeframe": "M5",
+      "from_date": "2026-11-09", "to_date": "2026-11-14",
+      "deposit": 10000, "currency": "BRL", "leverage": 1,
+      "model": "every tick", "execution_delay": 0
+    },
+    "inputs": {"InpFastPeriod": 9, "InpSlowPeriod": 21, "InpStopLossPercent": 1, "InpTakeProfitPercent": 2,
+               "InpMagic": 20261123002, "InpDeviationPoints": 5}
+  }]
+}

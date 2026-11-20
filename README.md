@@ -204,3 +204,16 @@ Consulte [RASTREABILIDADE.md](RASTREABILIDADE.md) para contrato de evidências,
 comandos, limitações e requisitos que ainda faltam para lotes. **115 testes
 aprovados**; evidências históricas preservadas. Nenhum backtest, otimização,
 ordem ou alteração de configuração de negociação foi realizado nesta fase.
+
+### Fase 2.6 — manifesto e controle de lotes
+
+Manifesto JSON 1.0, orçamento conservador de tentativas/tempo/armazenamento,
+registros de aprovação vinculados ao SHA256 e controle persistente SQLite.
+Simulações têm estados, cancelamento, preservação de parciais e retomada explícita,
+sem retry automático ou duplicação de tentativas. Os resumos reutilizam o schema
+1.1 e preservam custos/evidências desconhecidos como não verificáveis.
+
+O backend real permanece desabilitado mesmo com registro de autorização válido.
+Consulte [LOTES.md](LOTES.md) para módulos, comandos, limites e procedimento de
+aprovação futura. **139 testes aprovados**; somente testes offline e simulações.
+Nenhum EA, credencial ou configuração de negociação foi alterado.
