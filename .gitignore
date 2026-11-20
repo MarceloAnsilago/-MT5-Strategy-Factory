@@ -98,3 +98,8 @@ logs/
 /tests/fixtures/*
 !/tests/fixtures/financial_synthetic.json
 !/HOMOLOGACAO_002.md
+!/tests/test_analysis.py
+!/examples/
+/examples/*
+!/examples/analyze_synthetic.py
+!/ANALISE_AUTOMATIZADA.md

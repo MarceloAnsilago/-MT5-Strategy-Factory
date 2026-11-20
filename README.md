@@ -176,3 +176,17 @@ drawdown absoluto e acerto têm proveniência separada dos campos publicados.
 **69 testes aprovados** após as correções; não houve repetição do backtest.
 Campos ausentes continuam indisponíveis e validação parcial não é promovida
 a completa. Não há conclusão sobre rentabilidade comercial.
+
+### Fase 2.4 — análise automatizada e comparação offline
+
+`strategy_factory.analysis` gera resumos versionados por execução, com parâmetros,
+métricas e proveniência, avisos, qualidade dos dados e integridade da reconciliação.
+As classificações não avaliam rentabilidade. O executor existente passa a gravar
+o resumo automaticamente em futuras execuções autorizadas e em simulações/falhas
+tratadas; a CLI também analisa arquivos já existentes sem tocar no MT5.
+
+Coleções comparam resumos e sinalizam cenários, contextos ou evidências incompatíveis.
+Não há executor de lote, ranking, geração de estratégias ou otimização.
+Consulte [ANALISE_AUTOMATIZADA.md](ANALISE_AUTOMATIZADA.md) para comandos, schema,
+classificações e limitações, e `examples/analyze_synthetic.py` para um exemplo
+inteiramente sintético. **94 testes aprovados**; nenhum backtest nesta etapa.

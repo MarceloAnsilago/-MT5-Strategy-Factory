@@ -13,6 +13,7 @@ import uuid
 
 from .reports import analyze_report
 from .financial import validate_financial
+from .analysis import summarize_run
 
 
 class TesterError(RuntimeError):
@@ -125,6 +126,8 @@ class TesterRunner:
         if simulate:
             write_new(run_dir / 'plan.json', config.prepare_arguments('<MQL5>\\Profiles\\Tester\\factory_' + run_dir.name + '.ini'))
             write_new(run_dir / 'result.json', {'status': 'simulated', 'metrics': None})
+            write_new(run_dir / 'run_summary.json', summarize_run(None, parameters=asdict(config),
+                      local_run_id=run_dir.name, execution={'status':'simulated'}))
             return run_dir
         lock = self.root / 'terminal.lock'
         # Atomic acquisition spans processes. Existing lock is never overwritten.
@@ -214,10 +217,13 @@ class TesterRunner:
             write_new(run_dir / 'analysis.json', analysis)
             financial = validate_financial(report, run_id=run_id)
             write_new(run_dir / 'financial_validation.json', financial)
-            write_new(run_dir / 'result.json', {'status': 'completed', 'analysis_status': analysis['status'],
+            result = {'status': 'completed', 'analysis_status': analysis['status'],
                       'elapsed_seconds': self.clock() - orchestration_start,
                       'tester_observation_seconds': self.clock() - tester_start,
-                      'timeout_seconds': timeout})
+                      'timeout_seconds': timeout}
+            write_new(run_dir / 'result.json', result)
+            write_new(run_dir / 'run_summary.json', summarize_run(report, parameters=asdict(config),
+                      run_id=run_id, local_run_id=run_dir.name, execution=result))
         except Exception as exc:
             if run_id and not release:
                 try:
@@ -228,6 +234,10 @@ class TesterRunner:
             # Exception messages can contain headers or credentials from a transport.
             write_new(run_dir / 'failure.json', {'status': 'failed', 'error_type': type(exc).__name__,
                       'lock_retained': not release, 'run_id': run_id})
+            if not (run_dir / 'run_summary.json').exists():
+                write_new(run_dir / 'run_summary.json', summarize_run(None, parameters=asdict(config),
+                          run_id=run_id, local_run_id=run_dir.name, execution={'status':'failed',
+                          'elapsed_seconds':self.clock()-orchestration_start,'timeout_seconds':timeout}))
             raise TesterError(f'{type(exc).__name__}; diagnostics: {run_dir}') from None
         finally:
             if release:

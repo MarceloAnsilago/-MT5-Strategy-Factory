@@ -77,6 +77,7 @@ class TesterTests(unittest.TestCase):
         self.assertNotEqual(one, two)
         self.assertEqual(fake.calls, [])
         self.assertEqual(json.loads((one / 'result.json').read_text())['status'], 'simulated')
+        self.assertEqual(json.loads((one / 'run_summary.json').read_text())['execution']['status'],'simulated')
 
     def test_authorization_required(self):
         with self.assertRaises(PermissionError):
@@ -112,6 +113,7 @@ class TesterTests(unittest.TestCase):
         self.assertTrue((directory / 'report.json').exists())
         self.assertTrue((directory / 'analysis.json').exists())
         self.assertTrue((directory / 'financial_validation.json').exists())
+        self.assertEqual(json.loads((directory/'run_summary.json').read_text())['reconciliation']['classification'],'not_reconciled')
         self.assertFalse((self.root / 'terminal.lock').exists())
         self.assertEqual([a for n, a in fake.calls if n == 'tester_run_backtest'][0]['wait'], False)
 
@@ -198,6 +200,7 @@ class TesterTests(unittest.TestCase):
             TesterRunner(self.root, fake).run(config(), simulate=False, authorized=True)
         diagnostic = next(self.root.glob('*/failure.json')).read_text()
         self.assertNotIn('sensitive exception', diagnostic)
+        self.assertEqual(json.loads(next(self.root.glob('*/run_summary.json')).read_text())['execution']['status'],'failed')
         self.assertFalse((self.root / 'terminal.lock').exists())
 
     def test_ambiguous_start_keeps_lock(self):
