@@ -93,3 +93,8 @@ logs/
 !/tests/test_tester.py
 # Execucoes, relatorios e locks permanecem privados e fora do Git.
 /runs/
+!/tests/test_financial.py
+!/tests/fixtures/
+/tests/fixtures/*
+!/tests/fixtures/financial_synthetic.json
+!/HOMOLOGACAO_002.md

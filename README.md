@@ -155,3 +155,17 @@ orquestração/observação e o timeout configurado.
 Validação após as correções: **37 testes Python aprovados**. Os testes continuam
 offline; a execução controlada usa os resultados reais preservados localmente,
 sem publicar logs ou relatórios da conta de teste.
+
+### Fase 2.3 — EA com operações, preparado para autorização
+
+O [EA Homologacao_002](MQL5/Experts/MT5StrategyFactory/Homologacao_002/MT5SF_Homologacao_002.mq5)
+foi compilado com 0 erros e 0 avisos, sem iniciar backtest. Implementa cruzamento
+EMA 9/21 comprador, volume mínimo, SL/TP e bloqueio fora do Tester e de otimização.
+A análise financeira ganhou métricas adicionais, comparação com evidências nativas
+e journal e uma CLI offline. **66 testes aprovados**, com fixtures identificadas
+como sintéticas. A Estratégia 001 foi preservada.
+
+Consulte [HOMOLOGACAO_002.md](HOMOLOGACAO_002.md) para cenário exato, configurações
+de agentes locais, compilação, uso da análise e limitações. O primeiro backtest
+com operações deste EA aguarda autorização explícita; nenhuma rentabilidade ou
+precisão financeira em execução real foi presumida.

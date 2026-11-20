@@ -12,6 +12,7 @@ import tempfile
 import uuid
 
 from .reports import analyze_report
+from .financial import validate_financial
 
 
 class TesterError(RuntimeError):
@@ -109,7 +110,8 @@ class TesterRunner:
         self.call_tool = call_tool
         self.clock, self.sleep = clock, sleep
 
-    def run(self, config, *, simulate=True, authorized=False, timeout=300, poll_interval=1):
+    def run(self, config, *, simulate=True, authorized=False, timeout=300, poll_interval=1,
+            prepared_config_path=None, inputs_path=None):
         if not math.isfinite(timeout) or timeout <= 0 or not math.isfinite(poll_interval) or poll_interval <= 0:
             raise ValueError('timeout and poll interval must be positive finite values')
         if not simulate and (not authorized or self.call_tool is None):
@@ -118,6 +120,8 @@ class TesterRunner:
         run_dir = self.root / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ_') + uuid.uuid4().hex)
         run_dir.mkdir(exist_ok=False)
         write_new(run_dir / 'request.json', asdict(config))
+        write_new(run_dir / 'execution_options.json', {'prepared_config_path':prepared_config_path,
+                  'inputs_path':inputs_path, 'timeout_seconds':timeout, 'simulate':simulate})
         if simulate:
             write_new(run_dir / 'plan.json', config.prepare_arguments('<MQL5>\\Profiles\\Tester\\factory_' + run_dir.name + '.ini'))
             write_new(run_dir / 'result.json', {'status': 'simulated', 'metrics': None})
@@ -151,18 +155,30 @@ class TesterRunner:
             with candidate_lock.open('x', encoding='utf-8') as stream:
                 stream.write(str(run_dir.resolve()))
             terminal_lock = candidate_lock
-            remote_config = str(PureWindowsPath(mql5) / 'Profiles' / 'Tester' / ('factory_' + run_dir.name + '.ini'))
+            tester_folder = PureWindowsPath(mql5) / 'Profiles' / 'Tester'
+            remote_config = prepared_config_path or str(tester_folder / ('factory_' + run_dir.name + '.ini'))
             permissions = workspace['permissions']
-            if not within(config.expert, permissions.get('read_roots', [])) or not within(remote_config, permissions.get('write_roots', [])):
+            config_roots = permissions.get('read_roots' if prepared_config_path else 'write_roots', [])
+            if not within(config.expert, permissions.get('read_roots', [])) or not within(remote_config, config_roots):
                 raise TesterError('path outside MCP permissions')
+            for path,suffix in ((remote_config,'.ini'),(inputs_path,'.set')):
+                if path is not None and (not within(path,[str(tester_folder)]) or
+                        PureWindowsPath(path).suffix.lower()!=suffix or not within(path,permissions.get('read_roots',[]))):
+                    raise TesterError('tester configuration/inputs must be under Profiles/Tester')
             args = config.prepare_arguments(remote_config)
             write_new(run_dir / 'prepare.json', args)
-            call('tester_prepare_config', args)
+            # An inspected immutable INI can pin local agents; native prepare_config
+            # does not expose agent selection. Caller must audit its contents first.
+            if prepared_config_path is None:
+                call('tester_prepare_config', args)
             if self.clock() >= deadline:
                 raise TimeoutError('timeout before start')
             # An ambiguous start error may still mean a running remote test.
             release = False
-            started = call('tester_run_backtest', {'config_path': remote_config, 'wait': False})
+            start_args = {'config_path': remote_config, 'wait': False}
+            if inputs_path is not None:
+                start_args['inputs_path'] = inputs_path
+            started = call('tester_run_backtest', start_args)
             run_id = started.get('run_id')
             if not isinstance(run_id, str) or not run_id:
                 raise TesterError('start returned no run_id; reconcile lock manually')
@@ -196,6 +212,8 @@ class TesterRunner:
                 raise TesterError('report does not belong to requested run')
             analysis = analyze_report(report)
             write_new(run_dir / 'analysis.json', analysis)
+            financial = validate_financial(report, run_id=run_id)
+            write_new(run_dir / 'financial_validation.json', financial)
             write_new(run_dir / 'result.json', {'status': 'completed', 'analysis_status': analysis['status'],
                       'elapsed_seconds': self.clock() - orchestration_start,
                       'tester_observation_seconds': self.clock() - tester_start,

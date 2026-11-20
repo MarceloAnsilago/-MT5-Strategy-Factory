@@ -1,0 +1,26 @@
+{
+  "fixture_kind": "SYNTHETIC — never a real backtest result",
+  "run_id": "synthetic-financial-002",
+  "statistics": {
+    "initial_balance": 10000,
+    "final_balance": 10150,
+    "net_profit": 150,
+    "gross_profit": 250,
+    "gross_loss": -100,
+    "profit_factor": 2.5,
+    "balance_drawdown_absolute": 40,
+    "balance_drawdown_relative": 1.2,
+    "equity_drawdown_absolute": 60,
+    "equity_drawdown_relative": 1.8,
+    "trades": 4,
+    "deals": 9,
+    "orders": 7,
+    "positions": 3,
+    "winning_trades": 2,
+    "losing_trades": 1,
+    "win_rate": 50,
+    "expected_payoff": 37.5,
+    "history_quality": 99.9
+  },
+  "period_results": [{"period": "synthetic-period", "net_profit": 150, "trades": 4, "win_rate": 50}]
+}

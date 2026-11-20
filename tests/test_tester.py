@@ -83,12 +83,35 @@ class TesterTests(unittest.TestCase):
             TesterRunner(self.root, FakeMCP()).run(config(), simulate=False)
         self.assertEqual(list(self.root.iterdir()), [])
 
+    def test_prepared_config_and_inputs_are_not_overwritten(self):
+        fake = FakeMCP()
+        ini = r'C:\lab\MQL5\Profiles\Tester\exclusive.ini'
+        inputs = r'C:\lab\MQL5\Profiles\Tester\exclusive.set'
+        TesterRunner(self.root,fake).run(config(),simulate=False,authorized=True,
+                                       prepared_config_path=ini,inputs_path=inputs)
+        self.assertNotIn('tester_prepare_config',[n for n,_ in fake.calls])
+        request = next(args for name,args in fake.calls if name=='tester_run_backtest')
+        self.assertEqual(request,{'config_path':ini,'inputs_path':inputs,'wait':False})
+
+    def test_prepared_config_outside_tester_folder_is_rejected(self):
+        fake = FakeMCP()
+        with self.assertRaises(TesterError):
+            TesterRunner(self.root,fake).run(config(),simulate=False,authorized=True,
+                         prepared_config_path=r'C:\lab\MQL5\wrong.ini')
+        self.assertNotIn('tester_run_backtest',[n for n,_ in fake.calls])
+
+    def test_prepared_config_still_requires_authorization(self):
+        with self.assertRaises(PermissionError):
+            TesterRunner(self.root,FakeMCP()).run(config(),simulate=False,
+                         prepared_config_path=r'C:\lab\MQL5\Profiles\Tester\exclusive.ini')
+
     def test_success_archives_report_and_releases_lock(self):
         fake = FakeMCP(['started', 'completed'])
         directory = TesterRunner(self.root, fake, sleep=lambda _: None).run(config(), simulate=False, authorized=True)
         self.assertEqual(fake.calls[0][0], 'get_workspace_info')
         self.assertTrue((directory / 'report.json').exists())
         self.assertTrue((directory / 'analysis.json').exists())
+        self.assertTrue((directory / 'financial_validation.json').exists())
         self.assertFalse((self.root / 'terminal.lock').exists())
         self.assertEqual([a for n, a in fake.calls if n == 'tester_run_backtest'][0]['wait'], False)
 

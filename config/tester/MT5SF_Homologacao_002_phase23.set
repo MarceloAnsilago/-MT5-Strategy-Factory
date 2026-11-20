@@ -1,0 +1,6 @@
+InpFastPeriod=9
+InpSlowPeriod=21
+InpStopLossPercent=1.0
+InpTakeProfitPercent=2.0
+InpMagic=20261123002
+InpDeviationPoints=5
