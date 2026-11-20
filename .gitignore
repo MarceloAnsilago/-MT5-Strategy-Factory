@@ -89,3 +89,7 @@ logs/
 *.hc
 # Não ignorar *.mq5.bak: são revisões históricas deliberadamente preservadas.
 !/VALIDACAO_001_V123.md
+!/strategy_factory/
+!/tests/test_tester.py
+# Execucoes, relatorios e locks permanecem privados e fora do Git.
+/runs/

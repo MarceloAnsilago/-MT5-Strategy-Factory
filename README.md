@@ -13,3 +13,119 @@ Consulte [ESTADO_DO_PROJETO.md](ESTADO_DO_PROJETO.md) para resultados, limitaç�
 O ambiente completo do MT5, executáveis, credenciais, configuração ativa do Codex, bases da corretora, caches e logs não integram o backup. O arquivo `config/mt5-codex.config.example.toml` é somente exemplo inativo, com nomes de variáveis, sem tokens. A biblioteca padrão `Trade/Trade.mqh` deve ser fornecida pela instalação do MT5; não foi duplicada neste snapshot.
 
 A validação da v1.23 inclui 11 testes Python aprovados, script MQL5 com `failures=0` e um backtest comparativo local. Consulte [VALIDACAO_001_V123.md](VALIDACAO_001_V123.md) para configuração, resultados e limites. Não há instrução de execução em conta real.
+
+## Fase 2.1 — executor Python do Strategy Tester
+
+Implementado em Python 3.11+, sem dependências adicionais. A Estratégia 001,
+GeraSet e Uni.mql5 não foram modificados. Nesta fase foram executados apenas
+testes offline e uma simulação da CLI; nenhum backtest, compilação ou ordem.
+
+### Arquitetura e método
+
+- `strategy_factory/tester.py`: configuração validada, plano offline, orquestração,
+  deadline, parada por `run_id`, isolamento e bloqueios exclusivos.
+- `strategy_factory/mcp.py`: cliente Streamable HTTP JSON-RPC com inicialização MCP,
+  bearer somente em memória, sessão, respostas JSON/SSE e lista fechada de ferramentas.
+- `strategy_factory/reports.py`: análise conservadora de HTML MT5 e JSON normalizado.
+- `strategy_factory/__main__.py`: CLI com simulação por padrão.
+- `tests/test_tester.py`: testes offline, transporte e Tester substituídos por fakes.
+
+O caminho escolhido usa `rico_terminal`: `get_workspace_info` →
+`tester_prepare_config` → `tester_run_backtest(wait=false)` →
+`tester_get_status` → `tester_get_report(run_id, file_format=json)`.
+Em timeout/falha, tenta `tester_stop` somente para o identificador desta execução.
+O schema das ferramentas foi inspecionado no catálogo desta sessão; não houve
+chamada de início para comprovar a execução completa. MetaEditor permanece fora
+do executor; compilação será uma etapa separada futura.
+
+Também foi investigado `/config:arquivo.ini`, documentado oficialmente pela
+[MetaQuotes](https://www.metatrader5.com/en/terminal/help/start_advanced/start).
+A POC histórica deste projeto confirmou execução pela interface, não sucesso
+automático por linha de comando. Não foi implementado fallback que abra outro
+terminal ou altere configurações de conta. As ferramentas nativas escolhidas são
+documentadas em [MCP capabilities](https://www.metatrader5.com/en/terminal/help/mcp_and_ai/capabilities).
+
+### Uso offline e testes
+
+```powershell
+python -m unittest discover -s tests -v
+python -m strategy_factory config/tester/factory.example.json
+```
+
+O exemplo contém um caminho fictício `C:\MT5-LAB`, não credenciais. A simulação
+não lê tokens, não conecta ao MCP e não escreve no MT5. Cada chamada cria
+`runs/<dataUTC>_<uuid>/` com `request.json`, `plan.json` e `result.json`.
+Os arquivos são criados exclusivamente, sem sobrescrever arquivos anteriores.
+`runs/` e seus relatórios ficam fora do Git.
+
+O JSON permite escolher EA compilado absoluto `.ex5`, símbolo, timeframe, datas
+ISO com granularidade diária, depósito, moeda, modelo de ticks, alavancagem e
+atraso de execução. Spread fixo é rejeitado explicitamente: o schema Rico não
+expõe esse parâmetro. Otimização, genética e forward ficam desabilitados.
+
+### Primeiro backtest, somente após autorização específica
+
+1. Autorizar um único cenário curto, confirmando EA compilado de homologação,
+   caminho permitido, ativo, datas, depósito, modelo e orçamento de tempo.
+2. Criar uma cópia local do JSON em `runs/` com o caminho real permitido pelo
+   workspace Rico; não alterar a Estratégia 001 validada.
+3. No processo Python, fornecer `MT5_TERMINAL_TOKEN` pelo ambiente seguro já
+   utilizado no laboratório. A autenticação da extensão não é automaticamente
+   herdada pelo Python. O cliente não lê nem descriptografa DPAPI.
+4. Somente então executar, por exemplo:
+
+```powershell
+python -m strategy_factory runs/cenario-autorizado.json --execute --authorize-backtest --timeout 120
+```
+
+O endpoint padrão é `http://127.0.0.1:22346/mcp`; `--endpoint` aceita somente
+HTTP loopback, sem credenciais na URL ou redirecionamentos. O token não é gravado
+nos diagnósticos. O adaptador também aceita um callable autenticado
+`call_tool(nome, argumentos)` via `TesterRunner` para integração futura.
+
+### Relatórios, falhas e limitações
+
+Em execução autorizada, preserva `prepare.json`, `remote_run.json`, snapshots
+`status_*.json`, `report.json` e `analysis.json` no diretório exclusivo. O relatório
+JSON é retornado inline pelo MCP e arquivado localmente; não procura arquivos de
+outros testes nem consulta o último relatório sem identificar a execução.
+O `.ini` remoto recebe nome UUID exclusivo em `MQL5\Profiles\Tester`; não altera
+configuração de negociação do terminal. Não há exportação de HTML/XML/XLSX nesta
+versão, nem cópia de imagens auxiliares.
+
+O analisador separa drawdown de saldo e de patrimônio, absoluto em dinheiro e
+relativo em porcentagem. Extrai lucro líquido, Profit Factor, operações, taxa de
+acerto e retorno esperado quando explicitamente reconhecidos. Valores ausentes,
+duplicados ou inválidos ficam `null`, com diagnóstico. JSON normalizado aceita
+`statistics` com chaves `net_profit`, `profit_factor`,
+`balance_drawdown_absolute`, `balance_drawdown_relative`,
+`equity_drawdown_absolute`, `equity_drawdown_relative`, `trades`, `win_rate`,
+`expected_payoff`. Percentuais JSON usam escala 0–100. Resultados por período
+requerem `period_results: [{"period":"2026-11", "net_profit":85, "trades":4}]`;
+não são reconstruídos de negócios sem atribuição confiável. HTML suporta rótulos
+reconhecidos em português/inglês; outras variantes permanecem inconclusivas.
+
+Os formatos nativos de status/relatório ainda precisam de um teste autorizado.
+O executor rejeita status desconhecido e mantém os dados brutos para ajustar o
+adaptador. JSON nativo sem campos reconhecidos gera análise inconclusiva, nunca
+zeros inventados. `stopped` indica que o processo parou; não comprova sozinho
+sucesso econômico ou integridade do histórico. O relatório precisa ser revisado.
+
+O timeout limita a espera de polling; cada requisição HTTP tem timeout de socket
+de 15 segundos. Chamadas de rede e confirmação de parada podem exceder o deadline.
+Se a parada não for confirmada, o lock permanece e exige reconciliação manual.
+Em crash ou início ambíguo sem `run_id`, nunca remove automaticamente o lock.
+Há um lock no diretório de execuções e outro por pasta MQL5 em
+`%TEMP%\mt5-strategy-factory-locks`, compartilhado por processos do mesmo usuário,
+mesmo usando diretórios de execução diferentes. Esses locks não bloqueiam testes
+iniciados pela interface, outros usuários ou clientes externos; reservar o Tester
+exclusivamente para a Factory durante a execução autorizada.
+
+Diagnósticos de exceções armazenam somente tipo, identificador e estado do lock,
+sem mensagens potencialmente sensíveis do transporte. Os retornos brutos de
+relatórios podem conter informações da conta de teste; permanecem locais e
+ignorados pelo Git. Não existe chamada de trading, alteração de conta, leitura
+de credenciais DPAPI, compilação ou otimização no executor.
+
+Validação local desta fase: **33 testes Python aprovados**, incluindo os 11
+existentes; extração do HTML histórico confirmada sem executar o MT5.

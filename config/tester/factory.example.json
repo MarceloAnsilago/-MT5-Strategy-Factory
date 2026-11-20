@@ -1,0 +1,12 @@
+{
+  "expert": "C:\\MT5-LAB\\MQL5\\Experts\\MT5StrategyFactory\\Homologacao_001\\MT5SF_Homologacao_001.ex5",
+  "symbol": "PETR4",
+  "timeframe": "M1",
+  "from_date": "2026-11-16",
+  "to_date": "2026-11-17",
+  "deposit": 10000,
+  "currency": "BRL",
+  "model": "every tick",
+  "execution_delay": 0,
+  "leverage": 1
+}
