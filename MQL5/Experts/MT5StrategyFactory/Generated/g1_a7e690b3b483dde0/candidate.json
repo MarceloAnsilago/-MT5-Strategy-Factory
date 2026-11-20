@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "g1_a7e690b3b483dde0",
+  "generator_version": "1.0.0",
+  "spec_sha256": "a7e690b3b483dde0251a6b96d83b26771e331e3e7e7f0a01f982c129d6ec0ddf",
+  "source_sha256": "2341c37562b7887a49309d29018827ece9bc00efa46bb730fcc6af02735d1805",
+  "template_sha256": "ab9c0462fe9232d0aa3646af2aa8cec27535513bac0fa3adda14e36b2df85149",
+  "source_file": "MT5SF_G_a7e690b3b483dde0.mq5",
+  "compiled_sha256": null,
+  "policy": {
+    "tester_only": true,
+    "optimization": false,
+    "live_execution_enabled": false
+  },
+  "parameters_location": "compiled_constants",
+  "manifest_inputs": {},
+  "symbol": "PETR4",
+  "timeframe": "M5"
+}

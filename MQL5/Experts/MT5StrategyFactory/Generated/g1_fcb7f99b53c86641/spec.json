@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "symbol": "PETR4",
+  "timeframe": "M5",
+  "entries": {
+    "long": [
+      {
+        "kind": "adx_strength",
+        "period": 14,
+        "minimum": 0.0,
+        "maximum": 25.0
+      },
+      {
+        "kind": "rsi_cross",
+        "period": 14,
+        "level": 30.0,
+        "relation": "above"
+      }
+    ],
+    "short": [
+      {
+        "kind": "adx_strength",
+        "period": 14,
+        "minimum": 0.0,
+        "maximum": 25.0
+      },
+      {
+        "kind": "rsi_cross",
+        "period": 14,
+        "level": 70.0,
+        "relation": "below"
+      }
+    ]
+  },
+  "exits": {
+    "long": [
+      {
+        "kind": "rsi_level",
+        "period": 14,
+        "level": 60.0,
+        "relation": "above"
+      }
+    ],
+    "short": [
+      {
+        "kind": "rsi_level",
+        "period": 14,
+        "level": 40.0,
+        "relation": "below"
+      }
+    ]
+  },
+  "risk": {
+    "volume_mode": "minimum",
+    "sl_percent": 1.0,
+    "tp_percent": 1.5,
+    "max_spread_points": 10.0,
+    "max_entries": 30,
+    "max_holding_bars": 24,
+    "deviation_points": 5
+  }
+}

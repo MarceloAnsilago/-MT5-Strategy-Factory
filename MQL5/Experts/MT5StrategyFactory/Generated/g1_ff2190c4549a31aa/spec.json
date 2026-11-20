@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "symbol": "PETR4",
+  "timeframe": "M5",
+  "entries": {
+    "long": [
+      {
+        "kind": "ma_cross",
+        "fast": 9,
+        "slow": 21,
+        "method": "EMA",
+        "direction": "above"
+      },
+      {
+        "kind": "adx_strength",
+        "period": 14,
+        "minimum": 20.0,
+        "maximum": 60.0
+      }
+    ],
+    "short": []
+  },
+  "exits": {
+    "long": [
+      {
+        "kind": "ma_cross",
+        "fast": 9,
+        "slow": 21,
+        "method": "EMA",
+        "direction": "below"
+      }
+    ],
+    "short": []
+  },
+  "risk": {
+    "volume_mode": "minimum",
+    "sl_percent": 1.0,
+    "tp_percent": 2.0,
+    "max_spread_points": 10.0,
+    "max_entries": 30,
+    "max_holding_bars": 48,
+    "deviation_points": 5
+  }
+}

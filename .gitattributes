@@ -46,3 +46,7 @@
 /config/tester/MT5SF_Homologacao_001.PETR4.M1.20261117_20261118.200.ini -text -filter -ident -working-tree-encoding
 /config/tester/MT5SF_Homologacao_001_PETR4_M1_20261117.ini -text -filter -ident -working-tree-encoding
 /VALIDACAO_001_V123.md -text -filter -ident -working-tree-encoding
+# Generated source hashes use UTF-8/LF bytes, including on Windows checkouts.
+/MQL5/Experts/MT5StrategyFactory/Generated/** text eol=lf
+/strategy_factory/templates/*.mq5.in text eol=lf
+/config/generator/*.json text eol=lf

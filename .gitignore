@@ -111,3 +111,9 @@ logs/
 /config/batches/*
 !/config/batches/example.json
 !/config/batches/manifest.schema.json
+!/tests/test_generator.py
+!/GERADOR.md
+!/config/generator/
+/config/generator/*
+!/config/generator/demo_specs.json
+!/config/generator/demo_manifest.json

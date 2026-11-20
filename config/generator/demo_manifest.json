@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "generated-demo-001",
+  "revision": 1,
+  "policy": {
+    "simulation_default": true,
+    "environment": "strategy_tester",
+    "optimization": false,
+    "forward_mode": 0,
+    "local_agents_only": true,
+    "allow_live_trading": false,
+    "automatic_retries": false
+  },
+  "budget": {
+    "max_strategies": 3,
+    "max_backtests": 3,
+    "timeout_per_test_seconds": 180,
+    "timeout_batch_seconds": 540,
+    "max_attempts_per_test": 1,
+    "max_concurrency": 1,
+    "max_artifact_bytes": 1048576,
+    "max_run_artifact_bytes": 262144,
+    "min_free_disk_bytes": 67108864
+  },
+  "strategies": [
+    {
+      "strategy_id": "g1_a7e690b3b483dde0",
+      "version": "1.0.0",
+      "ea": {
+        "path": "C:\\MT5-LAB\\MQL5\\Experts\\MT5StrategyFactory\\Generated\\g1_a7e690b3b483dde0\\MT5SF_G_a7e690b3b483dde0.ex5",
+        "source_sha256": "2341c37562b7887a49309d29018827ece9bc00efa46bb730fcc6af02735d1805",
+        "compiled_sha256": "8a0a2c24bf081f856e965b8243fc81097181230d7efb06f5934b9a38e76b7387"
+      }
+    },
+    {
+      "strategy_id": "g1_fcb7f99b53c86641",
+      "version": "1.0.0",
+      "ea": {
+        "path": "C:\\MT5-LAB\\MQL5\\Experts\\MT5StrategyFactory\\Generated\\g1_fcb7f99b53c86641\\MT5SF_G_fcb7f99b53c86641.ex5",
+        "source_sha256": "d1ccbba691a8346951e1df676ef30ca7d7cc93fdcc9133f0d8acc597408a29c0",
+        "compiled_sha256": "3f2af4df4a0eda57e9d5c1fe5e2e26549840b578b0ccbdd575efa1c401dcab13"
+      }
+    },
+    {
+      "strategy_id": "g1_ff2190c4549a31aa",
+      "version": "1.0.0",
+      "ea": {
+        "path": "C:\\MT5-LAB\\MQL5\\Experts\\MT5StrategyFactory\\Generated\\g1_ff2190c4549a31aa\\MT5SF_G_ff2190c4549a31aa.ex5",
+        "source_sha256": "4741ade1f856db724c591de8817fdc4ebb739a159f554658f4d11be52a8d0b8f",
+        "compiled_sha256": "4b4ea1131a65748cdc55156d27b946ea98720fe160b275c3fb9e8901c5aaeb53"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "g1_a7e690b3b483dde0-demo",
+      "strategy_id": "g1_a7e690b3b483dde0",
+      "parameters": {
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "from_date": "2026-11-03",
+        "to_date": "2026-11-14",
+        "deposit": 10000,
+        "currency": "BRL",
+        "leverage": 1,
+        "model": "every tick",
+        "execution_delay": 0
+      },
+      "inputs": {}
+    },
+    {
+      "run_id": "g1_fcb7f99b53c86641-demo",
+      "strategy_id": "g1_fcb7f99b53c86641",
+      "parameters": {
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "from_date": "2026-11-03",
+        "to_date": "2026-11-14",
+        "deposit": 10000,
+        "currency": "BRL",
+        "leverage": 1,
+        "model": "every tick",
+        "execution_delay": 0
+      },
+      "inputs": {}
+    },
+    {
+      "run_id": "g1_ff2190c4549a31aa-demo",
+      "strategy_id": "g1_ff2190c4549a31aa",
+      "parameters": {
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "from_date": "2026-11-03",
+        "to_date": "2026-11-14",
+        "deposit": 10000,
+        "currency": "BRL",
+        "leverage": 1,
+        "model": "every tick",
+        "execution_delay": 0
+      },
+      "inputs": {}
+    }
+  ]
+}

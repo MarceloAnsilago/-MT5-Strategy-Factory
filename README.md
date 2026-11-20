@@ -217,3 +217,17 @@ O backend real permanece desabilitado mesmo com registro de autorização válid
 Consulte [LOTES.md](LOTES.md) para módulos, comandos, limites e procedimento de
 aprovação futura. **139 testes aprovados**; somente testes offline e simulações.
 Nenhum EA, credencial ou configuração de negociação foi alterado.
+
+### Fase 3.1 — gerador de estratégias MQL5
+
+`strategy_factory.generator` gera candidatos independentes a partir de JSON
+validado, combinando MA, RSI e ADX, entradas long/short, saídas e risco limitado.
+Identidades/hashes determinísticos, registro SQLite e criação exclusiva preservam
+histórico e bloqueiam duplicações. O template usa candles fechados, volume mínimo
+e bloqueios fora do Tester e durante otimização.
+
+Três demos foram produzidos em `MQL5/Experts/MT5StrategyFactory/Generated/` e
+compilados pelo MCP Rico: **0 erros e 0 avisos em cada um**. **158 testes aprovados**.
+Nenhum backtest ou ordem foi iniciado. Consulte [GERADOR.md](GERADOR.md) para regras,
+limites, arquivos, compilação e integração com manifesto/resumo. O backend real
+continua desabilitado; a Fase 3.2 depende de nova autorização.
