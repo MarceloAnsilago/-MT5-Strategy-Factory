@@ -1,0 +1,212 @@
+MT5 STRATEGY FACTORY — FASE 3.2B
+Preparação do primeiro backtest individual — 21/11/2026
+
+Resultado: a instalação tem capacidade declarada e agentes locais disponíveis
+para um teste individual supervisionado. A infraestrutura atual NÃO oferece
+garantia de prazo físico máximo nem exclusão contra outros operadores do MT5.
+Execução continua bloqueada até aprovação explícita e passagem dos gates abaixo.
+Nenhum backtest foi iniciado; não existe autorização de execução registrada.
+
+1. Origem e identidade
+
+Foi reutilizado, sem alteração, o manifesto da Fase 3.2A:
+runs/phase32_preflight_20261121/manifest.json
+SHA256 canônico revalidado:
+f0c69bffd060511f1bc8a5f6662606aa41e84d9630b9470f1ee5f88f8b7c553c
+
+Candidato selecionado: g1_ff2190c4549a31aa, versão 1.00, gerador 1.0.0.
+EA: MT5SF_G_ff2190c4549a31aa, instalado em Experts/MT5StrategyFactory/Generated.
+Motivo da seleção: primeiro item do manifesto e estratégia apenas compradora,
+reduzindo a dependência de regras de venda/aluguel nesta homologação inicial.
+Os demais dois candidatos não fazem parte desta proposta individual.
+
+verify_candidate e audit_candidate passaram novamente. O fonte instalado foi
+lido integralmente pelo MCP e seu hash conferido por leitura local no read_root.
+EX5 foi lido como bytes no mesmo read_root, pois read_file não expõe EX5 sem perda.
+O hash atual coincide com o manifesto e o registro pós-compilação da Fase 3.1.
+Não houve compilação ou alteração do EA.
+
+SHA256 especificação:
+ff2190c4549a31aa6b7bd2f2d7be54047d7188758ab42254fee52735bd7cb735
+SHA256 fonte:
+4741ade1f856db724c591de8817fdc4ebb739a159f554658f4d11be52a8d0b8f
+SHA256 EX5:
+4b4ea1131a65748cdc55156d27b946ea98720fe160b275c3fb9e8901c5aaeb53
+
+Isto é uma cadeia documental de arquivos, não atestado de binário carregado pelo
+Tester. O runtime ainda deverá ser confrontado com INIT, ID/hash da especificação,
+journal e relatório nativo; o log INIT sozinho não prova o hash do EX5 carregado.
+
+Parâmetros originais: PETR4/M5; inputs={}; EMA9 cruza acima da EMA21 e ADX14 entre
+20 e 60; apenas compra; SL 1%, TP 2%; máximo 30 entradas, holding 48 barras válidas;
+volume mínimo do símbolo; spread máximo 10 pontos, desvio 5 pontos.
+Bloqueios MQL_TESTER e recusa MQL_OPTIMIZATION preservados.
+
+2. Consulta válida do Strategy Tester
+
+tester_get_status exige um ID devolvido por uma execução, segundo o schema MCP.
+Foi usado um ID real preservado em remote_run.json de execução anterior do projeto.
+A resposta atual foi tester_status=stopped, run_id="0", progress_description=
+"tester stopped". A chamada não apresentou erro. Os argumentos completos e a
+origem do ID ficam no evidence.json local. "0" é o sentinela retornado pelo
+servidor quando parado; não foi reutilizado como argumento de consulta.
+
+A interface corroborou a ociosidade: botão Iniciar e agentes ready.
+Isso confirma o instante da inspeção, sem reserva atômica do Tester. O estado
+deverá ser consultado novamente imediatamente antes de qualquer futura partida.
+
+3. Agentes, capacidade e seleção
+
+MCPs de MT5 Rico e MetaEditor responderam get_workspace_info. O terminal declara
+can_run_backtest=true e build 6230. Ambos usam o mesmo diretório MQL5 da Rico.
+A interface mostrou Local: 24 cores, Core 01 a Core 24 em ready; hardware Ryzen
+9 5900X 12-Core, memória declarada 32652 MB. Memória livre e cotas de CPU/RAM não
+foram aferidas. Disco livre observado: aproximadamente 330,76 GB.
+
+O menu de agentes mostrou:
+- Usar agentes locais: marcado.
+- Usar o cluster de agentes locais (Local Network Farm): marcado.
+- Usar a MQL5 Cloud Network: desmarcado.
+Nenhuma dessas seleções foi modificada. A existência de agentes locais ready
+não comprova uso exclusivamente local na próxima execução.
+
+Foi preparado apenas em runs/ um rascunho de INI exclusivo com [Tester],
+UseLocal=1, UseRemote=0, UseCloud=0, Visual=0 e ShutdownTerminal=0.
+Essas opções têm documentação oficial, mas a aplicação efetiva pelo MCP da Rico
+não foi testada nesta etapa. O INI ainda não está instalado no terminal.
+Não confiar no estado global herdado nem em tester_prepare_config, que não
+expõe seleção de agentes nos argumentos. Não iniciar ou reiniciar terminal
+por linha de comando: o fluxo futuro deve usar apenas o MCP na instância existente.
+
+4. Cenário individual proposto
+
+PETR4/M5, 03/11/2026 00:00 até 07/11/2026 00:00 exclusivo, cobrindo 03–06/11.
+Depósito de teste BRL 10000, alavancagem 1:1, every tick gerado (Model=0), atraso
+normal de 0 ms; Optimization=0, ForwardMode=0, ProfitInPips=0.
+Não foram alterados parâmetros de negociação. São valores propostos, não uma
+alegação sobre a configuração atualmente carregada no Tester.
+
+São reaproveitadas as evidências da Fase 3.2A, da mesma data: 377 barras M5 e
+1870 M1 em 03–06/11, mais 403 M5 anteriores para aquecimento. Há dados para o
+cenário pequeno, sem certificação de completude, ajustes ou qualidade do Tester.
+Ticks reais foram declarados disponíveis somente desde 16/11, por isso a proposta
+usa ticks gerados. O modelo efetivo, período, pré-histórico, depósito e alavancagem
+deverão ser conferidos no journal/relatório futuro. Horário do servidor sem offset
+confirmado; as datas do cenário são datas de calendário do Tester.
+
+Condições do símbolo observadas na Fase 3.2A: volume mínimo/step 100 ações,
+contrato 1, tick/point R$0,01; modo FULL, execução exchange. O EA calcula margem
+antes de entrar, mas suficiência e regime de margem no Tester não foram provados.
+Comissões, emolumentos, aluguel, slippage e custos completos permanecem
+não verificados. margin_initial=0 não significa margem gratuita. O objetivo é
+homologação técnica, sem interpretação de rentabilidade líquida ou robustez.
+
+5. Parada e controle de duração
+
+O schema MCP documenta tester_stop(run_id=<ID da execução>) para interromper
+um teste. A parada não foi chamada: não havia teste próprio autorizado ativo.
+Não há prova empírica nesta etapa de que o servidor rejeite um ID alheio ou de
+que a interrupção termine dentro de prazo físico fixo.
+
+O runner individual existente usa wait=false, monitora status e tem deadline
+cooperativo. Em timeout/falha tenta tester_stop e consulta status; retém locks
+quando não consegue confirmar parada. Evita parar outro ID quando detecta
+divergência de execução ativa durante polling. Não mata terminal nem processos.
+
+Limites propostos: uma partida total, tentativa 1, polling 1 s, deadline de
+orquestração 180 s, socket timeout proposto 15 s por chamada e janela supervisionada
+adicional de 45 s para parada/reconciliação. São limites operacionais pretendidos,
+não garantia de término em 180 ou 225 s. Não usar timeout_sec de wait como parada:
+a documentação MCP afirma que o teste continua após o timeout de espera.
+
+Lacunas concretas do runner, sem modificação de código nesta etapa:
+- Não faz consulta de ociosidade nativa antes de tester_run_backtest.
+- call_tool é injetável; o runner não impõe timeout de transporte. RicoMCP oferece
+  timeout de socket (padrão 15 s), que não é watchdog físico de operação inteira.
+- Os locks serializam apenas clientes cooperantes, não a interface, outro usuário
+  ou um cliente externo. Não havia lock terminal compartilhado nem terminal.lock
+  ou simulation.lock no projeto no instante da inspeção.
+- O parâmetro authorized=True é booleano; não valida por si uma aprovação humana,
+  hash, validade ou consumo durável da tentativa. O bridge histórico demonstra
+  reserva de uma partida em arquivo, mas não deve ser executado ou reaproveitado
+  sem plano novo e revisão; ele contém escopo de uma homologação anterior.
+- Os 16 MiB de artefatos por tentativa e 2 GiB de disco livre são limites a
+  monitorar, não cotas aplicadas pelo runner. Logs/cache MT5 ficam fora da quota.
+- O caminho de erro chama stop com o ID conhecido sem nova verificação de posse
+  em todos os casos. É necessário conferir a execução ativa antes de parar e
+  reconciliar qualquer ambiguidade, sem stop genérico ou retry de partida.
+
+Portanto, não liberar execução desassistida nem prometer ausência absoluta de
+interferência. Um teste supervisionado é possível condicionalmente ao protocolo
+abaixo e a uma janela exclusiva acordada com o operador. Se o requisito for
+prazo físico rígido ou exclusão atômica contra toda atividade externa, a
+infraestrutura atual não o atende e precisa de trabalho adicional autorizado.
+
+6. Gates obrigatórios para uma futura execução aprovada
+
+1) Registrar aprovação humana explícita do cenário individual e de sua validade,
+   sem chamar a API de autorização de lote ou habilitar BatchController.execute.
+2) Revalidar manifesto, fonte, especificação, EX5 e cenário; falha bloqueia.
+3) Reservar locks locais; conferir ausência de execução pelo MCP e pela interface;
+   combinar janela sem novas partidas externas. Se ocupado/ambíguo, não iniciar,
+   não parar o trabalho alheio e não limpar locks automaticamente.
+4) Instalar somente um INI novo em Profiles/Tester, com criação exclusiva e
+   readback/hash, após autorização. Conferir agentes locais apenas e configuração
+   efetiva; se o MCP não respeitar as opções, bloquear sem usar fallback remoto.
+5) Gravar reserva durável da tentativa antes de uma única chamada start, com
+   wait=false. Partida ambígua consome a tentativa: não repetir.
+6) Capturar run_id real. Monitorar prazo e logs. Antes de stop, confirmar que
+   o ID ativo é o próprio; ao parar, consultar novamente até stopped ou até a
+   janela de reconciliação. Estado incerto mantém locks e exige intervenção.
+7) Em perda de MCP, usar parada manual do Tester apenas com identificação da
+   execução própria e supervisão. Nunca encerrar terminal/processos, alterar
+   EAs operacionais, posições da conta ou opções globais de segurança.
+8) Preservar relatório/journal, configurações e resultado; encerrar a sessão
+   após este único teste, independentemente do resultado. Nenhum segundo EA.
+
+Não foi criado adaptador novo nem corrigido o runner nesta etapa. O protocolo
+é uma proposta revisável, não uma certificação de que esses gates já estão
+implementados automaticamente. A supervisão deverá cumprir cada gate.
+
+7. Proposta de autorização — não é uma autorização emitida
+
+Arquivos privados novos:
+runs/phase32b_preparation_20261121/scenario.json
+runs/phase32b_preparation_20261121/authorization_proposal.json
+runs/phase32b_preparation_20261121/single_test_draft.ini
+runs/phase32b_preparation_20261121/evidence.json
+
+Hash SHA256 canônico do cenário completo (EA, hashes, parâmetros, INI, tentativa,
+limites, gates, mecanismo de parada e validade):
+37f9f2d0865a68416241e1ba7fee57919e3af89017da91c109ab2d0e7503854b
+
+Hash SHA256 dos bytes do INI rascunho:
+a991a57f5e2edafe171dd6f40a919172925f76493d438cae11cf465053836c73
+
+Validade proposta: aprovação explícita somente a partir de 21/11/2026 00:00
+até 22/11/2026 23:59, America/Sao_Paulo (UTC-03). A aprovação não retroage.
+Se expirar antes da partida ou o conteúdo mudar, renovar proposta/hash/aprovação.
+
+Texto proposto para o usuário, ainda NÃO aprovado:
+AUTORIZO BACKTEST INDIVIDUAL g1_ff2190c4549a31aa TENTATIVA 1 SHA256 37f9f2d0865a68416241e1ba7fee57919e3af89017da91c109ab2d0e7503854b VALIDO ATE 2026-11-22T23:59:00-03:00
+
+A aprovação deve incluir aceitação das limitações de custos/margem e do prazo
+cooperativo supervisionado. Gates continuam obrigatórios; aprovação não autoriza
+ignorar bloqueios. O lote original continua planejado, sem autorizações e sem
+tentativas consumidas. Seu manifesto não foi convertido em autorização real.
+
+8. Referências e validação
+
+Código inspecionado: strategy_factory/tester.py, mcp.py, batch_control.py e
+generator.py. Schemas MCP consultados: get_workspace_info, tester_get_status,
+tester_run_backtest e tester_stop. Testes offline usam fakes, sem terminal real.
+Validação: python -B -m unittest discover -s tests -v — 158 testes aprovados.
+Os testes não comprovam a parada real, seleção efetiva de agentes ou desempenho.
+
+Documentação oficial MetaTrader 5, seção [Tester], consultada em 21/11/2026:
+https://www.metatrader5.com/en/terminal/help/start_advanced/start
+Documenta Model=0, UseLocal/UseRemote/UseCloud e ShutdownTerminal=0. Ela descreve
+o formato nativo; não comprova que o MCP da Rico aplique cada campo corretamente.
+
+Nenhuma ordem, backtest, otimização, compilação, alteração de EA ou ativação de
+backend de lotes ocorreu. Somente documentação e artefatos locais de preparação.

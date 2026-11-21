@@ -113,6 +113,7 @@ logs/
 !/config/batches/manifest.schema.json
 !/tests/test_generator.py
 !/GERADOR.md
+!/FASE_32B_PREFLIGHT.txt
 !/config/generator/
 /config/generator/*
 !/config/generator/demo_specs.json
