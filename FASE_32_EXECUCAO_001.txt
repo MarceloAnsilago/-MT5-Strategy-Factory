@@ -1,0 +1,174 @@
+MT5 STRATEGY FACTORY — PRIMEIRA HOMOLOGAÇÃO INDIVIDUAL
+Execução autorizada em 21/11/2026, America/Sao_Paulo.
+
+Resultado: um único backtest de g1_ff2190c4549a31aa concluído. Tester parado,
+tentativa 1 consumida e finalizada. Nenhum dos outros dois EAs foi executado.
+Não houve otimização, forward, ordem fora do Tester ou ativação do backend de lotes.
+
+1. Autorização e preflight
+
+Cenário aprovado e revalidado integralmente por SHA256 canônico:
+37f9f2d0865a68416241e1ba7fee57919e3af89017da91c109ab2d0e7503854b
+Manifesto pai preservado:
+f0c69bffd060511f1bc8a5f6662606aa41e84d9630b9470f1ee5f88f8b7c553c
+Autorização humana exclusiva para tentativa 1, válida até 22/11/2026 23:59 UTC-03.
+A verificação ocorreu em 21/11/2026, dentro da validade. A aceitação de limitações
+de custos/margem/parada cooperativa e a janela exclusiva foram registradas.
+
+MCPs responderam get_workspace_info; mesma instalação MQL5 da Rico, build 6230.
+verify_candidate e audit_candidate passaram; hashes do fonte e EX5 foram
+reconferidos imediatamente antes de start, sob os locks do runner individual.
+Fonte SHA256: 4741ade1f856db724c591de8817fdc4ebb739a159f554658f4d11be52a8d0b8f
+EX5 SHA256: 4b4ea1131a65748cdc55156d27b946ea98720fe160b275c3fb9e8901c5aaeb53
+Os mesmos hashes permaneceram após o teste. Não houve recompilação ou edição.
+
+Tester stopped confirmado por consulta válida com ID real histórico, pela
+interface e novamente imediatamente antes da reserva, já sob locks locais.
+Não foram encontrados outros locks cooperantes. A exclusividade fora desses
+locks dependeu da janela declarada pelo operador e do estado observado do Tester.
+
+Na interface, agentes locais estavam habilitados e Cloud desabilitada. O cluster
+de agentes da rede local estava habilitado e foi desabilitado expressamente para
+cumprir o escopo aprovado. Menu conferido antes e depois: somente locais marcados.
+Não foram alteradas opções operacionais de negociação da conta.
+
+Foi criado um INI exclusivo em Profiles/Tester pelo MCP, sem sobrescrever outros.
+Readback e hash dos bytes conferiram com o INI incluído no cenário aprovado:
+a991a57f5e2edafe171dd6f40a919172925f76493d438cae11cf465053836c73
+O comentário de rascunho foi preservado para não alterar o hash; a autorização
+real está no registro separado, originado da aprovação explícita na conversa.
+
+Configuração: PETR4/M5, 03/11/2026 a 07/11/2026 exclusivo, depósito BRL 10000,
+alavancagem 1:1, Model=0 (todos os ticks gerados), atraso 0, inputs={}, constantes
+originais. UseLocal=1, UseRemote=0, UseCloud=0, Optimization=0, ForwardMode=0,
+Visual=0, ShutdownTerminal=0. Journal e exportação nativa corroboraram o cenário.
+
+2. Controle da tentativa e execução
+
+Run ID MT5: 7710722521526960284.
+Partida: 21/11/2026 aproximadamente 17:21:27, horário local do host.
+Uma única chamada tester_run_backtest, com wait=false, pelo TesterRunner existente.
+Reserva durável: INSERT com chave única (scenario SHA256, tentativa 1) em SQLite,
+transação síncrona, seguido de arquivo exclusivo com flush/fsync antes da chamada.
+O estado percorreu reserved, start_requested, started e completed.
+
+O primeiro acionamento da ponte local expirou em get_workspace_info antes de
+reserva ou start. Diagnóstico preservado: start_calls=0 e run_id=null. A entrega
+local de respostas foi corrigida, sem mudar o cenário. Não houve segunda tentativa
+de backtest: somente uma reserva e uma chamada de início chegaram ao MT5.
+
+O runner usou locks por root e por instalação. O callback local acrescentou
+consulta de ociosidade antes de start, verificação de hashes/validade e reserva
+atômica. Nenhum backend de lotes foi habilitado e o código versionado do runner
+não foi modificado. A ponte e o controle desta execução permanecem em runs/.
+
+Deadline cooperativo 180 s; polling solicitado a cada 1 s, sujeito ao transporte.
+Foram observados started e stopped para o mesmo ID. Orquestração de aproximadamente
+15,297 s, incluindo a ponte; journal nativo informa teste em 0,126 s e 0,194 s
+incluindo sincronização. Não houve timeout do teste nem chamada tester_stop.
+Logo, o mecanismo de parada real e sua janela de 45 s não foram exercitados.
+
+Estado final confirmado novamente por MCP: stopped, mesmo run_id. Locks liberados.
+O controlador individual registra completed, start_calls=1. A autorização foi
+consumida para esta tentativa e não permite repetição. O lote original permanece
+planned, sem tentativas de lote consumidas; isso não autoriza reproduzir este teste.
+
+3. Resultados nativos confirmados
+
+Fonte: JSON do MCP, XLSX nativo exportado para o run_id e journal de 108 registros,
+não truncado, delimitado ao intervalo desta única execução.
+
+Operações fechadas                  6 (todas compradas)
+Operações com lucro                 1
+Operações com perda                 5
+Negócios de negociação             12 (mais um registro de depósito no XLSX)
+Saldo inicial                R$ 10.000,00
+Saldo final                   R$ 9.857,00
+Lucro/prejuízo líquido          R$ -143,00
+Lucro bruto                      R$ 11,00
+Perda bruta                    R$ -154,00
+Fator de lucro                     0,0714 (XLSX: 0,071429)
+Taxa de acerto nativa              16,67%
+Drawdown máximo do saldo        R$ 154,00 (1,54%)
+Drawdown máximo da equity       R$ 184,00 (1,84%)
+Drawdown absoluto da equity     R$ 161,00 (métrica distinta do máximo)
+Barras M5 geradas                    377
+Ticks gerados                   437.624
+Qualidade de histórico declarada    100%
+
+O XLSX contém 12 ordens preenchidas (tickets 2 a 13), contadas nas linhas 58–69.
+Essa quantidade é cálculo sobre a tabela nativa, não campo explícito do JSON.
+As 12 transações de negociação estão nas linhas 73–84. Contagem/valores conferem
+com o JSON e o journal. A taxa calculada 100*1/6=16,6667% confere com 16,67% nativo.
+Retorno calculado sobre o depósito: -1,43%. Não é projeção de desempenho futuro.
+
+Resultados por operação, extraídos dos negócios de saída:
+1) Compra 03/11 12:20, saída EA 03/11 15:15:       R$ -1,00.
+2) Compra 03/11 17:05, stop 04/11 10:09:         R$ -66,00.
+3) Compra 05/11 10:09, stop 05/11 10:57:29:      R$ -48,00.
+4) Compra 05/11 15:25, saída EA 05/11 15:50:     R$ -22,00.
+5) Compra 06/11 13:25, saída EA 06/11 13:45:     R$ -17,00.
+6) Compra 06/11 17:00, fim do teste 17:54:59:     R$ +11,00.
+
+O ganho da operação 6 foi imposto pelo fechamento final do Tester, não por sinal
+de saída do EA. Separando apenas para diagnóstico: saídas EA/SL somam R$ -154,00;
+fechamento final soma R$ +11,00. Essa separação não é um backtest alternativo.
+Na operação 2, SL de 50,19 foi executado a 50,04 na abertura seguinte. Diferença
+calculada: R$ 15,00 para 100 ações além do disparo. Não é custo total de slippage.
+
+4. Execução, agentes e custos
+
+Seis FACTORY ENTRY com retcode=10009; três FACTORY CLOSE com retcode=10009.
+Outras três saídas: dois stops e encerramento final. Todas as ordens do XLSX
+estão filled. Não há FACTORY HALT nem mensagem de rejeição/erro no journal coletado.
+Isto se limita ao journal delimitado, não a uma certificação de todos os logs MT5.
+
+Agente efetivamente registrado: Core 01, 127.0.0.1:3000, build 6230. Journal
+declara cloud network mode is off. INI carregado, seleção local exclusiva na UI
+antes/depois e agente observado sustentam execução local; não foi usado agente
+remoto ou Cloud nesta execução observada.
+
+XLSX registra comissão 0,00 e swap 0,00 em cada negócio. Somas derivadas dessas
+colunas: comissão R$ 0,00 e swap R$ 0,00. Isso confirma os valores contabilizados
+pelo Tester, não ausência de emolumentos, taxas ou custos reais. Modelo completo
+de custos, fees, aluguel e margem efetiva permanecem indisponíveis. O JSON retorna
+margin_level=DBL_MAX; foi tratado como sentinela, não como margem válida.
+
+5. Divergências e limitações
+
+O journal informa 34.487 bytes carregados para o expert; o EX5 em disco tem
+34.398 bytes e mantém o hash aprovado. Diferença de 89 bytes sem causa comprovada.
+Não assumir identidade criptográfica do binário carregado, apesar de caminho,
+nome, FACTORY INIT, hash de especificação e resultados coerentes. Não houve
+recompilação ou nova execução para tentar eliminar essa diferença.
+
+Qualidade 100% é declaração do Tester; não prova integridade econômica, ajustes
+corporativos ou fingerprint independente do histórico. Houve pré-histórico de
+39.306 barras M5 no cache do agente, corroborando dados anteriores aos sinais.
+
+O saldo e as métricas financeiras foram reconciliados sem divergência numérica
+relevante entre JSON, XLSX, journal e cálculos. O resumo continua PARCIAL por
+ausência de custos completos, margem efetiva, prova de conteúdo histórico e hash
+do binário carregado. Não houve avaliação de robustez ou rentabilidade futura.
+O fluxo de parada continua cooperativo e não foi ensaiado nesta execução curta.
+
+6. Artefatos e próximos passos
+
+Resumo padronizado schema 1.1 observado:
+runs/phase32_execution_ff2190c4549a31aa_attempt1/run_summary_1_1.json
+Reconciliação, ordens/negócios, autorização, controlador SQLite, respostas MCP,
+journal e evidências permanecem somente locais nessa pasta e subpastas.
+O XLSX nativo permanece em MQL5/Files/MT5SF_phase32_ff2190_attempt1_report.xlsx.
+Nenhum desses artefatos brutos ou binários deve ser publicado no GitHub.
+
+Antes dos próximos dois EAs, revisar a diferença de tamanho do EX5 carregado e
+as limitações do histórico/custos. Manter o mesmo cenário para comparabilidade,
+uma autorização e tentativa por EA. fcb7f99b53c86641 e a7e690b3b483dde0 incluem
+vendas: conferir margem e execução de shorts em cada preflight. Não alterar
+regras para buscar lucro nesta homologação. Nenhum novo backtest autorizado.
+
+Validação: python -B -m unittest discover -s tests -v, 158 testes aprovados.
+Publicação: revisão de diff/status e varredura dos arquivos versionados antes do
+commit. Somente este relatório e sua
+exceção explícita no .gitignore são candidatos à publicação. EAs protegidos e
+código de execução permanecem inalterados.
