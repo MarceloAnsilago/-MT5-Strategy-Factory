@@ -1,0 +1,192 @@
+MT5 STRATEGY FACTORY — FASE 3.2H
+Terceiro backtest individual e comparação offline — 21/11/2026
+
+1. Resultado e escopo
+
+EA MT5SF_G_a7e690b3b483dde0, candidato g1_a7e690b3b483dde0, versão 1.00.
+Run ID: 7710738160906372936. Concluído; Tester stopped confirmado após o teste.
+Uma chamada de início, tentativa 1 de 1 consumida e completed. Nenhuma repetição.
+MT5 confirmou 14 operações encerradas, todas abertas short; resultado +R$ 369.
+Não foram executados os outros EAs, lotes, otimizações ou ordens fora do Tester.
+Backend real de lotes desabilitado. EAs, parâmetros e resultados antigos intactos.
+
+2. Preflight atual e identidade
+
+Repositório inicialmente limpo, main, HEAD
+5d474ace10f7c1270b07da2497e747db509ec084.
+MT5 Rico e MetaEditor responderam get_workspace_info, mesmo diretório MQL5
+esperado da instalação de identidade 38FF261A42172F3478E54D3A1A8FE02B.
+Terminal conectado Rico-DEMO, demo/hedging, BRL, build 6230. Tester consultado
+com ID válido anterior retornou stopped, novamente conferido sob locks do runner.
+Sem metatester64.exe observado antes da partida; sem locks ou reservas concorrentes.
+Menu nativo: locais habilitados, rede/cluster e MQL5 Cloud desabilitados;
+Core 01 ready. Configuração de agentes não foi alterada. Nenhuma evidência antiga
+substituiu essas consultas atuais. RAM livre 20.426.356 KiB; disco acima de 2 GiB.
+
+Manifesto canônico revalidado, sem alteração:
+1bdcfa58fc13a9a5f9f88476f496d24719dcafa93d663584914d5e1d980c9f40
+Controles canônicos da Fase 3.2G revalidados, sem alteração:
+d18382e61d7638f32cb5d1a3544d99f4eecd6afab02f89b0498ef2ccaba51826
+Fonte instalado SHA256:
+2341c37562b7887a49309d29018827ece9bc00efa46bb730fcc6af02735d1805
+EX5 instalado SHA256:
+8a0a2c24bf081f856e965b8243fc81097181230d7efb06f5934b9a38e76b7387
+Especificação canônica SHA256:
+a7e690b3b483dde0251a6b96d83b26771e331e3e7e7f0a01f982c129d6ec0ddf
+Fonte recomposto deterministicamente por verify_candidate, sem gerar/compilar EA.
+Hashes fonte/EX5 conferidos também imediatamente antes de reservar/partir.
+
+Histórico consultado novamente: 780 barras M5 entre 26/10 e 06/11, sendo
+403 anteriores e 377 no período autorizado. Isso não prova identidade de cada
+tick ou de buffers de indicador carregados no agente. INI único instalado
+igual byte a byte ao rascunho da Fase 3.2E, SHA256:
+744ab06e4a176d3475e3968e511d12e0cfe67d536fb82b7f7e05881576d7b179
+UseLocal=1, UseRemote=0, UseCloud=0; sem SET externo. PETR4/M5, 03/11/2026
+até 07/11/2026 exclusivo, every tick gerado, BRL 10.000, 1:1, execução sem
+atraso, parâmetros originais compilados, otimização 0/forward 0, sem visual.
+Journal nativo confirmou EA, símbolo, período, datas, moeda, depósito e leverage.
+
+3. Autorização, reserva e supervisão
+
+Autorização explícita recebida para este manifesto/controles, uma tentativa,
+com limitações aceitas e janela exclusiva confirmada. Conferida validade até
+22/11/2026 às 23:59 Brasília, antes da partida. Registro privado vincula hashes,
+identidade do EA, validade e digest da solicitação do usuário.
+Os documentos de proposta da preparação permanecem congelados; o novo registro
+individual de autorização é separado, sem reescrever controles ou manifesto.
+Não foi fabricada autorização genérica de lote. Planejador offline permanece
+intacto; consumo efetivo está no single_attempt.sqlite da execução individual.
+
+Usado TesterRunner existente com ponte local e transporte MCP. Sob locks do
+runner e terminal, autorização persistida conferida e reserva atômica INSERT
+com chave única manifesto/tentativa e synchronous=FULL. Sem reserva prévia
+conflitante. Em seguida exatamente uma chamada tester_run_backtest, wait=false.
+Polling aproximadamente 1 s: started em Core 01, depois stopped. Limite
+cooperativo 180 s e janela de reconciliação 45 s disponíveis. Nenhum tester_stop
+necessário, timeout, falha de transporte ou estado indeterminado nesta execução.
+Orquestração 14,406 s; journal teste 0,104 s, login até parada 0,178 s. Escopos
+diferentes; não constituem watchdog físico rígido. Journal informa memória 255 Mb.
+
+4. Resultados financeiros confirmados pelo MT5
+
+Lucro líquido +R$ 369,00; saldo final R$ 10.369,00; lucro bruto R$ 459,00;
+perda bruta R$ 90,00; fator de lucro 5,10. Quatorze operações: nove vencedoras,
+cinco perdedoras. Acerto nativo 64,29% arredondado; cálculo 9/14=64,285714...%.
+Retorno calculado sobre depósito: 3,69%. São resultados desta simulação curta.
+Drawdown máximo do saldo R$ 54,00 (0,52%); máximo de equity R$ 116,00 (1,15%).
+Drawdown absoluto contra depósito: saldo R$ 0 e equity R$ 8; métricas distintas
+dos drawdowns máximos acima. Não usar DBL_MAX de margin_level como margem real.
+377 barras e 437.624 ticks gerados. Qualidade 100% declarada pelo MT5, sem
+comprovação independente de completude ou autenticidade de todos os ticks.
+
+5. Ordens, negócios e auditoria operacional
+
+28 ordens de negociação e 28 negócios: 14 sell/entry=in e 14 buy/entry=out,
+todos 100 ações, integralmente filled. Lançamento inicial balance é separado.
+Quatorze posições agrupadas/encerradas, sem sobreposição; volume residual
+calculado zero. Não há DEAL_POSITION_ID exportado; agrupamento conferido
+por sequência única in/out e tickets de posição/ordem no journal.
+Entradas short foram confirmadas por negócios nativos, ordens e FACTORY ENTRY
+buy=false/retcode 10009. Portanto há evidência de short aceito neste cenário
+do Tester; não estabelece permissão, locação ou margem para conta real.
+Não houve entrada comprada. Não se conclui proibição de compra ou inexistência
+de sinais long: o EA não registra todos os sinais avaliados e descartados.
+
+Três saídas por Take Profit explicitamente ligadas aos tickets no journal;
+11 fechamentos feitos pelo EA com retcode 10009. Esses 11 não distinguem no
+log sinal de saída versus máximo 36 barras válidas; classificados other/EA close,
+sem inventar quantidade de saídas por sinal ou por limite de barras.
+Zero Stop Loss e zero fechamento pelo término do período observados.
+Lucro registrado das 3 operações por TP R$ 350; das 11 por fechamento EA R$ 19
+(partição calculada de 369, não resultado de backtest alternativo).
+Zero rejeições, cancelamentos, parciais e mensagens HALT observados, coerente
+com as 28 ordens filled e volumes reconciliados. Journal 204 registros,
+truncated=false, uma única execução dentro da janela auditada.
+
+Diferenças entre referência de ordem nativa e preço do negócio:
+ordem 7: compra de fechamento 48,51 -> 48,52, efeito calculado -R$ 1;
+ordem 9: 47,46 -> 47,45, efeito calculado +R$ 1;
+ordem 21: 45,37 -> 45,36, efeito calculado +R$ 1.
+Todas em TP e volume 100. Demais referências nativas coincidem com fills.
+A referência exportada não é captura integral da requisição original;
+diferença não demonstra causa, spread realista ou modelo de slippage real.
+Equação short (entrada-saída)*100 conferida para cada par e reconciliada
+com lucro registrado; soma dos negócios 369,00, saldo final 10.369,00.
+
+6. Custos, margem, agentes e identidade em runtime
+
+Comissões registradas zero e swaps registrados zero nos 28 negócios.
+Fees/emolumentos/aluguel e modelo completo de custos permanecem desconhecidos.
+Nem posição atravessando a noite com swap registrado zero prova custo real zero.
+Margem efetiva não verificável; margin_level retorna sentinela DBL_MAX.
+Lucro líquido do MT5 não é lucro líquido de todos os custos de conta real.
+
+Core 01 local no loopback confirmado no journal; cloud network mode off.
+UI/INI confirmavam rede e Cloud desabilitadas, nenhum agente remoto observado.
+EX5 físico 35.214 bytes; journal 35.303 bytes loaded, diferença calculada 89 bytes.
+SHA256 de runtime indisponível e semântica dessa contagem desconhecida. Não
+prova binário diferente nem identidade criptográfica do código executado.
+Fonte/EX5 em disco coincidem com cadeia documental e permaneceram intactos.
+
+Aplicados execution_audit, financial, traceability e analysis. Resumo auditado
+schema 1.1 e referências por célula/registro preservados localmente. Sem
+inconsistências de volumes/direção/preço/P&L nem divergências financeiras.
+Auditoria, qualidade e reconciliação classificadas partial por lacunas
+documentadas. Custos completos, margem, runtime e motivos detalhados de 11
+fechamentos permanecem desconhecidos, sem transformar ausências em zero.
+
+7. Comparação offline dos três testes independentes
+
+Mesmo cenário nominal PETR4/M5, datas 03-07/11 exclusivo, BRL 10.000/1:1,
+ticks gerados. Dados anteriores lidos dos artefatos preservados, sem reexecução.
+
+Métrica                         EMA9/21+ADX       RSI+ADX       Tendência
+Operações encerradas            6                 1             14
+Entradas compradas/vendidas      6/0               1/0           0/14
+Lucro líquido MT5               -R$ 143            -R$ 52         +R$ 369
+Drawdown máximo saldo           R$ 154 (1,54%)     R$ 52(0,52%)   R$ 54(0,52%)
+Drawdown máximo equity          R$ 184 (1,84%)     R$ 56(0,56%)   R$ 116(1,15%)
+Acerto nativo arredondado        16,67%            0%            64,29%
+Fator de lucro JSON nativo       0,0714            0             5,1
+Comissões/swaps registrados      zero/zero         zero/zero     zero/zero
+Custos completos                desconhecidos     desconhecidos desconhecidos
+Qualidade da auditoria           parcial           parcial       parcial
+
+EA1: três fechamentos pelo EA, dois SL e um fechamento final do Tester;
+detalhe permanece no relatório da auditoria anterior.
+EA2: uma compra encerrada por SL, diferença adversa calculadaR$ 1.
+EA3: 14 shorts, 3 TP e 11 fechamentos EA, diferenças de preço descritas acima.
+Nenhum dos três apresentou rejeições ou parciais observadas; todos mantêm
+limitações de custos/margem/runtime. Ausência de short em EA1/EA2 não significa
+proibição, como os shorts efetivos do EA3 demonstram apenas neste cenário.
+
+compare_runs gerou comparação schema 1.1: três pares conditional, ranking=null,
+execution_enabled=false. Custos/histórico completos e configuração efetiva não
+estão integralmente comprovados. A tabela é descritiva, sem classificar o
+melhor EA ou somar resultados como carteira. Os quatro dias não sustentam
+extrapolação de rentabilidade. Resultado positivo do terceiro não o valida
+para operação real, nem remove a necessidade de validação fora da amostra.
+
+8. Estado final, testes e publicação
+
+Tentativa 1/1 completed no controlador individual, uma partida, sem reservas
+ativas indevidas. Locks liberados após confirmação stopped. Registro de
+autorização e consumo privado preservado; backend de lotes continua bloqueado.
+Todos os 199 testes offline passaram: python -B -m unittest discover -s tests -v.
+269 arquivos históricos/instalados mantiveram os hashes anteriores. Controlador
+conferido: uma tentativa completed, uma partida e zero reservas ativas.
+Diff/status e conteúdo sensível revisados antes da publicação.
+Somente este diagnóstico sanitizado e sua inclusão no .gitignore
+são versionáveis. SQLite, autorizações, INI operacional, EX5, relatórios nativos,
+logs, resumos e evidências ficam locais. Nenhum artefato histórico foi alterado.
+SHA remoto e confirmação da árvore limpa são informados na entrega da fase.
+
+9. Recomendação para eventual Fase 3.3
+
+Consolidar um plano de validação, custos e margem, períodos independentes,
+critérios de aceitação e evidências de saída/runtime antes de ampliar testes.
+Se desejada telemetria para distinguir sinal/limite de barras, propor versão
+nova com nova identidade e aprovação, sem alterar os EAs históricos.
+Não selecionar estratégia apenas pelo lucro deste período, não habilitar lotes
+e não migrar para conta real com base nestes resultados. Qualquer novo teste
+precisa de autorização própria. Nenhuma atividade da Fase 3.3 foi iniciada.
