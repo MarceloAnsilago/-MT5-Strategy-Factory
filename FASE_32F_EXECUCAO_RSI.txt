@@ -1,0 +1,138 @@
+MT5 STRATEGY FACTORY — FASE 3.2F
+Execução supervisionada do segundo backtest — RSI/ADX — 21/11/2026
+
+1. Resultado e escopo
+
+Uma única partida do MT5SF_G_fcb7f99b53c86641 foi concluída.
+Run ID: 7710733812784619322. Tester confirmado stopped após a execução.
+Resultado do MT5: uma operação comprada, nenhuma abertura vendida, -R$ 52,00.
+Tentativa 1 de 1 consumida e completed no controlador individual persistente.
+Nenhuma repetição, terceiro EA, otimização ou ordem fora do Tester foi executada.
+Backend real de lotes permaneceu desabilitado. EAs e parâmetros não alterados.
+
+2. Autorização e preflight
+
+Autorização explícita recebida do usuário para uma tentativa RSI/ADX, com
+aceitação das limitações e confirmação de janela exclusiva. Validade conferida
+antes da partida: até 22/11/2026 às 23:59 Brasília. Registro fica somente local.
+Manifesto canônico revalidado:
+bc5ca4bfe3d69ee9e4e223bb12ddc745c81f57721428708c514c30f8bcb65a5e
+Controles canônicos revalidados:
+17771d275f8e4806d98b9a00081da5f210560e6d79778cafcdc69a8a2bad3562
+Fonte instalado SHA256:
+d1ccbba691a8346951e1df676ef30ca7d7cc93fdcc9133f0d8acc597408a29c0
+EX5 instalado SHA256:
+3f2af4df4a0eda57e9d5c1fe5e2e26549840b578b0ccbdd575efa1c401dcab13
+
+Ambos os MCPs responderam; mesma instalação MQL5 da Rico, build 6230;
+Rico-DEMO conectado, moeda BRL. Tester stopped consultado com ID anterior
+válido e novamente sob locks do executor, antes da reserva atômica.
+Sem processos metatester64.exe observados antes da partida e sem locks de
+outras execuções. Memória livre 21.716.512 KiB e disco acima do piso de 2 GiB.
+Inspeção nativa: locais habilitados, cluster de rede e Cloud desabilitados,
+Core 01 ready. Nenhuma seleção de agentes precisou ser alterada.
+
+INI único instalado byte a byte igual ao rascunho aprovado, SHA256:
+341fe259b83cba11b369d1f185fb28b3a01a18a2f212a004bc6c4df6276790d9
+UseLocal=1, UseRemote=0, UseCloud=0; sem inputs externos; otimização/forward 0.
+PETR4/M5; 03/11/2026 até 07/11/2026 exclusivo; ticks gerados; BRL 10.000;
+alavancagem 1:1; constantes originais. Cenário confirmado pelo journal nativo.
+
+3. Execução individual e monitoramento
+
+Usado TesterRunner existente com ponte local de ferramentas MCP, wait=false,
+polling de aproximadamente 1 s, prazo cooperativo 180 s e reconciliação 45 s.
+Reserva INSERT com chave única (manifesto,tentativa) no SQLite individual,
+com synchronous=FULL, ocorreu sob locks do executor imediatamente antes da
+única chamada tester_run_backtest. Registro de autorização vincula os dois hashes.
+Nenhuma autorização genérica de lote foi fabricada. Ledger de planejamento
+offline permaneceu inalterado e não representa o consumo real; a autoridade
+desta execução é single_attempt.sqlite no diretório privado da tentativa.
+
+Houve uma falha local inicial da ponte, antes de receber workspace no runner:
+erro de serialização JavaScript seguido de timeout. Zero chamadas de início,
+zero reservas e locks liberados nessa preparação. Corrigida apenas a ponte
+local; nova passagem pelo preflight iniciou a única tentativa permitida.
+As duas passagens de orquestração não são dois backtests.
+
+Estados observados: started no Core 01 e stopped. Não houve tester_stop,
+timeout do teste ou estado indeterminado. Orquestração concluída em 14,313 s;
+journal informa teste de 0,101 s e login até parada de 0,169 s.
+São medidas de escopos diferentes, não watchdog físico rígido.
+Política de parada disponível: conferir propriedade do run_id antes de parar,
+reconciliar por até 45 s; incerteza mantém locks e impede nova partida.
+
+4. Resultados nativos confirmados e cálculos
+
+MT5: lucro líquido -R$ 52,00; saldo final R$ 9.948,00; fator de lucro 0;
+lucro bruto zero; perda bruta R$ 52,00; uma operação perdedora, zero ganhadoras.
+Taxa de acerto nativa 0%, também reconciliada pelo cálculo 0/1.
+Drawdown máximo de saldo R$ 52,00 (0,52%); máximo de equity R$ 56,00 (0,56%).
+Drawdown absoluto contra depósito: R$ 52,00 tanto em saldo quanto em equity.
+Não confundir absoluto contra depósito com máximo de equity.
+Retorno sobre depósito calculado: -0,52%.
+377 barras e 437.624 ticks gerados. Qualidade de histórico declarada 100%
+pelo MT5, sem verificação independente de cada tick.
+
+Duas ordens de negociação e dois negócios: buy/in e sell/out, ambos volume
+100 e filled; lançamento balance inicial é separado, não é negócio negociado.
+Uma posição agrupada e encerrada, volume residual calculado zero. Identificador
+nativo DEAL_POSITION_ID e enumeração independente de posições indisponíveis;
+vínculo auditado por ticket do journal e sequência única in/out do relatório.
+
+5. Auditoria operacional da Fase 3.2D
+
+Compra em 04/11/2026 às 10:15:00, 100 PETR4 a R$ 50,15, SL R$ 49,64,
+TP R$ 50,91. Journal confirma entrada retcode=10009 e execução integral.
+Saída às 10:50:40: stop loss explicitamente acionado, ordem sell #3 com
+referência R$ 49,64, negócio sell/out #3 executado a R$ 49,63.
+Diferença adversa calculada: R$ 0,01 por ação, R$ 1,00 no volume 100.
+Perda no stop nominal seria R$ 51,00; preço executado explica R$ 52,00.
+Isso não identifica a causa da diferença de preço nem comprova spread/slippage
+realista. Não houve saída por sinal, take profit ou fim de período observada.
+
+Zero rejeições, parciais e mensagens HALT observadas no journal completo
+da janela única (52 registros, truncated=false), coerente com as duas ordens.
+Não equivale a verificar a aceitação de qualquer requisição hipotética.
+Nenhuma solicitação de short foi registrada; nenhum sell/entry=in ocorreu.
+O sell/out encerrou a compra, sem demonstrar abertura vendida permitida.
+Código exige ADX14 em [0,25] e RSI14 cruzando de >=70 para <70 para short.
+O EA não registra cada buffer/sinal avaliado nem todos os descartes; portanto,
+não é possível confirmar se houve sinal short, ou qual condição o impediu.
+Não concluir venda proibida nem ausência de sinal. Nada foi instrumentado,
+forçado ou repetido para resolver essa limitação.
+
+6. Custos, margem, agentes e identidade
+
+Relatório registra comissões zero e swaps zero nos dois negócios. Fees,
+emolumentos, aluguel e modelo completo de custos continuam indisponíveis.
+Resultado líquido do MT5 confirmado não é líquido de custos reais completos.
+Margem efetiva não verificada; sentinela margin_level=DBL_MAX excluída de
+interpretações financeiras. Aceitação da compra não prova regras de short.
+
+Journal confirma Core 01 no loopback local e cloud network mode off;
+INI/UI confirmavam rede e Cloud desabilitadas. Nenhum agente remoto observado.
+EX5 em disco 33.722 bytes; journal informa 33.811 bytes loaded: diferença 89.
+Sem SHA256 do código em runtime, a semântica dessa medida continua desconhecida;
+a diferença não prova binários distintos. Fonte/EX5 em disco foram preservados.
+
+Gerados resumo padronizado 1.1, auditoria de ordens/negócios/saída e reconciliação
+com referências ao JSON, journal e células do relatório nativo. Sem divergências
+financeiras ou inconsistências da auditoria. Qualidade/reconciliação/auditoria
+continuam parciais por lacunas documentadas, com desconhecidos mantidos nulos.
+
+7. Publicação e próximo EA
+
+Somente documentação sanitizada e sua inclusão no .gitignore são versionáveis.
+Autorizações, SQLite, ponte, resumo 1.1, evidências e relatório tabular ficam
+locais em runs e no workspace autorizado do MT5, sem publicação no GitHub.
+Todos os 192 testes offline passaram (unittest discover -s tests -v).
+Verificação final: 76 arquivos históricos/instalados mantiveram seus hashes;
+ledger confirmou exatamente uma tentativa completed e uma chamada de início.
+Diff/status e conteúdo sensível revisados antes da publicação.
+
+Recomendação: terceiro EA somente com nova autorização individual, manifesto
+próprio, hashes e preflight renovados, mantendo as limitações de custos/margem,
+runtime e abertura vendida. Este teste homologa a execução de uma compra e
+seu stop no cenário curto; não valida rentabilidade ou a execução de shorts.
+Nenhuma próxima etapa foi iniciada automaticamente.
