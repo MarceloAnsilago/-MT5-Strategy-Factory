@@ -122,6 +122,8 @@ logs/
 !/FASE_32F_PREFLIGHT_RSI.txt
 !/FASE_32F_EXECUCAO_RSI.txt
 !/tests/test_execution_audit.py
+!/tests/test_trend_preflight.py
+!/FASE_32G_PREFLIGHT_TENDENCIA.txt
 !/config/generator/
 /config/generator/*
 !/config/generator/demo_specs.json

@@ -1,0 +1,231 @@
+MT5 STRATEGY FACTORY — FASE 3.2G
+Preflight do terceiro EA de tendência — 21/11/2026
+
+1. Estado da fase e do repositório
+
+Preparação concluída, sem autorização de execução. Nenhum backtest, otimização,
+compilação, ordem, reserva ou consumo de tentativa ocorreu nesta fase.
+Backend real de lotes desabilitado. EAs, parâmetros e resultados preservados.
+Estado inicial real: main, árvore limpa, HEAD
+57af614071a5700ecfc0ab78a0079153e616af98.
+
+2. Ambiente e disponibilidade
+
+MT5 Rico e MetaEditor responderam get_workspace_info. Ambos apontam o MQL5
+esperado da instalação Rico, terminal de identidade
+38FF261A42172F3478E54D3A1A8FE02B. Build 6230, servidor Rico-DEMO conectado,
+moeda BRL, conta demo/hedging. Nenhum MCP reinstalado ou reconfigurado.
+tester_get_status(run_id=7710733812784619322), ID válido do segundo EA,
+retornou stopped. Não é um novo run_id do terceiro EA.
+Interface mostra Iniciar, Local: 24 cores e Core 01 ready. Menu inspecionado:
+agentes locais marcados; cluster de agentes de rede e MQL5 Cloud desmarcados.
+Nenhuma configuração foi alterada. Nenhum metatester64.exe ou lock de
+execução do projeto/terminal foi observado. Consultas representam o instante
+da inspeção, sem impedir partida externa posterior. Janela exclusiva futura
+precisa de nova confirmação do usuário.
+RAM total 33.435.856 KiB, livre 21.614.300 KiB; disco livre superior ao piso
+de 2 GiB. Capacidade aparente suficiente para um teste individual, sem cota
+física de CPU/RAM. Não foi iniciado agente ou Tester para sondagem.
+
+3. Identidade do candidato e cadeia documental
+
+EA MT5SF_G_a7e690b3b483dde0; candidato g1_a7e690b3b483dde0; versão 1.00;
+generator 1.0.0. Fonte local em
+MQL5/Experts/MT5StrategyFactory/Generated/g1_a7e690b3b483dde0/.
+Instalado sob o mesmo caminho relativo de Experts no MQL5 informado pelos MCPs.
+Fonte SHA256 (8.146 bytes):
+2341c37562b7887a49309d29018827ece9bc00efa46bb730fcc6af02735d1805
+EX5 instalado SHA256 (35.214 bytes):
+8a0a2c24bf081f856e965b8243fc81097181230d7efb06f5934b9a38e76b7387
+Especificação canônica SHA256:
+a7e690b3b483dde0251a6b96d83b26771e331e3e7e7f0a01f982c129d6ec0ddf
+Template SHA256:
+ab9c0462fe9232d0aa3646af2aa8cec27535513bac0fa3adda14e36b2df85149
+
+verify_candidate recompôs fonte/metadados determinísticos; audit_candidate
+aprovou análise estática. Bytes do fonte instalado iguais aos do projeto.
+Registro privado da compilação da Fase 3.1 liga esse fonte ao caminho instalado,
+zero erros e zero avisos, AVX2+FMA3. Hash/tamanho atual do EX5 coincidem com
+binary_hashes e manifesto. candidate.json mantém compiled_sha256=null porque
+é metadado de geração anterior à compilação; não foi reescrito para ocultar isso.
+O vínculo do binário vem dos registros posteriores, não desse campo nulo.
+
+Identidade do fonte, hash do EX5 em disco e cadeia documental foram confirmados.
+Identidade do EX5 efetivamente executado em runtime continua desconhecida.
+Fingerprints de transferência não substituem hash de runtime. Não extrapolar
+para este EA o desvio de bytes loaded observado nos dois testes anteriores.
+Nenhuma recompilação, atualização silenciosa ou limpeza de cache foi feita.
+
+4. Rastreabilidade JSON -> MQL5
+
+Arquivo de referência: spec.json no diretório do candidato; linhas abaixo
+referem-se ao MT5SF_G_a7e690b3b483dde0.mq5, hash conferido acima.
+[0] dos buffers é shift 2; [1] é shift 1, o último candle fechado.
+
+| Regra da especificação | Condição implementada | Trecho MQL5 |
+| entries.long[0] ma_trend EMA20/50 up | EMA20[1]>EMA50[1] e EMA50[1]>EMA50[0] | L140, h1b0/h2b0 |
+| entries.long[1] adx_direction 14 up min25 | ADX14[1]>=25 e +DI14[1]>-DI14[1] | L140, h0b0/h0b1/h0b2 |
+| entries.long[2] price_ma EMA20 above | close[1]>EMA20[1] | L140, close/h1b0 |
+| entries.long[3] rsi_level14 above55 | RSI14[1]>55 | L140, h3b0 |
+| entries.short[0] ma_trend EMA20/50 down | EMA20[1]<EMA50[1] e EMA50[1]<EMA50[0] | L141, h1b0/h2b0 |
+| entries.short[1] adx_direction14 down min25 | ADX14[1]>=25 e +DI14[1]<-DI14[1] | L141, h0b0/h0b1/h0b2 |
+| entries.short[2] price_ma EMA20 below | close[1]<EMA20[1] | L141, close/h1b0 |
+| entries.short[3] rsi_level14 below45 | RSI14[1]<45 | L141, h3b0 |
+| exits.long[0] price_ma EMA20 below | close[1]<EMA20[1] | L142 e L153 |
+| exits.short[0] price_ma EMA20 above | close[1]>EMA20[1] | L143 e L153 |
+| risk.sl_percent=1.2 / tp_percent=2.4 | percentuais sobre ask na compra e bid na venda; ajuste ao tick | L13-14 e L97-104 |
+| risk.volume_mode=minimum | SYMBOL_VOLUME_MIN, mínimo/step/máximo validados | L86-93 |
+| risk.max_spread_points=10 / deviation_points=5 | spread descarta entrada; desvio configurado | L15/19, L50, L95 |
+| risk.max_entries=20 / max_holding_bars=36 | contador de entradas e barras válidas em posição | L16-17, L85, L114-115, L152-153 |
+| symbol PETR4 / timeframe M5 | OnInit recusa símbolo/período diferentes | L10-11 e L44 |
+
+Não há cruzamento de médias nessa estratégia: ma_trend testa alinhamento e
+inclinação da média lenta entre dois candles fechados. EMA e RSI usam PRICE_CLOSE;
+ADX/DI vêm de iADX(14), buffers 0/1/2. CopyBuffer e CopyClose começam em shift 1
+com dois elementos. iTime(...,0) somente agenda avaliação por nova barra.
+WARMUP=50; cada handle precisa BarsCalculated>=53 e buffers finitos/disponíveis.
+Não há filtro próprio de horário, sessão ou dia da semana implementado.
+Contagem de 36 barras avança somente em avaliações válidas enquanto posicionado;
+não equivale a prazo garantido de três horas corridas.
+
+5. Caminhos comprados e vendidos
+
+As quatro cláusulas de cada lado são combinadas por AND. Não foi encontrada
+contradição estrutural. Fixtures sintéticas das expressões reais demonstram
+satisfatibilidade de compra e venda e exclusão mútua, sem demonstrar sinais
+históricos ou permissões do broker.
+Sem posição/ordem, enter_long=true e enter_short=false chama Enter(true), Buy.
+enter_short=true e enter_long=false chama Enter(false), Sell (L157-158/L110).
+Sinais iguais são descartados. Com posição, somente CloseOwned(ticket) é chamado,
+após validar símbolo/magic; não há flip na mesma barra nem pirâmide/grid.
+PositionClose encerra long ou short por ticket. Sell de abertura e sell de
+fechamento de long têm papéis distintos; auditoria exige sell/entry=in para short.
+
+Uma posição e nenhuma ordem pendente são exigidas. OnInit recusa posições/ordens
+preexistentes e, por ter ambos os lados ativos, requer trade_mode FULL.
+Volume usa o mínimo declarado (PETR4: 100), valida step e máximo; não ajusta
+volume silenciosamente. Entrada pode ser impedida por spread, quote/volume,
+buffers, warming, limite 20, ocupação, SL/TP incompatíveis ou margem insuficiente.
+OrderCalcMargin escolhe ORDER_TYPE_BUY ou ORDER_TYPE_SELL conforme direção.
+Short usa SL acima e TP abaixo do bid, com arredondamento ao tick e distância
+mínima conferida contra ask/bid. Compra usa lógica inversa. Saídas adicionais:
+stop, take profit e máximo de barras; fechamento de fim de teste pertence ao
+Tester, não ao OnDeinit. Igualdade close=EMA20 não gera saída por sinal.
+
+TesterOnly exige MQL_TESTER e recusa MQL_OPTIMIZATION; guardas também estão
+nas funções que enviam requisições. Falha, rejeição, parcial ou estado inesperado
+geram HALT, sem retry. HALT impede requisições/gestão seguintes pelo OnTick;
+exposição residual pode depender de stops aceitos e encerramento do Tester.
+O EA não registra todos os sinais/buffers/descartes. Ausência de short não prova
+proibição de venda, e FULL não prova aceitação de abertura vendida específica.
+
+6. PETR4 e histórico consultados novamente
+
+MCP: FULL, execução exchange, cálculo exchange stocks, contrato 1, BRL;
+volume mínimo/step 100; máximo 108930028; point/tick size e tick value 0,01;
+stops/freeze 0, filling mask 3. margin_initial=0 e margin_maintenance=0 são
+metadados e não prova de margem efetiva zero. Swaps declarados zero não
+estabelecem custo completo. Quote tem atualização em 19/11, não preço corrente.
+Comissão/emolumentos/fees/aluguel, regras efetivas de margem e disponibilidade
+de venda/locação para este cenário continuam não verificáveis sem evidência.
+Não há ferramenta dedicada disponível para OrderCheck/OrderCalcMargin externo
+ou prova de short no Tester. Nenhuma requisição de negociação foi enviada.
+
+Histórico M5 consultado: 377 barras, 03/11 10:05 até 06/11 17:50;
+contagens por dia 94/94/94/95. Histórico anterior consultado: 403 barras,
+26/10 10:45 até 30/10 16:50, acima do guard de 53 barras.
+Isso confirma disponibilidade no terminal, não buffers inicializados no futuro
+agente, completude independente de pregão ou identidade de todos os ticks.
+M5 e modelo gerado já funcionaram nos testes anteriores; terceiro EA não rodou.
+Intervalo permanece 03/11/2026 até 07/11/2026 exclusivo, sem ampliar para gerar
+operações. Sinais históricos e eventual ausência de operações são desconhecidos.
+
+7. Manifesto preservado e controles individuais
+
+Manifesto 1.0/revisão1 canônico, validado e preservado:
+1bdcfa58fc13a9a5f9f88476f496d24719dcafa93d663584914d5e1d980c9f40
+PETR4/M5; ticks gerados; BRL 10.000; 1:1; inputs={}; parâmetros constantes
+originais; execução sem atraso; uma tentativa; locais; sem otimização/forward.
+Ledger de planejamento planned/pending, attempts=[], zero autorizações para
+este candidato. Outros ledgers individuais também foram consultados sem
+encontrar consumo deste manifesto. Não foi registrado nem reservado nada.
+
+Controles desta fase, somente proposta local, SHA256 canônico:
+d18382e61d7638f32cb5d1a3544d99f4eecd6afab02f89b0498ef2ccaba51826
+Incluem identidade do EA/fonte/EX5, manifesto, tentativa1/1, validade proposta,
+aceitação explícita das seis limitações, exclusividade e controles herdados.
+Não alteram controles/manifesto da Fase 3.2E; o hash da nova proposta é o que
+deverá vincular eventual autorização individual da próxima etapa.
+Prazo cooperativo 180 s, reconciliação 45 s, polling1 s quando suportado,
+transporte proposto15 s; sem watchdog físico rígido. No futuro: reserva única
+atômica imediatamente antes da única partida, sob locks do executor e terminal.
+Orçamentos lógicos: concorrência1, 16 MiB por run/32 MiB total, piso de disco2 GiB;
+cache/logs MT5 ficam fora dessas cotas, sem garantia física de CPU/RAM.
+
+8. Compatibilidade da auditoria
+
+Módulos execution_audit, financial, traceability e analysis suportam long/short,
+buy/sell in/out, ordens/negócios, fechamento por ticket, stops/TP, sinal e fim
+de período quando houver evidência explícita; não deduzem motivo de lucro/sinal.
+Suportam rejeições, cancelamentos, estados parciais, volumes, múltiplos fills,
+VWAP, diferenças de preço com sinal por direção, comissão/swap/fees conhecidos
+ou nulos e reconciliação financeira. Diferença de preço não identifica sua causa.
+Trade pairing e vínculo ao run_id ainda exigem adaptação/conferência das fontes.
+No EA, CLOSE não distingue sinal de limite de barras no texto; sem outra
+evidência, não classificar automaticamente como strategy_signal.
+Resumo auditado schema1.1 é suportado e testado; nenhum resultado de mercado
+foi inventado para o terceiro EA. Dados de unit tests são fixtures SYNTHETIC.
+
+9. Testes offline e preservação
+
+199 testes passaram: python -B -m unittest discover -s tests -v.
+Sete novos testes extraem e avaliam as comparações reais do fonte sob AST
+restrita, com buffers arbitrários identificados como fixtures offline:
+compra/venda possíveis; cada filtro bloqueia; ADX25 inclusivo; RSI estrito;
+saídas inversas/igualdade; grade de limites sem ambas as entradas; identidade
+determinística sem alteração dos arquivos. Não calculam indicadores MT5 nem
+comprovam comportamento do EX5 ou viabilidade econômica de shorts.
+Suíte existente cobre hashes/manifestos, expiração e escopo de autorização,
+execução negada sem autorização, tentativa sem replay, lotes reais bloqueados,
+auditoria short/saídas/rejeições/parciais/custos e integração de resumo1.1.
+Snapshot privado de 257 arquivos anteriores/instalados permite conferir
+preservação final. Nenhum arquivo histórico, EA ou resultado foi atualizado.
+
+10. Validade proposta
+
+Até 22/11/2026 às 23:59 Brasília: 2026-11-22T23:59:00-03:00.
+Só poderá ser usada após confirmação explícita do usuário e se ainda válida
+no instante da partida. Esta preparação não concede autorização executável.
+
+11. Limitações que exigem aceitação
+
+Custos completos; margem efetiva; abertura vendida no Tester; identidade
+binária em runtime; prazo cooperativo sem garantia rígida; possível ausência
+de operações. Nenhuma dessas limitações foi removida por fixtures sintéticas.
+
+12. Pendências imediatamente antes de eventual execução
+
+Receber autorização exata e aceitação das limitações/janela exclusiva.
+Revalidar validade, hashes, esquema e cenário; conferir fonte/EX5/INI e contas
+de tentativa, sem ajustar divergências silenciosamente. Sob lock de terminal,
+confirmar stopped, nenhum concorrente, locais habilitados, rede/Cloud off,
+recursos e INI único UseLocal1/UseRemote0/UseCloud0, otimização/forward0.
+Somente então registrar autorização individual e reservar atomicamente 1/1.
+Usar executor individual, mantendo lotes reais desabilitados. Em necessidade,
+tester_stop apenas com o run_id próprio e propriedade conferida. Parada não
+confirmada em reconciliação: indeterminado, manter locks, sem retry/outro EA.
+
+13. Texto exato da proposta de autorização
+
+Mantido exclusivamente na cópia privada deste relatório e em
+authorization_proposal.txt sob runs/phase32g_trend_preflight_20261121,
+também apresentado ao usuário na conversa. O texto e a proposta não são
+versionados, conforme a proibição explícita de publicar autorizações/propostas.
+Esta cópia é o diagnóstico sanitizado para publicação, não uma autorização.
+
+14. Publicação
+
+Versionáveis somente este diagnóstico, tests/test_trend_preflight.py e suas
+liberações explícitas no .gitignore. Manifestos operacionais, controles/propostas,
+SQLite, evidências e relatórios nativos permanecem privados. Nenhum resultado
+financeiro do terceiro EA foi produzido. Fase 3.2H não foi iniciada.
