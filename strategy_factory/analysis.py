@@ -129,7 +129,7 @@ def summarize_run(report, *, parameters, run_id=None, local_run_id=None, inputs=
                   execution=None, journal=None, journal_run_id=None,
                   native_reference=None, reference_run_id=None, data_context=None,
                   synthetic=False, tester_ini=None, inputs_set=None,
-                  history_snapshot=None, symbol_snapshot=None):
+                  history_snapshot=None, symbol_snapshot=None, execution_evidence=None):
     """Keep all source candidates. Conflicting values are never silently selected.
 
     Parameters describe the requested scenario, not verified remote INI contents.
@@ -241,7 +241,7 @@ def summarize_run(report, *, parameters, run_id=None, local_run_id=None, inputs=
     warnings.append('history_quality_is_reported_not_independent_verification')
     declared_synthetic = isinstance(report,dict) and (
         str(report.get('fixture_kind','')).upper().startswith('SYNTHETIC') or report.get('evidence_kind')=='synthetic')
-    return {'schema_version': SCHEMA_VERSION, 'artifact_type': 'run_summary',
+    result = {'schema_version': SCHEMA_VERSION, 'artifact_type': 'run_summary',
             'evidence_kind': 'synthetic' if synthetic or declared_synthetic else ('simulation' if status == 'simulated' else 'observed'),
             'run_id': run_id, 'local_run_id': local_run_id,
             'execution': {'status': status, **timings},
@@ -255,10 +255,15 @@ def summarize_run(report, *, parameters, run_id=None, local_run_id=None, inputs=
                                'check_counts': counts, 'checks': deepcopy(checks),
                                'external_scope_asserted_by_caller': has_external},
             'warnings': sorted(set(warnings))}
+    if execution_evidence is not None:
+        from .execution_audit import attach_execution_audit
+        return attach_execution_audit(result, execution_evidence)
+    return result
 
 
 def summarize_directory(directory, *, journal=None, journal_run_id=None, inputs=None, data_context=None,
-                        tester_ini=None,inputs_set=None,history_snapshot=None,symbol_snapshot=None):
+                        tester_ini=None,inputs_set=None,history_snapshot=None,symbol_snapshot=None,
+                        execution_evidence=None):
     """Read known artifacts only. Do not scan logs or follow remote inputs_path."""
     root = Path(directory)
     if not root.is_dir():
@@ -271,7 +276,8 @@ def summarize_directory(directory, *, journal=None, journal_run_id=None, inputs=
             run_id=remote.get('run_id'), local_run_id=root.name,
             execution=optional('result.json', {'status': 'failed' if (root/'failure.json').exists() else 'unknown'}),
             journal=journal, journal_run_id=journal_run_id, inputs=inputs, data_context=data_context,
-            tester_ini=tester_ini,inputs_set=inputs_set,history_snapshot=history_snapshot,symbol_snapshot=symbol_snapshot)
+            tester_ini=tester_ini,inputs_set=inputs_set,history_snapshot=history_snapshot,symbol_snapshot=symbol_snapshot,
+            execution_evidence=execution_evidence)
 
 
 def compare_runs(summaries):

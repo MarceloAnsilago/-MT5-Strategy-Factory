@@ -1,0 +1,275 @@
+MT5 STRATEGY FACTORY — FASE 3.2D
+Auditoria técnica do run 7710722521526960284 — 21/11/2026
+
+Conclusão: seis operações reconciliadas, sem inconsistência observada de volumes
+ou resultados nas fontes disponíveis. A diferença do EX5 permanece NÃO RESOLVIDA.
+Há evidência de execução de SL abaixo do nível registrado e de fechamento imposto
+pelo Tester. Não houve novo backtest, compilação, otimização, ordem, autorização,
+consumo de tentativa ou alteração dos três EAs e dos demais EAs protegidos.
+
+1. Escopo e integridade das evidências
+
+Revisitados: JSON bruto do relatório, journal original de 108 registros sem
+truncamento, ordens/negócios, XLSX original, resumo 1.1, autorização, controle da
+tentativa e registros de compilação da Fase 3.1. O XLSX foi extraído novamente em
+leitura, e todas as células extraídas coincidiram com o snapshot histórico salvo.
+Seu SHA256 coincide com o registrado na exportação. Não foi regenerado relatório
+no MT5 nem sobrescrito qualquer artefato histórico.
+
+Foi criado um inventário SHA256 anterior à auditoria para 65 arquivos históricos
+e fontes/binários relevantes. As novas evidências e o resumo enriquecido ficam
+separados em runs/phase32d_audit_20261121/. Os arquivos originais permanecem intactos.
+Os MCPs responderam; só foram usadas ferramentas de leitura nesta fase.
+
+2. Identidade do EA e significado dos 89 bytes
+
+EX5 instalado: 34.398 bytes.
+SHA256: 4b4ea1131a65748cdc55156d27b946ea98720fe160b275c3fb9e8901c5aaeb53
+Fonte: 7.782 bytes.
+SHA256: 4741ade1f856db724c591de8817fdc4ebb739a159f554658f4d11be52a8d0b8f
+Especificação canônica:
+ff2190c4549a31aa6b7bd2f2d7be54047d7188758ab42254fee52735bd7cb735
+
+verify_candidate recompôs fonte/metadados a partir do JSON/template; audit_candidate
+passou. Fonte instalado, registro pré-compilação e fonte do projeto concordam.
+O hash atual do EX5 coincide com binary_hashes.json da compilação anterior, cujo
+registro contém zero erros/avisos. Isso comprova uma cadeia documental local,
+sem novo build ou prova de qual representação foi efetivamente carregada em memória.
+
+O journal informa expert file added e 34.487 bytes loaded. A subtração resulta em
+89 bytes. A documentação oficial descreve blocos enviados ao agente, fingerprints
+MD5 por bloco e cache para evitar retransmissões. Também informa que os EX5
+recebidos não são gravados no disco do agente. Ela NÃO define, nas páginas
+consultadas, se bytes loaded mede arquivo físico, bloco serializado, bytes
+transferidos ou outra representação. Portanto, nenhuma dessas interpretações
+foi comprovada para o build 6230.
+
+Observação aritmética apenas: o caminho relativo exibido tem 85 caracteres ASCII,
+e 85+4=89. É compatível com uma hipótese de overhead de nome/comprimento, mas não
+há schema/documentação de serialização que autorize concluir essa causa. Não
+remover 89 bytes, corrigir hashes, recompilar ou declarar binários diferentes.
+
+Na busca de nomes em MQL5/Experts, profundidade até 5, foi encontrado um único
+par fonte/EX5 com o nome do candidato. Isso não exclui cópias em outros escopos
+ou representações em memória. O cache .tst do mesmo EA/cenário/data existe, tem
+10.120 bytes e modificação no instante do teste. É cache de resultados, não uma
+cópia demonstrada do EX5. Seu sufixo não foi tratado como hash do executável.
+O MD5 calculado dos bytes atuais do EX5 não coincide com esse sufixo; isso também
+não revela a identidade do bloco interno. Nenhum cache foi removido ou alterado.
+
+Caminho, INIT com candidato/hash da especificação, resultados e fonte/EX5 em
+disco são coerentes. A ausência de hash do payload/runtime impede excluir
+definitivamente cache/cópia/versão diferente. Estado: identidade documental
+confirmada; identidade binária em runtime não verificada; medida bytes loaded
+não esclarecida. Não há evidência positiva de executável diferente.
+
+Evidência adicional recomendada: esclarecimento da MetaQuotes/Rico sobre a
+semântica do campo no build 6230 e possibilidade de exportar fingerprint do
+bloco/EX5 realmente carregado, com correlação ao run_id. O MD5 de parâmetros
+documentado não deve ser confundido com SHA256 do arquivo. Instrumentação de
+build/telemetria ou qualquer nova execução exigiria proposta e autorização
+separadas; um identificador impresso pelo próprio EA não é atestado criptográfico.
+
+3. Auditoria individual das operações
+
+Todos os horários abaixo são do cenário histórico, sem offset declarado pelo
+export. Todas as entradas são compras de 100 ações; ordem/negócio de entrada
+registram o mesmo preço. Colunas SL/TP vêm do XLSX e conferem, por cálculo decimal,
+com SL 1%, TP 2%, arredondamento externo ao tick R$0,01 do fonte aprovado.
+
+N  Entrada            Ordem/execução  SL     TP     Saída                Exec.   P/L
+1  03/11 12:20        50,64 / 50,64   50,13  51,66  03/11 15:15          50,63   -1
+2  03/11 17:05        50,70 / 50,70   50,19  51,72  04/11 10:09          50,04  -66
+3  05/11 10:09        47,91 / 47,91   47,43  48,87  05/11 10:57:29       47,43  -48
+4  05/11 15:25        46,86 / 46,86   46,39  47,80  05/11 15:50          46,64  -22
+5  06/11 13:25        45,76 / 45,76   45,30  46,68  06/11 13:45          45,59  -17
+6  06/11 17:00        45,25 / 45,25   44,79  46,16  06/11 17:54:59       45,36  +11
+
+Valores monetários em BRL. Horários, preços e P/L são observações nativas; a
+verificação (saída-entrada)*100 é cálculo e coincide com o P/L de cada operação.
+Soma calculada: -143; saldo nativo final 9857 para depósito 10000.
+
+Preço solicitado: o fonte passa price=0 a CTrade.Buy (a mercado); o preço da
+requisição MqlTradeRequest efetivamente serializada não foi exportado. Os valores
+acima são preços registrados nas ordens e negócios, não uma captura desse payload.
+A auditoria identifica explicitamente esse tipo de referência de preço.
+
+1, 4 e 5: journal contém CTrade::PositionClose e FACTORY CLOSE com ticket da
+posição e retcode=10009. O fato confirmado é fechamento solicitado pelo EA.
+O fonte chama CloseOwned por sinal ou por 48 barras. Os limites superiores de
+slots M5 transcorridos são 35, 5 e 4; condicionados ao fonte aprovado, excluem
+o limite de 48. Isso é compatibilidade lógica calculada com a saída por sinal,
+não observação dos valores EMA/cruzamento. A classificação conservadora usa
+other, detalhe EA_CLOSE_SIGNAL_OR_HOLDING, até existir telemetria específica.
+
+2 e 3: stop loss triggered, posição e ordem de saída explicitamente ligadas no
+journal. Classificação stop_loss, sem inferência pelo prejuízo. Nível/execução
+50,19/50,04 na operação 2 e 47,43/47,43 na operação 3.
+
+6: journal position closed due end of test, ordem com comentário end of test,
+negócio de saída correspondente. Classificação period_end. Não há FACTORY CLOSE
+para esta saída. A posição entrou em 06/11 17:00 e permaneceu até o último tick
+registrado, 17:54:59. É fechamento do Tester, não sinal comprovado do EA.
+
+As tabelas contêm 12 ordens filled e 12 negócios de negociação (além do depósito).
+Cada ordem corresponde a um negócio de 100; nenhuma parcial observada. Os pares
+in/out e tickets mencionados no journal sustentam seis operações sem sobreposição.
+DEAL_POSITION_ID e histórico nativo completo de posições não foram exportados;
+os grupos da auditoria são vínculos reconciliados, não IDs nativos inventados.
+
+Comissão e swap: cada negócio registra zero. A soma calculada de cada coluna é
+zero. Fees/emolumentos/modelo completo de custos e margem efetiva não estão
+disponíveis. O novo campo net_after_all_costs fica null, preservando o resultado
+nativo -143 no resumo financeiro. Não há certificação de resultado líquido real.
+
+As seis compras são compatíveis com o lado permitido, o volume e os SL/TP do
+fonte. Valores runtime dos buffers EMA/ADX e condições exatas dos cruzamentos
+não foram registrados; não é possível provar cada sinal com o relatório atual.
+Não foram recomputados indicadores aproximados para substituir essa evidência.
+
+4. Stop a 50,19 executado a 50,04
+
+Confirmado: compra a 50,70, SL 50,19, saída 100 ações a 50,04. Diferença de preço
+0,15 por ação. Impacto calculado, contrato 1: -15 BRL frente à referência do SL.
+Perda na referência seria -51 BRL; perda registrada -66 BRL. Não somar os -15
+novamente ao resultado, pois já estão embutidos na execução/prejuízo nativos.
+
+O teste usou every tick gerado, não ticks reais. A consulta M1 feita nesta auditoria
+mostra fechamento de 03/11 17:54 a 50,71 e abertura de 04/11 10:09 a 50,04, sem
+barras intermediárias na janela retornada. Diferença entre esses dois pontos:
+-0,67. O spread registrado nas duas barras é 1 ponto (R$0,01). Isso corrobora
+uma descontinuidade entre sessões compatível com a saída na abertura, mas a
+consulta atual não é um fingerprint dos ticks efetivamente gerados no run.
+
+A documentação distingue preços de disparo e execução e explica que os ticks
+gerados usam dados M1 e spread da barra. Não há no material coletado o tick
+completo Bid/Ask/Last que disparou o SL nem uma decomposição causal do fill.
+Não atribuir os R$0,15 integralmente a spread, slippage, gap ou liquidez. O que
+foi demonstrado é diferença entre referência e execução. Para determinar a
+causa exata faltam ticks gerados/sessões/especificação histórica efetivos e a
+regra de execução aplicada pelo motor. Obter isso pode exigir outra autorização.
+
+5. Fechamento do período e avaliação
+
+O único ganho, +11, é period_end. As outras cinco saídas somam -154, todas
+negativas. Esses subtotais são partição diagnóstica dos negócios observados;
+não são um novo backtest, contrafactual ou estimativa do que ocorreria depois.
+Não remover a operação do total nativo nem interpretar sua vitória como evidência
+de eficácia do sinal de saída. Fator de lucro nativo permanece 0,0714; drawdown
+máximo da equity 184. O fechamento final influencia a taxa de acerto e o lucro.
+
+Taxonomia implementada: strategy_signal, stop_loss, take_profit, period_end,
+other e unknown. Requer evidência com vínculo à saída; P/L e comentário isolado
+não classificam causa. Eventos contraditórios ou causa desconhecida em parte de
+uma saída parcelada não são promovidos a uma causa única. Fechamento por EA sem
+telemetria específica fica other; ausência de causa identificável fica unknown.
+
+6. Auditoria estática dos candidatos restantes
+
+g1_fcb7f99b53c86641: PETR4/M5. Compra: ADX14 em [0,25] e RSI14 cruza acima de 30.
+Venda: mesmo ADX e RSI cruza abaixo de 70. Fecha long com RSI>60, short com RSI<40,
+ou SL 1%, TP 1,5%, duração 24 barras válidas. Teto 30 entradas.
+
+g1_a7e690b3b483dde0: PETR4/M5. Compra: EMA20>EMA50 com EMA50 subindo, ADX14>=25,
++DI>-DI, close>EMA20 e RSI14>55. Venda simétrica, RSI<45. Fecha long close<EMA20,
+short close>EMA20, ou SL 1,2%, TP 2,4%, duração 36 barras válidas. Teto 20 entradas.
+
+Ambos: volume mínimo do símbolo (atualmente 100, step 100); uma posição por vez;
+sem ordens pendentes intencionais, pyramiding ou flip na mesma barra. Indicadores
+e close usam shifts 1/2, com [0] antigo e [1] recente; candle aberto só agenda.
+Filtros MQL_TESTER e recusa MQL_OPTIMIZATION precedem a inicialização e requisições.
+OnDeinit não negocia. Fonte/especificação/template passam verificação determinística,
+e fontes/binários atuais coincidem com registros da Fase 3.1. Nenhum foi executado.
+
+Abrir short: Enter(false) usa CTrade.Sell apenas quando PositionsTotal()==0 e
+OrdersTotal()==0. Fechar long: CloseOwned(ticket) usa PositionClose(ticket), após
+verificar símbolo/magic. A implementação Trade.mqh instalada foi lida: ela define
+ORDER_TYPE_SELL para long e ORDER_TYPE_BUY para short, e preenche request.position
+com o ticket. Portanto, vender para abrir e vender para fechar têm caminhos e
+contextos distintos; não é correto classificar toda ordem sell como short.
+
+OnInit exige modo FULL nos candidatos de dois lados; o símbolo atualmente informa
+FULL. Isso não comprova empréstimo, elegibilidade, margem ou execução vendida na
+simulação. DEMO tampouco comprova autorização de shorts. Os EAs calculam margem
+antes da entrada; não há prova antecipada de suficiência. Commission/fees/aluguel
+continuam desconhecidos. Consultas atuais não confirmam condições históricas.
+
+Rejeição, parcial ou estado inesperado geram HALT sem retry, inclusive quando já
+existe exposição. HALT interrompe novas requisições e a gestão pelo OnTick; uma
+posição residual dependerá de SL/TP aceitos e fechamento do Tester. Não confundir
+detecção da falha com resolução da exposição. Mudanças nessa gestão exigiriam
+proposta separada e autorização para alterar negociação; não foram feitas.
+
+7. Infraestrutura: lacunas e correções compatíveis
+
+Antes: reports/financial reconciliavam métricas agregadas; traceability verificava
+cenário, custos e contexto, e compare_runs distinguia incompatibilidades. A análise
+operacional anterior era específica da execução e não um detector reutilizável.
+O total financeiro, sozinho, não detectava fills divergentes nem causa de saída.
+
+Adicionado strategy_factory/execution_audit.py, totalmente offline:
+- Valida escopo run_id, IDs únicos, fontes com SHA256 canônico e localizadores.
+- Liga ordens/negócios, confere lado/símbolo/volume e calcula VWAP ponderado.
+- Sinaliza parcial, excesso de volume, negócio sem ordem e reutilização de vínculos.
+- Distingue side de entry in/out e direção da posição/grupo.
+- Classifica saídas somente por eventos explícitos; destaca period_end.
+- Calcula diferença adversa de preço e impacto sem inventar sua causa.
+- Preserva custos incompletos como null e não produz net após todos os custos.
+- Não usa igualdade/diferença de tamanho para provar identidade runtime.
+
+Integração opt-in: summarize_run e summarize_directory aceitam execution_evidence.
+Sem esse argumento, a saída anterior é mantida. A extensão execution_audit é
+aditiva ao schema 1.1; não altera métricas ou evidências históricas. attach_execution_audit
+cria cópia enriquecida. Inconsistências operacionais marcam qualidade invalid;
+limitações mantêm classificação partial. O comparador existente continua válido.
+
+Limites do contrato: hashes validam integridade do documento apresentado, não
+autenticidade, correção do adaptador, identidade runtime ou completude real. Vínculos
+de grupos e escopo sem run_id nativo no XLSX continuam declarações auditadas do
+chamador. Nenhum parser genérico tenta inferir fatos de texto arbitrário de logs.
+O novo módulo não importa MCP, não chama runner nem lê/grava arquivos por conta própria.
+
+Exemplo de uso em código de análise autorizado:
+  evidence = read_artifact(caminho_da_evidencia_normalizada)
+  novo_resumo = attach_execution_audit(resumo_1_1, evidence)
+Persistir novo_resumo em arquivo novo; não sobrescrever o resumo histórico.
+As coleções normalizadas orders/deals/groups podem ser null quando indisponíveis.
+Fontes ficam em sources[id]={payload,sha256}; registros apontam evidence={source,locator}.
+Groups declaram entry_deals/exit_deals e direção; eventos declaram deal_id/reason.
+counts_complete e costs_complete são afirmações explícitas do adaptador, não defaults.
+
+Aplicação à execução: status partial, sem issues de reconciliação; alertas de
+preço da ordem 5, custos desconhecidos, tamanho não explicado e runtime sem hash.
+Novo resumo: runs/phase32d_audit_20261121/run_summary_1_1_audited.json.
+Resumo original e suas métricas preservados integralmente.
+
+8. Validação e pendências
+
+187 testes offline aprovados (158 anteriores e 29 novos). Cobertura inclui
+evidências adulteradas, run_id errado, dupla contagem, VWAP/fills parciais,
+causas conflitantes/desconhecidas, lucro sem inferência de causa, custos ausentes,
+identidade binária não comprovada e compatibilidade opt-in do resumo.
+Comando: python -B -m unittest discover -s tests -v.
+
+Para próximos testes: esclarecer/aceitar explicitamente a limitação de runtime,
+confirmar condições de shorts/custos/margem do candidato escolhido e repetir o
+preflight sob janela exclusiva. Preparar cenário/limites/hash e obter autorização
+individual nova. Nenhuma autorização anterior cobre os candidatos restantes.
+Telemetria de motivo/indicadores ou mudança na gestão de parciais deve ser
+proposta separadamente; não foi alterada a lógica dos EAs nesta fase.
+
+Publicação limitada a código de análise, testes sintéticos e este documento
+sanitizado. Sem relatórios brutos, planilhas, SQLite, EX5, caches ou credenciais.
+
+Referências oficiais consultadas em 21/11/2026:
+1) Troca de dados, fingerprints por bloco e isolamento dos EX5 no agente:
+https://www.metatrader5.com/en/terminal/help/algotrading/testing_features
+2) Ticks gerados de M1 e tratamento do spread:
+https://www.metatrader5.com/en/terminal/help/algotrading/tick_generation
+3) Disparo de stops e distinção entre disparo e execução:
+https://www.metatrader5.com/en/terminal/help/trading/general_concept
+4) Fechamento identificado por ticket:
+https://www.mql5.com/en/docs/standardlibrary/tradeclasses/ctrade/ctradepositionclose
+
+Nenhuma dessas referências define bytes loaded no build 6230. Nenhuma mensagem
+foi enviada a terceiros para obter esclarecimento. A próxima fase aguarda instruções.

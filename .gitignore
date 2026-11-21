@@ -115,6 +115,8 @@ logs/
 !/GERADOR.md
 !/FASE_32B_PREFLIGHT.txt
 !/FASE_32_EXECUCAO_001.txt
+!/FASE_32D_AUDITORIA.txt
+!/tests/test_execution_audit.py
 !/config/generator/
 /config/generator/*
 !/config/generator/demo_specs.json
