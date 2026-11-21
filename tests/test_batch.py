@@ -27,6 +27,19 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(validate_manifest(self.manifest),self.manifest)
         self.assertEqual(read_artifact(ROOT/'config/batches/manifest.schema.json'),manifest_schema())
 
+    def test_phase32e_examples_are_single_attempt_plans_with_fictitious_paths(self):
+        for name in ('phase32e_rsi.example.json','phase32e_trend.example.json'):
+            doc=validate_manifest(read_artifact(ROOT/'config/batches'/name))
+            self.assertEqual(len(doc['strategies']),1);self.assertEqual(len(doc['runs']),1)
+            self.assertEqual(doc['budget']['max_backtests'],1)
+            self.assertEqual(doc['budget']['max_attempts_per_test'],1)
+            self.assertEqual(doc['budget']['timeout_batch_seconds']-doc['budget']['timeout_per_test_seconds'],45)
+            self.assertTrue(doc['policy']['simulation_default'])
+            self.assertFalse(doc['policy']['allow_live_trading'])
+            ea=doc['strategies'][0]['ea']
+            self.assertTrue(ea['path'].startswith('C:\\MT5-LAB\\'))
+            self.assertIsNone(ea['source_sha256']);self.assertIsNone(ea['compiled_sha256'])
+
     def test_canonical_hash_and_semantic_changes(self):
         reordered=dict(reversed(list(self.manifest.items())))
         self.assertEqual(fingerprint(self.manifest),fingerprint(reordered))

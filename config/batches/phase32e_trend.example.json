@@ -1,0 +1,54 @@
+{
+  "batch_id": "example-phase32e-a7e690b3b483dde0-20261121",
+  "budget": {
+    "max_artifact_bytes": 33554432,
+    "max_attempts_per_test": 1,
+    "max_backtests": 1,
+    "max_concurrency": 1,
+    "max_run_artifact_bytes": 16777216,
+    "max_strategies": 1,
+    "min_free_disk_bytes": 2147483648,
+    "timeout_batch_seconds": 225,
+    "timeout_per_test_seconds": 180
+  },
+  "policy": {
+    "allow_live_trading": false,
+    "automatic_retries": false,
+    "environment": "strategy_tester",
+    "forward_mode": 0,
+    "local_agents_only": true,
+    "optimization": false,
+    "simulation_default": true
+  },
+  "revision": 1,
+  "runs": [
+    {
+      "inputs": {},
+      "parameters": {
+        "currency": "BRL",
+        "deposit": 10000,
+        "execution_delay": 0,
+        "from_date": "2026-11-03",
+        "leverage": 1,
+        "model": "every tick",
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "to_date": "2026-11-07"
+      },
+      "run_id": "petr4-m5-a7e690b3b483dde0",
+      "strategy_id": "g1_a7e690b3b483dde0"
+    }
+  ],
+  "schema_version": "1.0",
+  "strategies": [
+    {
+      "ea": {
+        "compiled_sha256": null,
+        "path": "C:\\MT5-LAB\\MQL5\\Experts\\MT5StrategyFactory\\Generated\\g1_a7e690b3b483dde0\\MT5SF_G_a7e690b3b483dde0.ex5",
+        "source_sha256": null
+      },
+      "strategy_id": "g1_a7e690b3b483dde0",
+      "version": "1.00"
+    }
+  ]
+}

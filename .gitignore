@@ -111,11 +111,14 @@ logs/
 /config/batches/*
 !/config/batches/example.json
 !/config/batches/manifest.schema.json
+!/config/batches/phase32e_rsi.example.json
+!/config/batches/phase32e_trend.example.json
 !/tests/test_generator.py
 !/GERADOR.md
 !/FASE_32B_PREFLIGHT.txt
 !/FASE_32_EXECUCAO_001.txt
 !/FASE_32D_AUDITORIA.txt
+!/FASE_32E_PREPARACAO.txt
 !/tests/test_execution_audit.py
 !/config/generator/
 /config/generator/*

@@ -124,6 +124,13 @@ def audit_execution(evidence, *, expected_run_id):
         raise ValueError('contract size must be positive')
     for o in orders or []:
         linked = [d for d in deals or [] if d.get('order_id') == o['id']]
+        state = o.get('state')
+        if state == 'rejected':
+            warnings.append('order_rejected:' + o['id'])
+        elif state in ('canceled', 'cancelled', 'expired'):
+            warnings.append('order_' + state + ':' + o['id'])
+        elif state in ('partial', 'partially_filled'):
+            warnings.append('order_state_partial:' + o['id'])
         requested, filled = number(o.get('requested_volume')), number(o.get('filled_volume'))
         if requested is None or filled is None:
             warnings.append('order_volume_unverifiable:' + o['id'])
@@ -151,6 +158,8 @@ def audit_execution(evidence, *, expected_run_id):
         if adverse:
             warnings.append('execution_price_differs:' + o['id'])
         order_results.append(dict(order_id=o['id'], filled_volume=output(filled), deal_volume=output(total),
+            order_state=state, rejected=(state == 'rejected') if state in (
+                'filled', 'partial', 'partially_filled', 'rejected', 'canceled', 'cancelled', 'expired', 'started', 'placed') else None,
             partial_execution=partial if requested is not None and filled is not None else None,
             requested_price=output(price), executed_vwap=output(vwap), adverse_price_difference=output(adverse),
             price_reference_kind=o.get('price_reference_kind', 'caller_declared_requested_price'),

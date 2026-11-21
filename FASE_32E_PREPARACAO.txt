@@ -1,0 +1,287 @@
+MT5 STRATEGY FACTORY — FASE 3.2E
+Preparação individual dos dois candidatos restantes — 21/11/2026
+
+Resultado: dois manifestos 1.0/revisão 1 preparados e validados, com um EA e uma
+tentativa cada. São planos, não autorizações. Nenhum backtest, otimização,
+compilação, ordem, reserva/consumo de tentativa ou alteração de EA ocorreu.
+O backend real de lotes permanece desabilitado. A próxima etapa depende de
+autorização humana explícita e de preflight novo imediatamente antes da partida.
+
+1. Identidade, especificação e compilação dos EAs
+
+Os MCPs responderam get_workspace_info e usam a mesma instalação MQL5 da Rico,
+build 6230. Os fontes instalados foram lidos pelo MCP. Verificação determinística
+recompôs fonte/metadados a partir do JSON/template, sem gravar/compilar nada.
+Os bytes instalados coincidem com os do projeto; hashes concordam com manifesto
+anterior e registros de compilação da Fase 3.1, com zero erros e avisos.
+EX5 foi conferido por leitura binária dentro do read_root MQL5 previamente obtido.
+A cadeia é documental local; não prova carregamento em runtime.
+
+MT5SF_G_fcb7f99b53c86641 — fonte 7.582 bytes; EX5 33.722 bytes.
+Especificação SHA256:
+fcb7f99b53c86641f54781dc7f1741465afe9f898179d370021fcaf6091335c4
+Fonte SHA256:
+d1ccbba691a8346951e1df676ef30ca7d7cc93fdcc9133f0d8acc597408a29c0
+EX5 SHA256:
+3f2af4df4a0eda57e9d5c1fe5e2e26549840b578b0ccbdd575efa1c401dcab13
+
+Regras: PETR4/M5. Compra quando ADX14 está em [0,25] e RSI14 cruza acima de 30.
+Venda quando ADX14 está em [0,25] e RSI14 cruza abaixo de 70. Fecha long com
+RSI>60 e short com RSI<40; também SL 1%, TP 1,5%, máximo 24 barras avaliadas
+com dados válidos. Máximo 30 entradas. MAGIC=277867096921032; WARMUP=28 (+3 no guard).
+
+MT5SF_G_a7e690b3b483dde0 — fonte 8.146 bytes; EX5 35.214 bytes.
+Especificação SHA256:
+a7e690b3b483dde0251a6b96d83b26771e331e3e7e7f0a01f982c129d6ec0ddf
+Fonte SHA256:
+2341c37562b7887a49309d29018827ece9bc00efa46bb730fcc6af02735d1805
+EX5 SHA256:
+8a0a2c24bf081f856e965b8243fc81097181230d7efb06f5934b9a38e76b7387
+
+Regras: compra com EMA20>EMA50 e EMA50 subindo, ADX14>=25, +DI>-DI,
+close>EMA20 e RSI14>55. Venda simétrica: EMA20<EMA50 e EMA50 caindo,
+ADX14>=25, +DI<-DI, close<EMA20 e RSI14<45. Fecha long com close<EMA20,
+short com close>EMA20; SL 1,2%, TP 2,4%, máximo 36 barras válidas e 20 entradas.
+MAGIC=184608712012931; WARMUP=50 (+3 no guard). ma_trend é alinhamento e
+inclinação de uma barra da média lenta, não um cruzamento.
+
+Ambos usam constantes compiladas, inputs={}; alterar risco/períodos exige outra
+identidade e aprovação. Volume=SYMBOL_VOLUME_MIN; spread máximo 10 pontos e
+desvio 5 pontos. CopyBuffer/CopyClose usam shifts 1/2; [0] é o mais antigo.
+Uma posição por vez, sem flip na mesma barra, sem grid/martingale/retry.
+OnInit/OnTick e funções de requisição exigem MQL_TESTER e recusam otimização.
+OnDeinit não negocia. Abertura de short usa Sell apenas sem posições/ordens;
+fechamento usa PositionClose(ticket) com verificação de símbolo e magic.
+
+Rejeição, parcial ou estado inesperado geram HALT sem retry. HALT impede novas
+requisições e gestão pelo OnTick; exposição residual pode depender de SL/TP
+aceitos e fechamento do Tester. Falhas de buffers atrasam a contagem/saídas.
+Spread excessivo pode descartar entrada naquela barra. Não houve alteração
+dessas regras nem tentativa de abrir short para verificar permissões.
+
+2. Condições confirmadas e desconhecidas de PETR4
+
+MCP retornou trade_mode=FULL, execução exchange, cálculo exchange stocks,
+contrato 1, moeda BRL, volume mínimo=100, step=100, máximo=108930028,
+tick size/point=R$0,01 e tick value=R$0,01; filling mask=3, stops/freeze=0.
+margin_initial=0 e margin_maintenance=0 são metadados, não prova de margem
+dispensada. swap_mode=0 e swaps declarados zero não provam custos completos.
+Comissões, emolumentos, aluguel, fees e regras efetivas/históricas de margem
+e empréstimo permanecem desconhecidos. Cotação retornada tem atualização
+19/11/2026 19:34 e não foi tratada como preço atual/futuro de execução.
+
+Conta consultada: Rico-DEMO, demo, BRL, hedging; terminal conectado, build 6230.
+FULL é a propriedade de modo do símbolo que admite os dois lados. Não garante
+que uma venda específica será aceita nem comprova regras de venda em conta real.
+O Tester é isolado da negociação da conta, mas usa suas especificações disponíveis;
+DEMO não implica permissão irrestrita de shorts. Os dois EAs exigem FULL e fazem
+OrderCalcMargin antes de entrar, sem garantia antecipada de resultado desse cálculo.
+
+Ferramentas disponíveis consultadas não incluem OrderCheck, OrderCalcMargin,
+checagem de empréstimo ou consulta dedicada de short no Tester. Não foi enviado
+pedido de negociação nem usado backtest como sonda de permissão.
+Disponibilidade de abertura vendida no cenário: NÃO VERIFICADA.
+Permissão/viabilidade de venda em conta real: NÃO AVALIADA e fora do escopo.
+
+No futuro teste autorizado, confirmar short apenas por negócio sell com entry=in,
+volume positivo, ordem correspondente e evidência nativa de execução. Sell com
+entry=out é fechamento de long e não comprova abertura vendida. Se não surgir
+sinal short ou a requisição for rejeitada, manter a limitação; não mudar parâmetros,
+forçar sinal, testar em conta ou iniciar segunda tentativa automaticamente.
+
+3. Identidade do binário em runtime
+
+Revisada a investigação da Fase 3.2D: o primeiro EA tem EX5 físico 34.398 bytes
+e journal com 34.487 bytes loaded. A semântica exata da medida continua não
+documentada nas referências consultadas; a diferença não prova binários distintos.
+Não foi extrapolada essa diferença para os outros EAs, que ainda não foram testados.
+
+Mecanismos documentados: a plataforma envia blocos com fingerprints MD5 e evita
+retransmissões quando o agente já possui o bloco correspondente. Os EX5 recebidos
+não são gravados no disco do agente, segundo a documentação. O sufixo do cache
+de resultados não deve ser tratado como hash bruto do executável.
+MQLInfoString permite consultar nome/caminho do programa em execução, mas isso
+não equivale a hash do conteúdo carregado. Não foi executado script para consultá-lo.
+
+Nos MCPs configurados não há ferramenta de fingerprint do EX5 carregado por run_id.
+Hashes do arquivo instalado e registros de build comprovam documentos/arquivos;
+INIT com hash da especificação ajuda a correlação, mas é uma declaração do EA.
+Não permitem excluir completamente versão antiga em memória/cache. Nenhum cache
+ou binário foi alterado, e não houve recompilação.
+
+Estado mantido: identidade runtime DESCONHECIDA. Para elevar a evidência, obter
+documentação/interface suportada da Rico/MetaQuotes que vincule fingerprint do
+payload efetivamente carregado ao run_id, ou propor instrumentação separada.
+Um eventual teste futuro deve registrar caminho, build, INIT, relatório e todos
+os fingerprints disponíveis, sem afirmar identidade criptográfica só pelo tamanho.
+
+4. Dois cenários individuais versionados
+
+Parâmetros iguais ao primeiro teste: PETR4/M5; from_date=2026-11-03,
+to_date=2026-11-07 exclusivo, quatro sessões 03–06/11; every tick gerado;
+depósito BRL 10000, leverage=1, execution_delay=0; inputs={}; sem otimização
+ou forward, agentes exclusivamente locais, sem repetir tentativas.
+Não são configurações já aplicadas no terminal. Os INIs são rascunhos locais.
+
+Consulta atual confirmou 377 barras M5 e 1870 M1, de 03/11 a 06/11, abaixo do
+limite de 10000 registros. Isso confirma disponibilidade, não completude econômica
+ou fingerprint dos dados usados futuramente. O primeiro teste tinha pré-histórico;
+o aquecimento efetivo de cada EA precisa ser conferido novamente no Tester.
+O modelo gerado foi mantido; não trocar silenciosamente para ticks reais/OHLC.
+As datas são datas de calendário do Tester; horários do histórico vêm sem offset.
+
+Manifesto 1 — schema 1.0, revisão 1:
+  EA: g1_fcb7f99b53c86641, versão 1.00
+  batch_id: phase32e-fcb7f99b53c86641-20261121
+  run_id local planejado: petr4-m5-fcb7f99b53c86641 (não é ID nativo MT5)
+  runs/phase32e_preparation_20261121/g1_fcb7f99b53c86641/manifest.v1.json
+  SHA256 canônico:
+  bc5ca4bfe3d69ee9e4e223bb12ddc745c81f57721428708c514c30f8bcb65a5e
+
+Manifesto 2 — schema 1.0, revisão 1:
+  EA: g1_a7e690b3b483dde0, versão 1.00
+  batch_id: phase32e-a7e690b3b483dde0-20261121
+  run_id local planejado: petr4-m5-a7e690b3b483dde0 (não é ID nativo MT5)
+  runs/phase32e_preparation_20261121/g1_a7e690b3b483dde0/manifest.v1.json
+  SHA256 canônico:
+  1bdcfa58fc13a9a5f9f88476f496d24719dcafa93d663584914d5e1d980c9f40
+
+Ambos passaram validate_manifest, que valida a estrutura/domínio e os limites,
+sem promover hashes declarados a confirmação de runtime. Foram serializados nos
+bytes canônicos: SHA256 do arquivo de origem igual ao fingerprint do documento.
+Snapshot e estado foram registrados por BatchController.plan em um ledger novo,
+isolado e somente de planejamento em runs/phase32e_preparation_20261121/planning/.
+Os registros e o ledger históricos anteriores não foram alterados.
+
+Cada plano: max_strategies=1, max_backtests=1, max_attempts_per_test=1,
+max_concurrency=1; timeout_per_test_seconds=180; timeout_batch_seconds=225.
+O envelope 225 inclui os 45 s propostos para parada/reconciliação, documentados
+em controls.v1.json. O schema legado não tem um campo separado para essa janela;
+ela não foi introduzida silenciosamente no schema nem em backend de execução.
+
+Orçamento lógico por plano: 32 MiB total, 16 MiB por tentativa, mínimo 2 GiB livres.
+Observados aproximadamente 330,65 GB livres, 12 núcleos/24 processadores lógicos,
+RAM total 33.435.856 KiB e cerca de 21.821.844 KiB livres na consulta. Uma execução
+local sequencial é compatível com a proposta, sem garantia de duração/consumo.
+Não são cotas físicas de CPU/RAM; cache/logs do MT5 e SQLite não integram a quota
+lógica. A disponibilidade deve ser revalidada antes de qualquer futura partida.
+
+controls.v1.json de cada EA registra riscos, gates, limite cooperativo e política
+de parada. Seus hashes também ficam em manifest_index.json:
+  fcb7: 17771d275f8e4806d98b9a00081da5f210560e6d79778cafcdc69a8a2bad3562
+  a7e6: dfaacfc4ce062cee63260483b4278e827e2e0c89e259f6cc87e2a4136deed15e
+Qualquer futura aprovação deve identificar o manifesto E as condições/controles
+do candidato escolhido e definir validade explícita. Nenhuma validade ou aceitação
+de limitações foi presumida como autorização nesta fase.
+
+Estados: planned; itens pending; attempts=[]; zero aprovações; backend real false.
+Não houve simulate nem chamada a execute. A API de aprovação de lote não foi usada.
+Os nomes batch_id decorrem do schema existente e não habilitam execução real de
+lotes: uma execução futura deverá usar o runner individual com autorização própria.
+
+5. Auditoria preparada para os resultados
+
+Os módulos existentes analisam financeiro agregado, rastreabilidade de cenário,
+compras/shorts por side e entry, SL/TP, período final, diferenças de execução,
+fills parciais, custos desconhecidos e identidade não verificada. A classificação
+de sinal exige evidência explícita. FACTORY CLOSE isolado continua other, pois
+o EA pode fechar por sinal ou duração; não inferir causa pelo P/L.
+
+Melhoria pequena nesta fase: execution_audit agora preserva estado da ordem e
+expõe rejected=true/false/null. Sinaliza rejected, canceled/cancelled, expired e
+partial/partially_filled separadamente. Um cancelamento não é rejeição; parcial
+declarada com volume ausente não vira volume inventado. A mudança é aditiva e
+não altera métricas do resumo 1.1 nem a lógica de negociação.
+
+Foram adicionados testes de short com TP/SL e fechamento por compra, rejeição
+sem fills, cancelamento e parcial com volume desconhecido. Nenhuma fixture usa
+relatórios privados ou conexão real. Os exemplos de manifesto também são validados.
+
+Limitação importante: uma requisição rejeitada pode não gerar ordem no histórico.
+É preciso coletar o journal e os retcodes FACTORY ENTRY/CLOSE, incluindo quando
+não há ordem/negócio, e reconciliar o episódio separadamente. Ausência de linhas
+rejected não prova que todas as requisições foram aceitas. Não foi criado um
+parser genérico que invente causas a partir de mensagens arbitrárias.
+
+Coleta futura por run_id: JSON nativo, XLSX de ordens/negócios, journal delimitado
+sem truncamento, INI relido, sinais/retcodes disponíveis, agente local e snapshot
+de símbolo. Separar valores nativos, cálculos e desconhecidos. Preservar os brutos
+locais e criar resumo 1.1 novo com execution_audit opcional, nunca sobrescrever
+evidência histórica. Comissões/swap zero não comprovam modelo de custos completo.
+
+6. Protocolo obrigatório antes/depois de uma execução futura aprovada
+
+1) Receber aprovação explícita de UM candidato, manifesto, controles, tentativa 1,
+   limitações e validade com fuso. A autorização antiga do primeiro EA não serve.
+2) Revalidar JSON, identidade, fonte, EX5 instalado, manifesto e rascunho/INI final.
+   Qualquer diferença bloqueia, sem recompilar ou mudar parâmetros por conveniência.
+3) Adquirir lock por instalação e pelo runner; confirmar janela exclusiva com o
+   operador e ausência de outros workers. Sob lock, consultar tester_get_status
+   usando ID real de execução anterior. Nesta etapa, o ID 7710722521526960284
+   retornou stopped. Essa observação não reserva o Tester nem vale indefinidamente.
+4) Conferir a interface de agentes e um INI exclusivo: UseLocal=1, UseRemote=0,
+   UseCloud=0, Optimization=0, ForwardMode=0, Visual=0, ShutdownTerminal=0.
+   A seleção atual de agentes não foi inspecionada nesta fase: é gate futuro.
+   Não herdar seleções globais nem presumir que INI aceito comprova agente efetivo.
+5) Confirmar ativo/período/datas/capital/moeda/leverage/modelo, espaço e capacidade.
+   Instalar somente arquivo novo aprovado com readback, sem sobrescrever configs
+   de outros testes. Os INIs desta fase permanecem em runs/, não no terminal.
+6) Reservar atomicamente a tentativa com chave única (hash/ID da execução,
+   tentativa 1), transação síncrona e registro durável ANTES de uma única partida.
+   Usar runner individual existente e transporte com resposta tempestiva. Não
+   executar scripts/bridges históricos: cada um possui outro escopo de aprovação.
+7) Start com wait=false e captura imediata do ID nativo. Monitorar aproximadamente
+   a cada 1 s, sujeito ao transporte, com deadline cooperativo 180 s. Timeout de
+   espera do MCP não interrompe o Tester; não é watchdog físico.
+8) Ao exceder/falhar, identificar a execução ativa. Solicitar tester_stop somente
+   para o ID próprio; conferir stopped dentro de até 45 s adicionais propostos.
+   Não parar trabalho alheio nem matar terminal/processos. Em perda de acesso ou
+   identidade/estado incertos, reter locks, classificar indeterminado e reconciliar
+   com o operador. Atrasos de transporte podem exceder esses envelopes cooperativos.
+9) Coletar/reconciliar resultado, negócio short in/out e custos. Mesmo com êxito,
+   encerrar o escopo após uma tentativa. Não iniciar o segundo EA automaticamente.
+   Partida ambígua é consumida e não pode ser repetida; plano não autoriza retry.
+
+Os locks só excluem clientes cooperantes; não bloqueiam outro usuário/interface.
+A supervisão e a janela exclusiva continuam necessárias. O protocolo acima não
+afirma que o backend de lotes já implementa execução, watchdog ou aprovação live.
+
+7. Artefatos, validação e publicação
+
+Artefatos reais e evidências locais:
+runs/phase32e_preparation_20261121/
+  manifest_index.json, candidate_audit.json, environment_evidence.json,
+  historical_sha256_before.json, resources.json e duas pastas de candidatos.
+  Cada pasta tem manifest.v1.json, controls.v1.json e tester_draft.ini.
+  planning/ contém snapshots e SQLite de planejamento, sem autorizações.
+
+Exemplos públicos seguros:
+config/batches/phase32e_rsi.example.json
+config/batches/phase32e_trend.example.json
+Os exemplos usam C:\MT5-LAB fictício e hashes de fonte/binário null. Seus IDs e
+hashes são diferentes dos manifestos reais. Validar um exemplo não comprova
+existência do EX5 nem concede permissão. Não executar ou aprovar os exemplos como
+se fossem os planos locais. Paths de usuário e SQLite ficam fora do GitHub.
+
+192 testes offline aprovados, incluindo os 187 anteriores e cinco novos.
+Comando: python -B -m unittest discover -s tests -v.
+Revisar diff/status e padrões sensíveis; publicar somente análise, testes,
+exemplos fictícios e esta documentação. Sem EX5, credenciais, logs, relatórios
+brutos ou bases. Inventário de arquivos históricos foi conferido ao concluir.
+
+8. Pendências para autorização
+
+Definir qual EA testar primeiro, aceitar explicitamente os limites cooperativos,
+custos/margem/shorts e runtime desconhecidos, identificar os hashes do plano e
+controles e definir uma janela de validade/exclusividade. Repetir todos os gates
+imediatamente antes da execução. Se a confirmação prévia de shorts ou de hash
+runtime for exigida como condição absoluta, os dados atuais não a satisfazem e
+o teste deve permanecer bloqueado até evidência adicional.
+
+Nenhuma autorização foi criada e nenhuma tentativa foi consumida nesta fase.
+A próxima etapa aguarda instruções explícitas.
+
+Referências oficiais consultadas em 21/11/2026:
+https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+https://www.metatrader5.com/en/terminal/help/algotrading/testing_features
+https://www.mql5.com/en/docs/check/mqlinfostring

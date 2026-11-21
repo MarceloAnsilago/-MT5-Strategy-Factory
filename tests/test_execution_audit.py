@@ -51,6 +51,40 @@ class ExecutionAuditTests(unittest.TestCase):
             e=fixture();e['deals'][1][key]=value
             self.assertEqual(self.audit(e)['status'],'inconsistent')
 
+    def test_short_stop_and_take_profit_with_native_profit_and_buy_exit(self):
+        for reason,price,profit in [('take_profit',95,50),('stop_loss',104,-40)]:
+            with self.subTest(reason=reason):
+                e=fixture();e['groups'][0]['direction']='short'
+                for collection in (e['orders'],e['deals']):
+                    collection[0]['side']='sell';collection[1]['side']='buy'
+                e['orders'][1]['requested_price']=price;e['deals'][1].update(price=price,profit=profit)
+                e['exit_events'][0]['reason']=reason;e['reported_net_profit']=profit
+                a=self.audit(e)
+                self.assertFalse(a['issues']);self.assertEqual(a['trades'][0]['exit_reason'],reason)
+                self.assertEqual(a['net_after_all_costs'],profit)
+
+    def test_rejected_order_without_fills_is_explicit_not_a_trade(self):
+        e=fixture();e['orders']=[dict(e['orders'][0],state='rejected',filled_volume=0)]
+        e.update(deals=[],groups=[],exit_events=[])
+        a=self.audit(e)
+        self.assertTrue(a['orders'][0]['rejected']);self.assertEqual(a['trades'],[])
+        self.assertIn('order_rejected:1',a['warnings']);self.assertFalse(a['issues'])
+
+    def test_cancellation_is_not_rejection(self):
+        e=fixture();e['orders']=[dict(e['orders'][0],state='cancelled',filled_volume=0)]
+        e.update(deals=[],groups=[],exit_events=[])
+        a=self.audit(e)
+        self.assertFalse(a['orders'][0]['rejected'])
+        self.assertIn('order_cancelled:1',a['warnings'])
+
+    def test_partial_native_state_is_visible_with_unknown_volume(self):
+        e=fixture();e['orders']=[dict(e['orders'][0],state='partially_filled',filled_volume=None)]
+        e.update(deals=None,groups=None,exit_events=[])
+        a=self.audit(e)
+        self.assertIsNone(a['orders'][0]['partial_execution'])
+        self.assertFalse(a['orders'][0]['rejected'])
+        self.assertIn('order_state_partial:1',a['warnings'])
+
     def test_exit_is_never_inferred_from_profit_price_or_comment(self):
         e=fixture();e['exit_events']=[];e['deals'][1].update(profit=20,comment='end of test')
         a=self.audit(e);self.assertEqual(a['trades'][0]['exit_reason'],'unknown')
