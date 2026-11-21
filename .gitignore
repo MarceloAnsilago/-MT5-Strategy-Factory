@@ -119,6 +119,7 @@ logs/
 !/FASE_32_EXECUCAO_001.txt
 !/FASE_32D_AUDITORIA.txt
 !/FASE_32E_PREPARACAO.txt
+!/FASE_32F_PREFLIGHT_RSI.txt
 !/tests/test_execution_audit.py
 !/config/generator/
 /config/generator/*

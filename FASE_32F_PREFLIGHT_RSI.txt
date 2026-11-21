@@ -1,0 +1,103 @@
+MT5 STRATEGY FACTORY — FASE 3.2F
+Preparação da autorização individual RSI/ADX — 21/11/2026
+
+Resultado: preflight técnico favorável no instante da inspeção; execução NÃO
+autorizada. Proposta privada preparada, sem registrar autorização executável,
+reservar ou consumir tentativa. Backend real de lotes continua desabilitado.
+Nenhum backtest, otimização, ordem, compilação ou alteração de EA foi realizado.
+
+1. Identidade revalidada
+
+EA: MT5SF_G_fcb7f99b53c86641; candidato g1_fcb7f99b53c86641.
+Manifesto canônico SHA256:
+bc5ca4bfe3d69ee9e4e223bb12ddc745c81f57721428708c514c30f8bcb65a5e
+Controles canônicos SHA256:
+17771d275f8e4806d98b9a00081da5f210560e6d79778cafcdc69a8a2bad3562
+Fonte SHA256 (7.582 bytes):
+d1ccbba691a8346951e1df676ef30ca7d7cc93fdcc9133f0d8acc597408a29c0
+EX5 instalado SHA256 (33.722 bytes):
+3f2af4df4a0eda57e9d5c1fe5e2e26549840b578b0ccbdd575efa1c401dcab13
+Especificação canônica SHA256:
+fcb7f99b53c86641f54781dc7f1741465afe9f898179d370021fcaf6091335c4
+Rascunho INI SHA256:
+341fe259b83cba11b369d1f185fb28b3a01a18a2f212a004bc6c4df6276790d9
+
+Validação determinística fonte/especificação/metadados e auditoria estática
+aprovadas. Fonte local coincide com o instalado; EX5 coincide com o registro
+prévio e o manifesto. Essa cadeia documental em disco não comprova identidade
+do binário carregado pelo agente em runtime. Nada foi recompilado.
+
+2. Cenário preservado
+
+PETR4/M5; 03/11/2026 até 07/11/2026 exclusivo; todos os ticks gerados;
+BRL 10.000; alavancagem 1:1; parâmetros originais compilados, inputs={};
+uma tentativa, sem otimização ou forward, somente agentes locais.
+Prazo cooperativo 180 s; parada/reconciliação adicional 45 s; polling 1 s
+quando a interface responder. Não há garantia de prazo físico rígido.
+SL 1%, TP 1,5%, volume mínimo do símbolo, spread máximo 10 pontos,
+desvio 5 pontos e demais regras permanecem intactos.
+
+3. Ambiente observado, não reserva de exclusividade futura
+
+Ambos os MCPs responderam ao preflight de workspace, mesma instalação MQL5
+da Rico, build 6230. tester_get_status com run_id válido do teste anterior
+retornou stopped; esse ID não pertence a uma nova execução RSI/ADX.
+Interface: botão Iniciar; agentes locais habilitados; cluster de agentes
+de rede e MQL5 Cloud Network desabilitados. Nenhuma opção foi alterada.
+Lista nativa informa Local: 24 cores e Core 01 ready. Nenhum processo
+metatester64.exe foi observado, nem locks de execução do projeto/terminal.
+Essas consultas não impedem um início externo posterior.
+
+Recursos observados: 12 núcleos físicos/24 lógicos; RAM total 33.435.856 KiB,
+livre 21.925.200 KiB; disco livre 335.710.531.584 bytes. Há capacidade aparente
+para um teste individual. Orçamentos lógicos: concorrência 1, artefatos por
+run 16 MiB/total 32 MiB, piso de disco 2 GiB; não impõem cota física de CPU/RAM
+nem abrangem cache/logs próprios do MT5. Não foi iniciado agente para sondagem.
+
+Controlador isolado de planejamento: planned, run pending, attempts=[],
+zero aprovações e live_execution_enabled=false. Tentativa 1 não reservada
+nem consumida. Os históricos e controles anteriores foram preservados.
+
+4. Limitações registradas
+
+Custos completos, comissões, emolumentos, aluguel e fees: indisponíveis.
+Margem efetiva/histórica: não verificada; margin_initial=0 não prova isenção.
+PETR4 declara FULL, mínimo/step 100, contrato 1, point/tick BRL 0,01; essas
+propriedades não garantem aceitação de abertura vendida no cenário.
+Short somente será confirmado por negócio nativo sell entry=in, volume
+positivo e ordem correspondente; sell entry=out apenas fecha uma compra.
+Ausência de sinal ou rejeição mantém o dado desconhecido, sem forçar entradas.
+Identidade binária em runtime não verificável pelas ferramentas disponíveis;
+presença e SHA256 do EX5 em disco não são prova de carregamento pelo agente.
+Rejeição/parcial pode deixar exposição dependente de SL/TP aceitos e do Tester.
+
+Parada futura: solicitar tester_stop apenas para o run_id retornado pela
+partida individual autorizada, após conferir propriedade da execução. Aguardar
+até 45 s para reconciliar. Se parada não confirmada: indeterminado, manter
+locks, não repetir, não iniciar outro EA. Chamadas bloqueadas podem estender
+o prazo; não encerrar indiscriminadamente processos MT5/agentes.
+
+5. Proposta e condições pendentes
+
+Validade proposta: 22/11/2026 às 23:59 Brasília (2026-11-22T23:59:00-03:00).
+Documento e texto prospectivo de aprovação permanecem somente em runs,
+fora do Git. Não são credencial de execução nem aprovação recebida.
+A solicitação de preparação não constitui autorização definitiva.
+
+Faltam aprovação humana explícita vinculada a manifesto, controles, tentativa
+e validade; aceitação dessas limitações e confirmação de janela exclusiva.
+Antes de eventual partida: revalidar hashes/configuração/validade/recursos,
+adquirir lock do terminal, confirmar stopped e ausência de concorrência,
+conferir local-only também no INI único (UseLocal=1, UseRemote=0, UseCloud=0),
+reservar atomicamente a única tentativa e permitir exatamente uma partida.
+Nenhuma dessas operações de reserva/execução foi antecipada nesta etapa.
+
+6. Validação e publicação
+
+Todos os 192 testes offline passaram:
+python -B -m unittest discover -s tests -v.
+Verificação final: 76 arquivos históricos/instalados preservaram seus hashes.
+Revisão de diff/status e conteúdo sensível antes do commit. Somente este
+diagnóstico e sua inclusão explícita no .gitignore são publicáveis nesta fase;
+manifestos operacionais, propostas/autorizações, SQLite, logs, relatórios brutos,
+dados de conta e EX5 permanecem locais. Código e EAs não foram alterados.
