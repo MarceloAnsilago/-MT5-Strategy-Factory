@@ -277,3 +277,13 @@ nos snapshots examinados. **354 testes aprovados**, incluindo os 320 anteriores.
 Desenvolvimento e validação continuam candidatos; teste final pendente e execução
 bloqueada por evidências insuficientes. Consulte
 [FASE_33E_AUDITORIA_HISTORICO.txt](FASE_33E_AUDITORIA_HISTORICO.txt).
+
+### Fase 3.3F — plano de aquisição e laboratório offline
+
+`history_acquisition` prepara cobertura M1/M5 de janeiro/2024 a setembro/2026,
+com janelas diárias, consentimento vinculado ao hash, orçamento e persistência
+verificável. A proposta não afirma disponibilidade e aguarda aprovação humana.
+O laboratório aceita somente fontes sintéticas; o adaptador real permanece
+bloqueado. **388 testes aprovados**, preservando os 354 anteriores.
+Consulte [FASE_33F_PLANO_AQUISICAO_HISTORICO.txt](FASE_33F_PLANO_AQUISICAO_HISTORICO.txt)
+e [a proposta sanitizada](config/history/phase33f.proposal.json).

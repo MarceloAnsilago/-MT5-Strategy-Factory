@@ -1,0 +1,257 @@
+MT5 STRATEGY FACTORY — FASE 3.3F
+Plano de aquisição controlada de histórico PETR4
+Data de revisão: 23/11/2026, America/Sao_Paulo
+Base confirmada: cdccc0b948ecd21136f4de55d2ab4df220a0c994
+
+ESTADO DA ENTREGA
+Plano preparado: ACQUISITION_PLAN_READY.
+Situação para dados reais: AWAITING_HUMAN_APPROVAL / ACQUISITION_BLOCKED.
+Nenhum histórico foi solicitado, sincronizado ou baixado nesta fase.
+Não há nova certificação de dados reais nem autorização executável.
+O adaptador real permanece incondicionalmente bloqueado; consentimento de
+aquisição não habilita o Strategy Tester. A Factory continua sem dados
+suficientes para avaliação independente confiável das estratégias.
+
+1. Inspeção inicial e identidade
+Lidos integralmente o relatório 3.3E, history_audit, dataset_policy,
+period_planning e readiness; consultado o contrato de consentimento existente.
+Reutilizados leitura JSON estrita, fingerprints, validação de períodos e
+auditores OHLC/volume/duplicação/cronologia/fuso/M1-M5 da Fase 3.3E.
+Não houve duplicação do auditor nem alteração do executor/allowlist.
+Git iniciou limpo em main no commit-base esperado; origin aponta ao repositório
+MarceloAnsilago/-MT5-Strategy-Factory. Ambos get_workspace_info responderam:
+MetaEditor e terminal build 6230, mesma instalação MQL5 esperada. Consulta da
+conta confirmou servidor Rico-DEMO, ambiente demo e terminal conectado.
+tester_get_status confirmou stopped, run_id 0. Nenhum erro de conexão.
+Identidades pessoais, login, saldos e posições não integram a publicação.
+O plano registra servidor, build e SHA256 do caminho MQL5 normalizado em
+minúsculas; esse hash identifica a instalação declarada, não autentica o broker.
+
+2. Contratos MCP examinados, sem chamadas de histórico
+get_chart_history:
+  symbol: nome exato, comparação sem distinguir maiúsculas; sem curingas.
+  period: M1,M2,M3,M4,M5,M6,M10,M12,M15,M20,M30,H1,H2,H3,H4,H6,H8,
+          H12,D1,W1,MN1.
+  datetime_from: ISO datetime, início inclusivo.
+  datetime_to: ISO datetime, fim exclusivo, maior que o início.
+  limit: opcional, padrão documentado 100000 registros.
+get_chart_ticks_history:
+  symbol, datetime_from, datetime_to e limit com os mesmos contratos básicos;
+  retorna ticks com time, bid, ask e volume opcional. Sem parâmetro period.
+O limite máximo aceito não está documentado; 100000 é padrão, não teto provado.
+Não há cursor, offset, ordenação garantida, snapshot transacional, token de
+versão do histórico ou contrato de completude/paginação nas duas ferramentas.
+Não está documentada a interpretação de offsets, UTC ou relógio do broker.
+O contrato diz read-only quanto a ordens; não garante cache imutável/local.
+Não existe local_only nem opção para proibir sincronização implícita.
+Portanto ambas podem envolver sincronização do terminal: não foram chamadas.
+O chart_max_bars informado pelo terminal não comprova retenção nem cobertura.
+
+3. Limitações do transporte e plano M1/M5
+Proposta versionada: config/history/phase33f.proposal.json.
+SHA256 canônico (batch_manifest.fingerprint):
+ba41024e0dd5e66a4a6a9e3f3ae086e3afa57c413836ce994bfedce39d6e88ca
+Objeto é proposta não executável; não contém aprovação nem credencial.
+Símbolo: PETR4. Origem: terminal conectado Rico-DEMO, build 6230.
+Timeframes: M1 e M5, exclusivamente get_chart_history.
+Cobertura proposta: [2024-01-01T00:00:00,2026-10-01T00:00:00).
+São 33 meses/1004 dias corridos; disponibilidade NÃO verificada.
+Datas expressas como relógio de origem ainda não validado, sem converter para
+UTC/Brasília por suposição. Resolver semântica de datas/fuso é uma pendência
+antes da aquisição em escala e de qualquer certificação.
+
+Paginação proposta: um dia corrido por chamada/timeframe, fim exclusivo;
+M1 seguido de M5 no mesmo dia, concorrência 1. São 2008 chamadas planejadas.
+Limite solicitado: 2000 linhas por chamada. Uma grade diária de 24 horas tem
+no máximo 1440 timestamps M1 ou 288 M5 distintos, sem alegar sessão de 24 horas.
+Teto aritmético da grade: 1.445.760 M1 + 289.152 M5 = 1.734.912 registros.
+Não é previsão de registros efetivos nem prova de negociação/cobertura.
+Estimativa ilustrativa a 256 bytes/linha: 444.137.472 bytes brutos (~424 MiB),
+mais envelopes, metadados, cópias auditadas e recibos. Tamanho real será medido.
+Orçamento rígido da proposta: 2100 chamadas totais, 1.800.000 registros,
+2 MiB por resposta bruta, 2 GiB totais de artefatos de páginas; mínimo 4 GiB
+livres além da gravação da página, até 6 horas acumuladas de processamento.
+Manifesto/controle têm tamanho pequeno adicional; não incluídos na estimativa
+de mercado. O orçamento não garante que todas as páginas caibam: exceder para.
+92 chamadas de margem não autorizam retries ou expansão automática de escopo.
+Autorização futura: duração máxima de 24 horas, sem renovação automática.
+
+Não se avançará silenciosamente pelo último timestamp ao atingir limit:
+resposta saturada, incompleta, desordenada, fora da janela, conflitante,
+identidade/build diferente ou erro interrompem a aquisição. Ausência de cursor
+estável torna ticks densos especialmente sensíveis à perda na fronteira.
+Uma resposta vazia é somente observação, nunca prova de sessão sem negociação.
+Respostas precisam de evidência de completude; o laboratório usa complete=true
+sintético, que NÃO foi confirmado como campo ou garantia do MCP real.
+Não aplicar o laboratório diretamente às respostas reais sem revisão do
+envelope, semântica de paginação, datas e limite do transporte.
+
+4. Amostras propostas, sem resultados e sem congelamento
+Convenção [início,fim), com warmups isolados e nunca compartilhados com avaliação
+de etapa anterior. Critério: cronologia e duração, sem utilizar lucros dos EAs.
+Desenvolvimento: warmup janeiro/2024; avaliação [01/02/2024,01/07/2025).
+Validação: warmup julho/2025; avaliação [01/08/2025,01/06/2026).
+Final candidato: warmup junho/2026; avaliação [01/07/2026,01/10/2026).
+O final tem três meses propostos, separado dos snapshots de outubro/novembro
+atualmente auditados e do período de resultados conhecidos 03–06/11/2026.
+Essa separação não prova ausência de outra exposição prévia: revisar e registrar
+toda exposição humana/automatizada antes de congelar o final. Caso já conhecido,
+substituir prospectivamente por nova janela autorizada, sem selecionar por lucro.
+O candidato final é proposta de aquisição; independência ainda NÃO certificada.
+Manter dados finais em quarentena, sem rankings, otimização ou ajuste dos EAs.
+Não alterar o plano 3.3D nem resultados anteriores; esta é uma proposta nova.
+Quatro dias são insuficientes para avaliação robusta. Meses adicionais ajudam a
+buscar regimes distintos, mas não garantem significância ou número de operações.
+Antes de testar, definir prospectivamente tamanho mínimo de amostra, tolerâncias
+e critérios de robustez. Warmup deve demonstrar ao menos 53 barras M5 fechadas
+válidas para a guarda existente, além de histórico M1 correspondente; um mês
+reservado não comprova por si só aquecimento contínuo dos indicadores.
+
+5. Opção separada de ticks reais — NÃO incluída na proposta/consentimento M1/M5
+Somente get_chart_ticks_history em nova proposta/hash/autorização específica.
+Primeiro escopo sugerido: cinco sessões verificadas dentro do final candidato,
+com datas explícitas a definir por calendário, antes de resultados; nunca
+inferir disponibilidade do broker nem transportar consentimento de barras.
+Janelas inicialmente de 60 segundos; preservar eventos diferentes com mesmo
+timestamp. Sem cursor por evento, uma janela saturada exige parar e revisar:
+não paginar pelo último segundo/milissegundo, nem eliminar eventos indistintos.
+Estimativa de sensibilidade, NÃO estimativa observada: cinco sessões hipotéticas
+de oito horas somam 144000 segundos; a 1–100 eventos/s seriam 144 mil–14,4 milhões
+de eventos, ~14,4 MB–4,32 GB a 100–300 bytes/evento, antes de cópias/metadados.
+Teto inicial sugerido para outra proposta: 2 milhões de ticks, 512 MiB,
+10000 chamadas, 10000 registros/chamada, 2 MiB/página, 8 horas e expiração em
+24 horas. Isso pode impedir completar cinco sessões e não permite extrapolar.
+Recalcular e revisar orçamento antes de apresentar a autorização específica.
+Confrontar ticks/M1, identificar geração/fallback e diferenças de spread;
+ticks gerados nunca serão classificados como ticks reais. Qualidade de 100%
+em relatório não certifica fidelidade ao mercado. Nenhuma consulta de ticks.
+
+6. Armazenamento, proveniência e retomada
+Destino futuro reservado: C:\estrategia\runs\history_acquisition\<acquisition_id>.
+Não foi criada aquisição real nesse destino. Preparação privada separada:
+runs/phase33f_preparation_20261123/{raw,audited,receipts,quarantine}, sem dados
+de mercado novos; plan_status.json informa apenas espera de aprovação.
+O laboratório cria diretório exclusivo com synthetic_only.json e páginas:
+  page-NNNNNN/request.json: intenção antes de consultar a fixture;
+  page-NNNNNN/raw.json: bytes recebidos sem reescrever o conteúdo;
+  page-NNNNNN/audit.json: auditoria derivada 3.3E;
+  page-NNNNNN/receipt.json: commit final da página e hash do recibo anterior.
+Registra ferramenta pelo plano vinculado, símbolo/timeframe, intervalo pedido,
+primeiro/último timestamp retornados (não equivalem a limite exclusivo), fonte,
+captura com offset, conexão/build/instalação, SHA256 bruto e auditado, contagem,
+erros/intervalos e fuso/ajustes/eventos desconhecidos como null.
+Não usar mtime como captura nem metadado advertised start como cobertura.
+Somente páginas com recibo íntegro podem compor o cursor de retomada explícita.
+Retomada revalida todos os bytes, plano, consentimento, cadeia e expiração.
+Arquivo inesperado, índice ausente ou escrita parcial bloqueiam a retomada:
+preservar/quarentenar evidência e solicitar revisão, nunca apagar ou refazer
+automaticamente a chamada de desfecho desconhecido. Não há recuperação real
+automática, lock do MT5, SQLite ou reserva de execução nesse laboratório.
+Escrita exclusiva e um único worker são premissas; sincronização entre processos
+e durabilidade contra falha de energia exigem revisão antes de transporte real.
+
+7. Auditoria de dados e estados
+Reutilizados audit_snapshot/audit_collection: OHLC, volume, duplicações,
+conflitos, ordem, grid e agregação M1/M5. Não há preenchimento ou reparo.
+review_session_grid confronta grade de sessão explicitamente fornecida com
+observações: calendário deve incorporar pausas, leilões, feriados e regras
+históricas de fuso. Slot sem registro fica não resolvido, salvo evidência
+separada de ausência de negociação. Nem calendário nem eventos foram inventados.
+Preparados contratos de revisão com fontes/hash/escopo para origem, fuso,
+calendário/sessões, continuidade, M1/M5, warmup, ajustes e eventos corporativos.
+Fontes e interpretação desconhecidas mantêm DATASET_PARTIAL. Hashes vinculam
+declarações submetidas; não autenticam fornecedor ou revisor humano. A coleta
+dessas evidências e a validação por revisor confiável continuam pendentes.
+Para ajustes/eventos: obter política versionada do fornecedor e cronologia
+documentada de desdobramentos, grupamentos e proventos; não inferir ajustes por
+saltos de preço nem corrigir séries automaticamente.
+
+Estados e transições:
+  Plano válido -> ACQUISITION_PLAN_READY -> AWAITING_HUMAN_APPROVAL.
+  Falta/expiração de consentimento ou falha de segurança -> ACQUISITION_BLOCKED.
+  No laboratório, consentimento sintético válido + páginas íntegras -> DATASET_PARTIAL.
+  Parada cooperativa preserva DATASET_PARTIAL; retomada é explícita, sem retry.
+  Página órfã, resposta inválida ou falha de armazenamento -> ACQUISITION_BLOCKED.
+  DATASET_PARTIAL -> DATASET_AUDITED somente após todas as verificações aplicáveis
+  passarem com fontes vinculadas ao hash do dataset e sem limitações pendentes.
+  Mudança de fonte/versão/consentimento invalida a revisão anterior e bloqueia
+  reutilização automática; requer nova revisão prospectiva.
+DATASET_AUDITED significa verificações de dados concluídas no escopo declarado;
+não certifica fidelidade econômica, suficiência estatística ou desempenho.
+Resultados sintéticos são identificados explicitamente como sintéticos.
+Todos os estados mantêm live_execution_enabled=false, coverage_certified=false
+e acquisition_enabled=false nesta implementação. Nenhuma transição concede
+permissão ao Tester, ao executor ou ao transporte real.
+
+8. Consentimento e interrupção
+Não há emissor de autorização real. O laboratório aceita somente fixtures
+sintéticas não executáveis em diretórios novos, com declaração deliberada de
+teste, hash exato do plano, emissor sintético e vigência. Nem strings de ator nem
+arquivo JSON arbitrário autenticam uma aprovação humana.
+BlockedHistoryAdapter rejeita qualquer chamada, inclusive com approved=true.
+Não importa MCP/runner, não armazena dispatcher e não aceita transporte callback.
+O fluxo de simulação só admite SyntheticHistorySource, um mapa finito de bytes.
+Autorização humana futura deve vincular plano/hash, símbolo, timeframes, datas,
+servidor/build/instalação, ferramenta, sincronização possível, limites, destino,
+instante inicial/final com offset e a identidade/canal da aprovação.
+É exclusiva para aquisição: proíbe backtests, otimizações, compilações, ordens,
+reservas de execução e alterações de parâmetros dos EAs, independentemente do
+estado auditado dos dados. Nada transfere consentimento para fases posteriores.
+Parada solicitada: não iniciar próxima página, registrar resposta pendente se
+obtida e preservar todas as evidências. Timeout cooperativo não cancela RPC nem
+sincronização interna já iniciada pelo MT5. Os contratos não oferecem cancelamento
+de histórico; não prometer interrupção remota instantânea ou cache inalterado.
+Não tentar parar Tester para cancelar consulta de histórico.
+
+9. Testes e preservação
+Suíte completa: python -B -m unittest discover -s tests -q.
+388 testes aprovados: os 354 anteriores + 34 novos testes offline.
+Fixtures sintéticas validam paginação, meio aberto, respostas incompletas/vazias,
+falha de conexão, saturação, limites, interrupção antes/depois da resposta,
+retomada íntegra, duplicados/conflitos, mudança de build/plano, hash divergente,
+falha de armazenamento, espaço livre, timeout, consentimento ausente/vencido,
+proveniência de revisão, calendário, fuso e ausência legítima de negociação.
+Nenhum endpoint real de histórico utilizado nos testes ou na inspeção.
+Inventário de preservação antes/depois: 1776 arquivos protegidos sem alteração,
+incluindo arquivos anteriores de runs (também 3.3E), auditorias, fontes/EX5,
+parâmetros/configuração do projeto e arquivos MQL5 selecionados na instalação.
+Protegidos os três EAs: MT5SF_G_ff2190c4549a31aa,
+MT5SF_G_fcb7f99b53c86641 e MT5SF_G_a7e690b3b483dde0.
+Não alterados seus fontes, EX5, parâmetros, resultados ou tentativas anteriores.
+Nenhum backtest, compilação, otimização, ordem, reserva/tentativa real,
+configuração MT5, lock operacional ou allowlist de execução foi alterado/criado.
+Somente código, testes, proposta sanitizada, README e este relatório serão
+publicados; snapshots, dados de mercado, SQLite, credenciais e logs ficam fora.
+Commit/push normal em origin/main; SHA remoto e árvore limpa confirmados na
+entrega após publicação, sem force push.
+
+10. Pendências e procedimento exato de aprovação humana
+A entrega encerra na preparação. Não iniciar a próxima fase automaticamente.
+Antes de aquisição real: aprovação humana específica, revisão do transporte
+real e suas garantias, interpretação temporal/completude e verificação da
+identidade. A ausência de garantia local-only precisa constar da aprovação.
+Propor piloto de até quatro chamadas M1/M5 para [02/01/2024,04/01/2024), dentro
+do mesmo orçamento global, para verificar envelope/limites/disponibilidade e
+semântica temporal. Falha, ambiguidade ou falta de dados interrompem; não mudar
+datas/fuso, ampliar histórico ou consumir chamadas adicionais automaticamente.
+Se contratos/limites precisarem mudar, versionar plano e solicitar novo aceite.
+Após piloto verificável, expansão só dentro do mesmo plano aprovado; eventos,
+calendário, ajustes e proveniência ainda exigem fontes antes de auditar cobertura.
+
+Para aprovar futuramente, enviar manifestação explícita equivalente a:
+"Autorizo exclusivamente aquisição de PETR4 M1/M5 na Rico-DEMO, conforme plano
+ba41024e0dd5e66a4a6a9e3f3ae086e3afa57c413836ce994bfedce39d6e88ca,
+intervalo proposto [01/01/2024,01/10/2026), via get_chart_history, admitindo
+sincronização/download implícito e alteração do cache histórico do terminal.
+Limites: 2100 chamadas totais (2008 planejadas), 1,8 milhão de registros,
+2000 por chamada, 2 MiB por resposta, 2 GiB de artefatos, 4 GiB livres,
+6 horas de processamento, um worker, sem retry automático.
+Destino C:\estrategia\runs\history_acquisition\<id exclusivo>.
+Vigência: de <ISO com offset> até <ISO com offset>, no máximo 24 horas.
+Parar ao meu pedido, erro, ambiguidade, mudança de identidade ou limite.
+Ticks reais e qualquer execução no Strategy Tester ficam excluídos."
+O texto acima é modelo, NÃO autorização emitida. Os horários precisam ser
+preenchidos pelo humano no aceite. Aprovação não resolve por si só semântica de
+datas, disponibilidade ou completude desconhecida, nem habilita este adaptador.
+Depois de novo aceite, será necessário revisar/implementar o transporte real
+sob esses limites antes de qualquer chamada. Nenhum aceite foi presumido.

@@ -1,0 +1,68 @@
+{
+  "schema_version": "3.3F-plan-1",
+  "symbol": "PETR4",
+  "source": "Rico-DEMO",
+  "connection": {
+    "server": "Rico-DEMO",
+    "build": 6230,
+    "installation_sha256": "c9c24fd63fce9cebca6adc7228f2e166ae7e900a575c9e9d4b46c37ecc4b4d65"
+  },
+  "tools": [
+    "get_chart_history"
+  ],
+  "timeframes": [
+    "M1",
+    "M5"
+  ],
+  "datetime_from": "2024-01-01T00:00:00",
+  "datetime_to": "2026-10-01T00:00:00",
+  "date_interpretation": "broker_clock_unverified",
+  "implicit_sync_possible": true,
+  "local_only_guaranteed": false,
+  "page_days": 1,
+  "limit_per_call": 2000,
+  "destination": "C:\\estrategia\\runs\\history_acquisition",
+  "max_calls": 2100,
+  "max_records": 1800000,
+  "max_raw_page_bytes": 2097152,
+  "max_storage_bytes": 2147483648,
+  "min_free_disk_bytes": 4294967296,
+  "max_elapsed_seconds": 21600,
+  "authorization_max_hours": 24,
+  "automatic_retries": false,
+  "max_concurrency": 1,
+  "tick_option_included": false,
+  "live_execution_enabled": false,
+  "prohibited_actions": [
+    "backtests",
+    "optimizations",
+    "compilations",
+    "orders",
+    "execution_reservations",
+    "ea_parameter_changes"
+  ],
+  "availability_verified": false,
+  "periods": {
+    "development": {
+      "warmup_from": "2024-01-01",
+      "from_date": "2024-02-01",
+      "to_date": "2025-07-01",
+      "history_status": "unverified",
+      "selection_basis": "prospective_not_result_selected"
+    },
+    "out_of_sample": {
+      "warmup_from": "2025-07-01",
+      "from_date": "2025-08-01",
+      "to_date": "2026-06-01",
+      "history_status": "unverified",
+      "selection_basis": "prospective_not_result_selected"
+    },
+    "final_test": {
+      "warmup_from": "2026-06-01",
+      "from_date": "2026-07-01",
+      "to_date": "2026-10-01",
+      "history_status": "unverified",
+      "selection_basis": "prospective_not_result_selected"
+    }
+  }
+}

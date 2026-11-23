@@ -142,3 +142,8 @@ logs/
 !/FASE_33E_AUDITORIA_HISTORICO.txt
 !/tests/test_history_audit.py
 !/tests/test_history_local_regression.py
+!/tests/test_history_acquisition.py
+!/FASE_33F_PLANO_AQUISICAO_HISTORICO.txt
+!/config/history/
+/config/history/*
+!/config/history/phase33f.proposal.json
