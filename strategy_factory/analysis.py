@@ -29,6 +29,11 @@ def write_artifact(path, value):
 
 
 def read_artifact(path):
+    return decode_artifact(read_text_artifact(path))
+
+
+def decode_artifact(text):
+    """Shared strict decoder, also for snapshots read once for byte hashing."""
     def unique(pairs):
         result = {}
         for key, value in pairs:
@@ -43,7 +48,6 @@ def read_artifact(path):
         if not math.isfinite(result):
             raise ValueError('non-finite JSON number')
         return result
-    text = read_text_artifact(path)
     value = json.loads(text, object_pairs_hook=unique, parse_constant=invalid_constant, parse_float=finite_float)
     if isinstance(value, dict) and value.get('isError'):
         raise ValueError('MCP error envelope is not evidence')

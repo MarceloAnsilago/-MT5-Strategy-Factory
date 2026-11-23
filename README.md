@@ -266,3 +266,14 @@ consumo atômico, revogação e recuperação sem emitir autorização executáv
 **320 testes offline aprovados**. Checklist: **BLOCKED_MISSING_EVIDENCE**;
 executor bloqueado, sem backtests ou reservas reais.
 Consulte [FASE_33D_PRONTIDAO_OPERACIONAL.txt](FASE_33D_PRONTIDAO_OPERACIONAL.txt).
+
+### Fase 3.3E — auditoria offline de histórico
+
+`history_audit` verifica snapshots locais sem preencher lacunas ou certificar
+cobertura. `dataset_policy` vincula fontes, exposição prévia e condições da
+corretora a versões imutáveis, com revalidação e revisão retrospectiva 1.1.
+Foram observadas 1.252 barras M5 distintas, sete M1 e nenhum registro de ticks
+nos snapshots examinados. **354 testes aprovados**, incluindo os 320 anteriores.
+Desenvolvimento e validação continuam candidatos; teste final pendente e execução
+bloqueada por evidências insuficientes. Consulte
+[FASE_33E_AUDITORIA_HISTORICO.txt](FASE_33E_AUDITORIA_HISTORICO.txt).

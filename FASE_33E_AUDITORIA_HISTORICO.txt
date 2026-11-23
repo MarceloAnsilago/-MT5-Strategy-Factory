@@ -1,0 +1,189 @@
+MT5 STRATEGY FACTORY — FASE 3.3E
+Auditoria offline de histórico e preparação de amostras independentes
+Data: 23/11/2026 (America/Sao_Paulo)
+Base: bbb95aca5e21b54ca738b942e059bac622767844; branch main.
+
+CONCLUSÃO
+Não. A Factory ainda não possui dados suficientes para testar estratégias de
+forma independente e confiável. A consistência dos snapshots não certifica sua
+completude, origem ou fidelidade. Prontidão: BLOCKED_MISSING_EVIDENCE.
+Nenhuma data foi congelada, nem autorização executável emitida.
+
+1. Inspeção e conexões
+Foram examinados o relatório completo 3.3D, period_planning, readiness,
+operational_review, batch_safety, consent_contract e contratos de auditoria,
+além dos três resumos auditados 1.1 da Fase 3.2. Reutilizados validadores de
+períodos, hashes, leitura estrita de JSON e validação dos resumos existentes.
+Git iniciou limpo, em main, no commit-base esperado e remoto GitHub esperado.
+get_workspace_info respondeu nos dois MCPs Rico; ambos informaram build 6230
+e o mesmo diretório MQL5 da instalação esperada. tester_get_status respondeu
+stopped, sem execução ativa (run_id 0). Nenhuma falha de conexão observada.
+Essas consultas não constituem homologação nova dos agentes ou de execução.
+
+2. Inventário e escopo
+Foram auditados sete snapshots JSON PETR4 salvos localmente sob runs:
+  phase22_control/history.json: M5, 472 barras, 09–13/11.
+  phase23_preparation/bars.json: M5, 849 barras, 03–13/11.
+  phase23_preparation/ticks.json: zero registros de ticks.
+  phase32d_audit_20261121/stop_window_current_m1.json: sete barras M1.
+  phase32g_trend_preflight_20261121/history_raw.json: M5, 377, 03–06/11.
+  phase32g_trend_preflight_20261121/warmup_raw.json: M5, 403, 26–30/10.
+  phase32h_execution_a7e690b3b483dde0_attempt1/history_preflight_raw.json:
+    M5, 780, 26/10–06/11.
+Datas acima são de 2026; intervalos descrevem observações, não sessões completas.
+A busca em JSON de primeiro nível dos diretórios de execuções e nas áreas
+auditoria, auditoria-local e MT5StrategyFactoryPOC não revelou outros snapshots
+PETR4 reconhecidos; não foram encontrados CSV/TSV adicionais nessas áreas.
+Não se auditou o cache proprietário do terminal. Não se afirma ausência de
+dados no broker ou em todo o disco. O available_from do snapshot vazio de ticks
+é apenas metadado anunciado, não prova de indisponibilidade global.
+
+3. Cobertura observada, duplicações e qualidade
+M5: 2.881 linhas brutas, 1.252 timestamps distintos, 1.629 repetições entre
+fontes; nenhum conflito detectado. Nenhuma duplicação interna detectada.
+M1: sete linhas distintas: 03/11 17:50–17:54 e 04/11 10:09 e 10:10.
+Ticks de broker observados: zero. Ticks gerados em relatórios não são ticks reais.
+
+M5 por data: quantidade, primeiro e último timestamp observados:
+26/10  73 10:45–16:50    27/10  82 10:05–16:50
+28/10  83 10:00–16:50    29/10  83 10:00–16:50
+30/10  82 10:05–16:50    03/11  94 10:05–17:50
+04/11  94 10:05–17:50    05/11  94 10:05–17:50
+06/11  95 10:00–17:50    09/11  94 10:05–17:50
+10/11  95 10:00–17:50    11/11  94 10:05–17:50
+12/11  95 10:00–17:50    13/11  94 10:05–17:50
+
+Não detectados OHLC inválido, volume negativo/não finito, reversão cronológica
+ou desalinhamento da grade nas linhas auditadas. Volumes observados positivos;
+spread registrado igual a 1 nessas barras não comprova spread intraminuto nem
+custo efetivo. A interpretação/unidade do volume exige especificação da fonte.
+Timestamps sem offset: fuso do broker desconhecido. Datas de captura não
+comprovadas; mtime de arquivo não foi usado como instante de captura.
+Preço ajustado/não ajustado, calendário, leilões e horários oficiais não
+certificados. Nenhuma conversão especulativa para UTC/Brasília.
+
+4. Intervalos e comparação M1/M5
+Entre os snapshots há 15 intervalos distintos superiores ao passo nominal:
+14 em M5 (13 entre datas e um intradiário) e um em M1 entre datas.
+No intradiário de 26/10, 10:45→10:55, 10:50 não está observado. Sem calendário
+e regras de sessão validados isso não prova candle de mercado ausente.
+Intervalos noturnos, finais de semana e dias sem observação permanecem
+não classificados; nenhum candle foi inventado ou preenchido.
+Somente 03/11 17:50 tem cinco M1 para comparar a um M5: OHLC e somas de volumes
+compatíveis sob hipótese de mesmo relógio/base de preço. Dois outros blocos
+têm apenas um M1 cada. Isso não certifica agregação global, sessões ou spread.
+Ausência de negociação em minutos específicos exige regras verificadas,
+não preenchimento automático. Cobertura certificada permanece false.
+
+5. Modelos do Tester e obtenção futura
+Segundo a documentação oficial, Every tick gerado utiliza histórico M1; o
+spread é fixo no minuto correspondente, enquanto ticks reais podem apresentar
+spread variável dentro do minuto. No modo real, minutos sem ticks podem usar
+geração e ticks sem M1 correspondente podem ser ignorados. Portanto é preciso
+auditar também a consistência M1 e identificar eventual fallback por segmento.
+Fonte: https://www.metatrader5.com/en/terminal/help/algotrading/tick_generation
+M5 isolado não comprova os insumos necessários. Os sete M1 atuais não cobrem
+os candidatos. Qualidade reportada de 100% não comprova fidelidade de mercado.
+Os resumos anteriores mantêm 377 barras e 437.624 ticks reportados pelo Tester;
+esses contadores não substituem conteúdo bruto, origem ou hash efetivo dos dados.
+
+As ferramentas get_chart_history e get_chart_ticks_history foram identificadas
+como consultas, mas seus contratos não garantem leitura exclusivamente local
+nem oferecem parâmetro local_only. Não foram chamadas. Não houve download,
+sincronização, alteração da allowlist ou decodificação alternativa do cache.
+Procedimento proposto, exclusivamente para fase futura autorizada:
+  a) Aprovar símbolo, modelo, intervalos, finalidade e escopo de acesso.
+  b) Exigir exportação comprovadamente local; se impossível, obter autorização
+     específica para sincronização controlada, antes de consultar histórico.
+  c) Registrar origem, argumentos, captura com offset, fuso do broker, calendário,
+     sessões/leilões, base de preços e versões das especificações/condições.
+  d) Preservar bytes brutos imutáveis e hashes, auditar M1 completo nos intervalos
+     de warmup/avaliação; obter ticks reais se esse modelo for autorizado.
+  e) Verificar consistência, cobertura, eventuais fallbacks e exposição prévia;
+     submeter separação prospectiva de amostras à revisão antes de congelar datas.
+Nenhuma dessas etapas de aquisição foi executada nesta fase.
+
+6. Períodos e independência
+Convenção: início inclusivo, fim exclusivo; relógio de origem ainda não validado.
+Desenvolvimento candidato: [27/10,31/10), warmup em 26/10: 73 M5 de aquecimento,
+330 M5 de avaliação, quatro datas observadas.
+Validação candidata: [10/11,14/11), warmup em 09/11: 94 M5 de aquecimento,
+378 M5 de avaliação, quatro datas observadas.
+São contagens observadas, não garantia de inicialização contínua dos indicadores.
+Superar a guarda mínima de 53 barras não resolve ausência de M1, fuso ou sessões.
+Ambas têm zero M1 e zero ticks locais nos seus intervalos de warmup/avaliação.
+Quantidade de operações nesses candidatos é desconhecida: os resultados dos
+três EAs pertencem a outro período. Quatro dias não estabelecem suficiência
+estatística, diversidade de regimes ou controle de sobreajuste.
+Datas não escolhidas por lucro; candidatos não congelados nem aprovados.
+Exposição prévia ao conteúdo e ao warmup foi registrada e requer revisão.
+
+Teste final independente: PENDENTE. 03–06/11 já possui resultados conhecidos e
+não pode ser reutilizado como final independente. A última data M5 observada é
+13/11; não existe evidência suficiente para propor terceiro intervalo concreto.
+Será necessária nova janela cronologicamente separada, ainda não selecionada
+por desempenho, com warmup isolado >=53 barras e amostra de avaliação suficiente
+segundo critérios prospectivos. Horizonte, operações e regimes devem ser
+definidos antes de observar resultados; nenhuma data futura foi inventada.
+
+7. Política reutilizável e associação retrospectiva
+history_audit separa barras, ticks de broker e ticks gerados. Detecta falhas de
+integridade, duplicações, mistura de fusos, grade, intervalos e discrepâncias
+M1/M5. Não repara fontes nem permite certificar cobertura automaticamente.
+dataset_policy registra fontes, SHA256 dos bytes e do conteúdo canônico,
+cobertura por símbolo/timeframe, revisão, validade explícita e exposições.
+Cada versão é hash do manifesto completo, incluindo condições e exposição.
+Revisões encadeiam a versão anterior; exposições existentes são append-only.
+Registrar resultado previamente conhecido impede tratá-lo como final inédito.
+Revalidação compara versão esperada, registro de exposição, condições e hashes
+atuais; bytes alterados, mesmo JSON semanticamente igual, invalidam a evidência.
+Fonte ausente/alterada, integridade inválida, revisão futura/expirada ou validade
+não aprovada geram bloqueios. Preço histórico não expira arbitrariamente:
+validade da revisão/condições exige política aprovada, atualmente desconhecida.
+
+Manifesto privado final: dataset_manifest_v2.json; versão:
+711b4c16a17176442c83e5b65a81818b467aceea9f2593cb351744429d6ba529
+Classificação observed_partial; revalidação STALE_OR_INCOMPLETE por validade
+não aprovada e captura desconhecida, sem fontes alteradas.
+Rascunhos locais anteriores foram preservados e são supersedidos pelo v2.
+Auditorias detalhadas ficam em runs/phase33e_history_audit_20261123, ignorado
+pelo Git. Nenhum dado bruto foi incluído no pacote público desta fase.
+Anexos retrospectivos aos três resumos são cópias separadas e opt-in, vinculadas
+ao run, hash dos parâmetros e versão do dataset. Preservam métricas e evidências
+originais e declaram runtime_dataset_verified=false: não provam quais bytes
+o Tester realmente consumiu no passado. Nenhum resultado foi promovido a sucesso
+ou cobertura certificada; contagens reduzidas e auditorias parciais permanecem.
+
+8. Custos, margem e condições
+Contrato separado prepara comissão, spread, slippage, swap, margem e restrições
+de venda, ambiente e versão/fonte/datas das condições da corretora. Todos os
+valores desconhecidos permanecem null, incluindo versão e datas. Valores
+informados futuramente exigem fonte, versão e vigência explícitas. Nenhum modelo
+financeiro fictício, estimativa de margem ou custo zero foi implementado.
+
+9. Testes e preservação
+python -B -m unittest discover -s tests -q: 354 testes aprovados localmente,
+preservando os 320 anteriores. São 33 novos testes sintéticos de auditoria e
+política e uma regressão local de leitura dos sete snapshots privados.
+A regressão privada é explicitamente skipped quando os snapshots não existem
+em um clone público; os testes sintéticos independem de dados privados.
+Cobrem lacunas, duplicatas/conflitos, OHLC, volume, timestamps, offsets,
+períodos sobrepostos, warmup insuficiente, fonte alterada, incompletude,
+ausência de M1/ticks, revisão vencida, exposição e promoção indevida a certificado.
+Hashes antes/depois: 1.288 arquivos protegidos sem alteração, abrangendo fontes,
+EX5 e parâmetros inventariados, execuções/resultados históricos, auditorias e
+arquivos MQL5/configuração incluídos no inventário inicial.
+Preservados integralmente MT5SF_G_ff2190c4549a31aa,
+MT5SF_G_fcb7f99b53c86641 e MT5SF_G_a7e690b3b483dde0.
+Nenhum backtest, compilação, otimização, ordem, tentativa/reserva real,
+autorização executável, download ou mudança de configuração/lock operacional.
+
+10. Publicação e recomendação
+Publicação limitada aos módulos, testes sintéticos/regressão sem dados, README,
+allowlist Git e este relatório, por commit/push normal em origin/main.
+Snapshots, SQLite, EX5 e logs brutos continuam privados e fora do novo commit.
+SHA remoto e árvore limpa serão confirmados após push na entrega da fase.
+Próxima fase recomendada: aquisição explicitamente autorizada e verificável dos
+insumos faltantes, certificação de proveniência/sessões e revisão prospectiva das
+amostras e condições. Não liberar execução com os dados atuais.
+Nenhuma próxima fase foi iniciada. Aguardar novas instruções.

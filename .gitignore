@@ -139,3 +139,6 @@ logs/
 !/config/batches/phase33c.supervised.proposal.json
 !/FASE_33D_PRONTIDAO_OPERACIONAL.txt
 !/tests/test_operational_preparation.py
+!/FASE_33E_AUDITORIA_HISTORICO.txt
+!/tests/test_history_audit.py
+!/tests/test_history_local_regression.py
