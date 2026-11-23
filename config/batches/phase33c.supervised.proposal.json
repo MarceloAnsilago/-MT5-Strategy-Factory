@@ -1,0 +1,326 @@
+{
+  "schema_version": "3.3C-proposal-1",
+  "proposal_id": "phase33c-supervised-proposal-v1",
+  "proposal_only": true,
+  "live_execution_enabled": false,
+  "new_individual_authorizations_required": true,
+  "reuse_old_attempts": false,
+  "periods": {
+    "development": null,
+    "out_of_sample": null,
+    "final_test": null
+  },
+  "resources": {
+    "max_local_agents": 1,
+    "max_active_per_terminal": 1,
+    "timeout_attempt_seconds": 180,
+    "timeout_batch_seconds": 900,
+    "reconciliation_seconds": 45,
+    "max_consecutive_failures": 1,
+    "max_memory_bytes": 536870912,
+    "max_cpu_percent": 100
+  },
+  "stop_conditions": [
+    "unknown_start",
+    "transport_failure",
+    "tester_busy",
+    "remote_or_cloud_agent",
+    "identity_mismatch",
+    "timeout",
+    "resource_exceeded",
+    "audit_invalid",
+    "readiness_incompatible_or_unknown"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "proposal-g1_a7e690b3b483dde0",
+      "candidate_id": "g1_a7e690b3b483dde0",
+      "strategy_version": "1.00",
+      "source_sha256": "2341c37562b7887a49309d29018827ece9bc00efa46bb730fcc6af02735d1805",
+      "compiled_sha256": "8a0a2c24bf081f856e965b8243fc81097181230d7efb06f5934b9a38e76b7387",
+      "spec_sha256": "a7e690b3b483dde0251a6b96d83b26771e331e3e7e7f0a01f982c129d6ec0ddf",
+      "spec": {
+        "schema_version": "1.0",
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "entries": {
+          "long": [
+            {
+              "kind": "ma_trend",
+              "fast": 20,
+              "slow": 50,
+              "method": "EMA",
+              "direction": "up"
+            },
+            {
+              "kind": "adx_direction",
+              "period": 14,
+              "minimum": 25.0,
+              "direction": "up"
+            },
+            {
+              "kind": "price_ma",
+              "period": 20,
+              "method": "EMA",
+              "relation": "above"
+            },
+            {
+              "kind": "rsi_level",
+              "period": 14,
+              "level": 55.0,
+              "relation": "above"
+            }
+          ],
+          "short": [
+            {
+              "kind": "ma_trend",
+              "fast": 20,
+              "slow": 50,
+              "method": "EMA",
+              "direction": "down"
+            },
+            {
+              "kind": "adx_direction",
+              "period": 14,
+              "minimum": 25.0,
+              "direction": "down"
+            },
+            {
+              "kind": "price_ma",
+              "period": 20,
+              "method": "EMA",
+              "relation": "below"
+            },
+            {
+              "kind": "rsi_level",
+              "period": 14,
+              "level": 45.0,
+              "relation": "below"
+            }
+          ]
+        },
+        "exits": {
+          "long": [
+            {
+              "kind": "price_ma",
+              "period": 20,
+              "method": "EMA",
+              "relation": "below"
+            }
+          ],
+          "short": [
+            {
+              "kind": "price_ma",
+              "period": 20,
+              "method": "EMA",
+              "relation": "above"
+            }
+          ]
+        },
+        "risk": {
+          "volume_mode": "minimum",
+          "sl_percent": 1.2,
+          "tp_percent": 2.4,
+          "max_spread_points": 10.0,
+          "max_entries": 20,
+          "max_holding_bars": 36,
+          "deviation_points": 5
+        }
+      },
+      "inputs": {},
+      "parameters": {
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "from_date": null,
+        "to_date": null,
+        "deposit": 10000,
+        "currency": "BRL",
+        "leverage": 1,
+        "model": "every tick",
+        "execution_delay": 0
+      },
+      "tester_settings": {
+        "optimization": false,
+        "genetic": false,
+        "forward_mode": 0,
+        "visual": false,
+        "use_local": true,
+        "use_remote": false,
+        "use_cloud": false,
+        "profit_in_pips": false
+      },
+      "max_attempts": 1,
+      "scenario_sha256": "57083785b32dc0c2d7b6e9c6899404bf5f4ef069aa9af19c758ca8b94d981320"
+    },
+    {
+      "scenario_id": "proposal-g1_fcb7f99b53c86641",
+      "candidate_id": "g1_fcb7f99b53c86641",
+      "strategy_version": "1.00",
+      "source_sha256": "d1ccbba691a8346951e1df676ef30ca7d7cc93fdcc9133f0d8acc597408a29c0",
+      "compiled_sha256": "3f2af4df4a0eda57e9d5c1fe5e2e26549840b578b0ccbdd575efa1c401dcab13",
+      "spec_sha256": "fcb7f99b53c86641f54781dc7f1741465afe9f898179d370021fcaf6091335c4",
+      "spec": {
+        "schema_version": "1.0",
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "entries": {
+          "long": [
+            {
+              "kind": "adx_strength",
+              "period": 14,
+              "minimum": 0.0,
+              "maximum": 25.0
+            },
+            {
+              "kind": "rsi_cross",
+              "period": 14,
+              "level": 30.0,
+              "relation": "above"
+            }
+          ],
+          "short": [
+            {
+              "kind": "adx_strength",
+              "period": 14,
+              "minimum": 0.0,
+              "maximum": 25.0
+            },
+            {
+              "kind": "rsi_cross",
+              "period": 14,
+              "level": 70.0,
+              "relation": "below"
+            }
+          ]
+        },
+        "exits": {
+          "long": [
+            {
+              "kind": "rsi_level",
+              "period": 14,
+              "level": 60.0,
+              "relation": "above"
+            }
+          ],
+          "short": [
+            {
+              "kind": "rsi_level",
+              "period": 14,
+              "level": 40.0,
+              "relation": "below"
+            }
+          ]
+        },
+        "risk": {
+          "volume_mode": "minimum",
+          "sl_percent": 1.0,
+          "tp_percent": 1.5,
+          "max_spread_points": 10.0,
+          "max_entries": 30,
+          "max_holding_bars": 24,
+          "deviation_points": 5
+        }
+      },
+      "inputs": {},
+      "parameters": {
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "from_date": null,
+        "to_date": null,
+        "deposit": 10000,
+        "currency": "BRL",
+        "leverage": 1,
+        "model": "every tick",
+        "execution_delay": 0
+      },
+      "tester_settings": {
+        "optimization": false,
+        "genetic": false,
+        "forward_mode": 0,
+        "visual": false,
+        "use_local": true,
+        "use_remote": false,
+        "use_cloud": false,
+        "profit_in_pips": false
+      },
+      "max_attempts": 1,
+      "scenario_sha256": "8290d49733367051371f13d8e5e8b6673dc40370fcbddcd341aff02214f4674c"
+    },
+    {
+      "scenario_id": "proposal-g1_ff2190c4549a31aa",
+      "candidate_id": "g1_ff2190c4549a31aa",
+      "strategy_version": "1.00",
+      "source_sha256": "4741ade1f856db724c591de8817fdc4ebb739a159f554658f4d11be52a8d0b8f",
+      "compiled_sha256": "4b4ea1131a65748cdc55156d27b946ea98720fe160b275c3fb9e8901c5aaeb53",
+      "spec_sha256": "ff2190c4549a31aa6b7bd2f2d7be54047d7188758ab42254fee52735bd7cb735",
+      "spec": {
+        "schema_version": "1.0",
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "entries": {
+          "long": [
+            {
+              "kind": "ma_cross",
+              "fast": 9,
+              "slow": 21,
+              "method": "EMA",
+              "direction": "above"
+            },
+            {
+              "kind": "adx_strength",
+              "period": 14,
+              "minimum": 20.0,
+              "maximum": 60.0
+            }
+          ],
+          "short": []
+        },
+        "exits": {
+          "long": [
+            {
+              "kind": "ma_cross",
+              "fast": 9,
+              "slow": 21,
+              "method": "EMA",
+              "direction": "below"
+            }
+          ],
+          "short": []
+        },
+        "risk": {
+          "volume_mode": "minimum",
+          "sl_percent": 1.0,
+          "tp_percent": 2.0,
+          "max_spread_points": 10.0,
+          "max_entries": 30,
+          "max_holding_bars": 48,
+          "deviation_points": 5
+        }
+      },
+      "inputs": {},
+      "parameters": {
+        "symbol": "PETR4",
+        "timeframe": "M5",
+        "from_date": null,
+        "to_date": null,
+        "deposit": 10000,
+        "currency": "BRL",
+        "leverage": 1,
+        "model": "every tick",
+        "execution_delay": 0
+      },
+      "tester_settings": {
+        "optimization": false,
+        "genetic": false,
+        "forward_mode": 0,
+        "visual": false,
+        "use_local": true,
+        "use_remote": false,
+        "use_cloud": false,
+        "profit_in_pips": false
+      },
+      "max_attempts": 1,
+      "scenario_sha256": "cd0fbc3f7b563053020ff45c103a803e7debe774d2c6734a344bbbb65922ff28"
+    }
+  ]
+}

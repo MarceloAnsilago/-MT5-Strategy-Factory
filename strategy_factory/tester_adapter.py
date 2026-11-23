@@ -48,7 +48,8 @@ class FakeTesterAdapter:
     FAULTS={'completed','zero_trades','before_start','after_start','timeout','stop_requested',
             'busy','remote_agent','hash_mismatch','duplicate_reservation','unknown_final',
             'communication_lost','terminal_closed','invalid_audit','resource_exceeded','resource_after_start','stop_unconfirmed',
-            'python_interrupted','codex_interrupted'}
+            'python_interrupted','codex_interrupted','computer_restarted','delayed_response','start_response_lost',
+            'reservation_failure','reservation_interrupted','report_failure','state_divergence'}
 
     def __init__(self,sandbox,*,fault='completed',reopen=False):
         if fault not in self.FAULTS:raise ValueError('unknown fake fault')
@@ -125,7 +126,8 @@ class FakeTesterAdapter:
                         synthetic_run_id=self.owned_run,request_sha256=request_identity)
         except Exception as exc:
             observation=self.inspect()
-            ambiguous=self.start_requested and observation['status']!='stopped'
+            retained=(directory/'terminal.lock').exists() or any((self.sandbox/'locks').glob('*.lock'))
+            ambiguous=(self.start_requested and observation['status']!='stopped') or retained
             return dict(status='interrupted' if ambiguous else 'failed',summary=None,
                         error_type=type(exc).__name__,elapsed_seconds=self.clock(),
                         start_requested=self.start_requested,stop_requested=self.stop_requested,
@@ -136,6 +138,7 @@ class FakeTesterAdapter:
         if name=='tester_run_backtest':
             if self.start_requested:raise PermissionError('one start only')
             self.before_start()  # Atomic reservation and fresh checks UNDER runner locks.
+            if self.fault=='reservation_interrupted':raise SystemExit('synthetic interruption after durable reservation')
             self.start_requested=True
         if name=='tester_get_status' and self.start_requested and not self.stop_requested:
             if self.fault=='stop_requested' or self.should_stop():raise InterruptedError('synthetic cancellation')
@@ -173,12 +176,17 @@ class FakeTesterAdapter:
         elif name=='tester_run_backtest':
             state.update(status='running',run_id=self.owned_run,request_sha256=self.request_id,start_calls=state['start_calls']+1)
             self._persist(state);data={'run_id':self.owned_run}
+            if self.fault in ('start_response_lost','delayed_response'):
+                if self.fault=='delayed_response':self.clock.sleep(self.resources.timeout_attempt_seconds+1)
+                raise TimeoutError('synthetic start response unavailable')
         elif name=='tester_get_status':
-            if self.fault in ('python_interrupted','codex_interrupted') and self.start_requested:
+            if self.fault in ('python_interrupted','codex_interrupted','computer_restarted') and self.start_requested:
                 raise SystemExit('synthetic process interruption')
             if self.fault in ('communication_lost','terminal_closed') and self.start_requested:
                 raise ConnectionError('synthetic transport unavailable')
-            if self.fault=='unknown_final' and self.start_requested:
+            if self.fault=='state_divergence' and self.start_requested:
+                state.update(status='running',run_id='another-fake-run');self._persist(state)
+            elif self.fault=='unknown_final' and self.start_requested:
                 state['status']='unknown';self._persist(state)
             elif self.fault not in ('timeout','stop_requested','stop_unconfirmed'):
                 state['status']='stopped';self._persist(state)
@@ -188,6 +196,7 @@ class FakeTesterAdapter:
             if self.fault!='stop_unconfirmed':state['status']='stopped';self._persist(state)
             data={'stop_requested':True}
         elif name=='tester_get_report':
+            if self.fault=='report_failure':raise ConnectionError('synthetic report collection failure')
             zero=self.fault=='zero_trades'
             data=dict(run_id=self.owned_run,fixture_kind='SYNTHETIC integration result',
                 statistics=dict(net_profit=0 if zero else 1,trades=0 if zero else 1,

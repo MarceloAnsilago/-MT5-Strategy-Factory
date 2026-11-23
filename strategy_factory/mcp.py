@@ -75,3 +75,9 @@ class RicoMCP:
         if name not in self.ALLOWED:
             raise PermissionError('tool outside tester allowlist')
         return self._rpc('tools/call', {'name': name, 'arguments': arguments})
+
+
+class RicoQueryMCP(RicoMCP):
+    """Read-only client variant; configuration cannot add operational tools."""
+    ALLOWED = frozenset(('get_workspace_info','tester_get_status',
+                         'get_trading_account_info','get_marketwatch_symbols'))

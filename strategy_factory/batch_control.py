@@ -146,7 +146,7 @@ class BatchController:
         with self._db() as db:
             # Cancellation must remain recordable even if the external snapshot changed.
             _,state=self._load(db,batch_id,verify_snapshot=False)
-            if state['status']=='simulated':
+            if state['status']=='simulated' or state['cancel_requested']:
                 return deepcopy(state)
             state['cancel_requested']=True
             db.execute("INSERT OR IGNORE INTO revocations SELECT id, 'batch_cancelled' FROM approvals WHERE batch=?",(batch_id,))

@@ -248,3 +248,12 @@ para contratos, transições, comandos, limitações e critérios da Fase 3.3B.
 parada cooperativa, reconciliação verificável e diagnóstico de aceitação.
 **256 testes offline aprovados**; adaptador operacional permanece bloqueado.
 Consulte [FASE_33B_INTEGRACAO_SEGURA.txt](FASE_33B_INTEGRACAO_SEGURA.txt).
+
+### Fase 3.3C — transporte de consulta e recuperação persistente
+
+Consultas reais confirmaram MCPs, Rico-DEMO/build 6230 e Tester parado.
+`HomologationTransport` restringe chamadas a consultas; a recuperação inspeciona
+ledgers sem escrita, e a prontidão distingue evidência efetiva de metadados.
+**289 testes offline aprovados**. A proposta supervisionada preserva os três
+EAs, sem datas definitivas ou autorização; execução operacional segue bloqueada.
+Consulte [FASE_33C_HOMOLOGACAO_TRANSPORTE.txt](FASE_33C_HOMOLOGACAO_TRANSPORTE.txt).

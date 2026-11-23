@@ -103,8 +103,9 @@ class IntegrationBatchController(OfflineBatchController):
                                 raise BatchBlocked('duplicate or cancelled reservation')
                             run['status']='simulating'
                             run['attempts'].append(dict(attempt=attempt,status='simulating',simulation_only=True,
-                                request_sha256=request_id,terminal_id=current['terminal_id'],
+                                attempt_id=request_id,request_sha256=request_id,terminal_id=current['terminal_id'],
                                 sandbox=str(adapter.sandbox.resolve()),start_requested=True))
+                            if adapter.fault=='reservation_failure':raise OSError('synthetic reservation transaction failure')
                             self._save(db,batch_id,latest)
 
                     strategy=next(s for s in manifest['strategies'] if s['strategy_id']==spec['strategy_id'])
@@ -180,7 +181,7 @@ class IntegrationBatchController(OfflineBatchController):
             with self._db() as db:
                 _,state=self._load(db,batch_id)
                 run=state['runs'][run_id]
-                if not run.get('requires_reconciliation') or not run['attempts']:
+                if not run['attempts']:
                     raise BatchBlocked('no interrupted integration attempt')
                 attempt=run['attempts'][-1]
                 observed=adapter.inspect()
@@ -189,6 +190,10 @@ class IntegrationBatchController(OfflineBatchController):
                     observed['run_id']!='fake-'+attempt['request_sha256'][:24] or
                     str(adapter.sandbox.resolve())!=attempt['sandbox']):
                     raise BatchBlocked('synthetic stopped observation does not reconcile this attempt')
+                if not run.get('requires_reconciliation'):
+                    if attempt.get('reconciliation',{}).get('observation')==observed:
+                        return deepcopy(state)  # Idempotent control; no new event or lock mutation.
+                    raise BatchBlocked('no interrupted integration attempt')
                 # Remove only known locks under this exact synthetic sandbox, after observation.
                 directory=adapter.sandbox/'individual'/attempt['request_sha256']
                 lock=directory/'terminal.lock'

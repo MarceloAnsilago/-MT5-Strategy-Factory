@@ -134,3 +134,6 @@ logs/
 !/config/batches/phase33a.synthetic.json
 !/FASE_33B_INTEGRACAO_SEGURA.txt
 !/tests/test_batch_integration.py
+!/FASE_33C_HOMOLOGACAO_TRANSPORTE.txt
+!/tests/test_homologation.py
+!/config/batches/phase33c.supervised.proposal.json

@@ -1,0 +1,230 @@
+MT5 STRATEGY FACTORY — FASE 3.3C
+Homologação de consultas, recuperação e segurança — 23/11/2026
+Base: 673af949a35e2d0f7014dcf1785e08517be3339e, main, árvore inicial limpa.
+
+1. Escopo e resultado
+
+Nenhum backtest, otimização, compilação, ordem, autorização executável ou reserva
+real foi solicitado. Nenhuma configuração do Tester foi alterada. Execução
+automática/operacional do orquestrador continua bloqueada. Fase 3.3D não iniciada.
+
+Homologação EFETIVA nesta fase: ferramentas MCP de consulta, identidade da
+instalação e observações pontuais do Tester/agentes/concorrência. Homologação
+SIMULADA: transporte do harness, falhas, reservas sintéticas e recuperação.
+O novo cliente HTTP Python restrito foi testado offline; não foi conectado a um
+endpoint real nesta fase. As consultas reais foram feitas pelos MCPs configurados
+do Codex. Não se afirma homologação operacional ponta a ponta de um executor real.
+
+2. MCPs e ambiente efetivamente consultados
+
+rico_metaeditor e rico_terminal responderam get_workspace_info sem erro.
+Ambos: build 6230, mesmo MQL5 esperado:
+%APPDATA%\MetaQuotes\Terminal\38FF261A42172F3478E54D3A1A8FE02B\MQL5.
+Processos MetaEditor64/terminal64 da instalação C:\Program Files\Rico - MetaTrader 5.
+get_trading_account_info confirmou Rico-DEMO, demo/hedging, BRL, terminal conectado,
+program_name Rico - MetaTrader 5 e build 6230. Nenhum login/saldo privado é publicado.
+
+tester_get_status consultado com run_id histórico conhecido, sem criar outro:
+tester_status stopped, run_id 0, descrição tester stopped. Zero é o retorno ocioso
+observado, não uma nova execução. Nenhuma chamada de prepare/start/stop/report,
+compilação ou negociação foi feita ao MCP real.
+
+Consulta visual: Local: 24 cores; Core 01 ready; agentes locais marcados;
+cluster/rede e MQL5 Cloud desmarcados. Menu apenas consultado e fechado com Escape.
+Não foi habilitado/desabilitado agente. O helper visual precisou reinicializar
+o kernel após inatividade; a consulta foi retomada sem reconfigurar os MCPs.
+Não houve erro de conexão dos MCPs.
+
+Inventário de processos/locks: nenhum metatester64, nenhum lock de projeto ou
+lock compartilhado de terminal encontrado. Os três ledgers individuais 3.2
+continuam com uma tentativa completed cada. Planejamentos históricos pending
+não são autorizações/filas operacionais e foram preservados.
+Essas observações são pontuais, não uma reserva de exclusividade nem garantia
+contra partida manual posterior. query_homologation_ready=true se refere somente
+às consultas; live_execution_enabled=false e janela futura não reservada.
+
+Evidências sanitizadas para uso local ficam em runs/phase33c_homologation_20261123,
+fora do Git: consultas, avaliação da identidade e prontidão com referências/hash.
+Sem credenciais ou saldos na captura de consulta. Resumos históricos privados
+referenciados na prontidão permanecem locais, sem publicação de payloads.
+
+3. Contrato de transporte e componentes
+
+Reutilizados manifesto/hash 3.3A, gates, controle/runner individual, protocolo
+3.3B, SQLite/eventos, ResourcePolicy, auditoria 1.1, geração/verificação de
+candidatos e leitor estrito de artefatos. Não foi criado outro loop de backtests.
+
+Novos módulos:
+- homologation_transport.py: HomologationTransport, Operation e avaliação de
+  snapshots de conexão/identidade. Allowlists de consulta por servidor.
+- recovery_inspection.py: inspeção read-only de estado/eventos/identidades.
+- readiness.py: prontidão em quatro classes com escopo e referências verificáveis.
+- supervised_proposal.py: construção/verificação de proposta não executável.
+- tests/test_homologation.py: 33 testes novos offline.
+
+Extensões pequenas: RicoQueryMCP herda transporte HTTP existente com allowlist
+restrita; FakeTesterAdapter ganha faults; IntegrationBatchController ganha
+attempt_id e reconciliação idempotente; cancelamento repetido não duplica eventos.
+
+Separação explícita:
+query: somente get_workspace_info; no terminal também tester_get_status,
+get_trading_account_info e get_marketwatch_symbols. Workspace deve ter sido
+consultado com sucesso em cada servidor antes das outras consultas pelo wrapper.
+offline_preparation: retorna argumentos de BacktestConfig, sem INI ou chamada MCP.
+operational_reservation: método reserve sempre bloqueado.
+backtest_start: método start sempre bloqueado.
+monitor: consulta de estado com run_id conhecido, sem inventar tentativa.
+stop_request: método stop sempre bloqueado nesta homologação.
+read_only_reconciliation: nova observação, sem remover locks/alterar tentativas.
+Reservas/partidas/paradas SINTÉTICAS seguem exclusivamente no harness 3.3B.
+
+O wrapper não aceita ferramentas fora da allowlist, nem parâmetros arbitrários.
+Auditoria em memória guarda sequência, hashes de argumentos/resposta, tempo,
+resultado/tipo do erro; nunca headers, payload bruto ou texto de exceção.
+Consulta falha/atrasada invalida o preflight daquele servidor, marca blocked e
+não tenta novamente. Resposta inválida/estado desconhecido também falha fechada.
+Deadline do wrapper é cooperativo, verificado ao retornar. Transporte síncrono
+precisa ter timeout próprio: RicoQueryMCP herda o timeout HTTP já existente.
+Não há watchdog físico nem prova de que uma requisição bloqueada será interrompida
+exatamente no deadline. Ausência de resposta nunca prova ausência de partida.
+
+O adaptador operacional e execute continuam gates incondicionais. Alterar um
+booleano ou passar aprovação de lote não cria caminho de execução. Cliente
+operacional individual legado permanece separado, sem uso/desbloqueio nesta fase.
+
+4. Simulações de falha e resultados
+
+Cobertos os casos 3.3B e os novos:
+- start_response_lost/delayed_response: fake registra possível partida antes
+  de perder/atrasar resposta; tentativa e locks retidos, fila bloqueada, sem retry.
+- reservation_failure: rollback da transação sintética; sem inventar tentativa
+  consumida; locks incertos mantidos e bloqueio global com revisão manual exigida.
+- reservation_interrupted: reserva durável seguida de interrupção antes de
+  resposta/partida comprovada; tentativa mantida e reconciliação automática negada.
+- report_failure: Tester sintético parado, coleta falha, tentativa failed e
+  nenhum resultado promovido a conclusão com sucesso.
+- state_divergence: run_id de outro trabalho; não enviar parada para ele,
+  preservar bloqueio/locks mesmo se uma observação genérica posterior disser parado.
+- computer_restarted: SystemExit e reabertura de objetos simulam reinício;
+  reconstrução não inicia nada. Não houve reboot/encerramento real de processos.
+- falha de conexão e resposta atrasada de consulta: bloqueio latente e uma única
+  chamada, sem retry nem mensagens sensíveis na auditoria.
+
+Continuam testados Tester ocupado, agente remoto, fonte/hash divergente,
+autorização ausente/expirada, timeout/parada cooperativa, perda de comunicação,
+Python/Codex encerrado e resultado auditado inválido. Todos os testes usam fakes.
+
+5. Recuperação persistente e idempotência
+
+O ledger/eventos existente já persistia transições, número da tentativa e
+request_sha256 antes de pedir partida. attempt_id agora explicita essa identidade
+determinística, única por plano/controles/cenário/tentativa. Registros 3.3B antigos
+sem esse campo podem ser inspecionados usando request_sha256, sem migração.
+
+inspect_recovery abre SQLite mode=ro, sem construir controlador. Confere manifesto,
+safe_plan/digest, último evento versus estado, transições e evolução das tentativas.
+Detecta JSON incompleto, IDs ausentes/duplicados, redução/adulteração da sequência
+de tentativas e snapshots divergentes. Não cria banco faltante nem toca locks.
+Classificações: blocked_incomplete, blocked_ambiguous ou requires_fresh_preflight.
+Nenhuma delas autoriza execução. Repetir a inspeção mantém dados/resultado iguais.
+
+Reconciliação sintética exige a mesma sandbox, terminal, request e run_id com
+parada observada. Repetir a mesma reconciliação é idempotente, sem novo evento ou
+limpeza extra. Cancelar novamente também não duplica transições. Nenhum histórico
+é apagado para liberar replay. Locks sem registro suficiente exigem revisão manual.
+Não se infere parada pela falta de resposta ou pelo desaparecimento do processo.
+
+Não foi implementada limpeza automática de locks órfãos, reparação de estado
+incompleto nem recuperação operacional com partida. Trilha SQLite não é assinatura
+criptográfica/autenticidade: consistência interna não prova ausência de adulteração
+simultânea de todos os arquivos ou completude histórica absoluta.
+
+6. Prontidão: histórico, custos, margem e símbolo
+
+assess_readiness exige fonte/hash, locator de cada valor, escopo (demo/real,
+símbolo, datas, modelo), data da observação, cobertura e limitações. Valor deve
+coincidir com a fonte referenciada. Classes: confirmed, partially_confirmed,
+unknown, incompatible. Evidência sintética nunca vira confirmação operacional;
+escopo demo incompatível com real; conflito de valores não é resolvido por escolha
+silenciosa. Zero de comissão/swap/margem não prova modelo completo/ausência de custo.
+
+Resultado atual, limitado à proposta sem datas definitivas:
+Histórico suficiente: parcialmente confirmado, por barras de execução antiga;
+integridade dos períodos futuros: desconhecida;
+ticks: parcialmente confirmados, gerados no teste antigo, sem completude futura;
+comissão e swap: parcialmente confirmados, totais históricos registrados zero;
+spread: parcialmente confirmado, metadado corrente de spread flutuante;
+slippage e margem exigida: desconhecidos;
+permissão de venda: parcialmente confirmada, FULL corrente não prova empréstimo,
+aceitação histórica de shorts ou margem efetiva;
+volume e configuração do símbolo: parcialmente confirmados, snapshot atual demo.
+Não houve nova seleção/download de período ou histórico, OrderCheck ou ordem.
+
+PETR4 consultado por get_marketwatch_symbols: FULL/exchange stocks, BRL,
+volume mínimo/step 100, tick/point 0,01 e spread flutuante. margin_initial=0 e
+swaps declarados zero são metadados, não comprovação de custos/margem efetivos.
+ready_for_execution permanece false, mesmo diante de observações confirmadas.
+Evidências e relatório final v2 de prontidão ficam locais; primeira versão foi
+preservada para rastrear enriquecimento dos zeros registrados na auditoria.
+
+7. Proposta do primeiro lote supervisionado
+
+config/batches/phase33c.supervised.proposal.json é proposta sanitizada, não um
+manifesto executável, consentimento ou reserva. validate_manifest 1.0 a recusa.
+Contém os três candidatos existentes, versão 1.00, hashes de fonte e EX5 em disco,
+spec original integral, inputs={}, configurações do Tester e hash por cenário.
+verify_candidate conferiu bytes gerados sem gerar/compilar nada. Os hashes dos
+EX5 foram lidos na instalação existente; identidade em runtime continua não provada.
+
+Cenários individuais: proposal-g1_ff2190c4549a31aa,
+proposal-g1_fcb7f99b53c86641 e proposal-g1_a7e690b3b483dde0.
+PETR4/M5, ticks gerados every tick, depósito BRL 10.000, alavancagem 1:1,
+atraso zero; fontes/constantes/parâmetros originais integralmente preservados.
+Development/out_of_sample/final_test e datas de cada cenário ficam null: requerem
+disponibilidade/qualidade verificadas e congelamento prospectivo independente.
+
+Proposta de limites: uma execução ativa por terminal, um agente local, uma
+tentativa NOVA por cenário, 180 s por tentativa, 900 s por lote, reconciliação
+45 s e interrupção na primeira falha/condição de segurança. CPU 100% e memória
+512 MiB são tetos lógicos propostos, sem isolamento físico homologado; revisar
+dimensionamento antes de usar. Sem otimização, forward, agentes de rede ou Cloud.
+Parar por possível partida desconhecida, falha de transporte, Tester ocupado,
+identidade divergente, timeout/recursos, auditoria inválida ou prontidão insuficiente.
+
+Exige novas autorizações individuais vinculadas ao futuro manifesto/controles/
+cenário/tentativa. Não reutiliza tentativas/autorizações anteriores. Não emite
+identificadores de reserva reais. Materialização em manifesto executável não
+foi implementada; qualquer etapa futura exige revisão e autorização explícitas.
+
+8. Testes e preservação
+
+Baseline: 256 testes aprovados. Final: 289 testes offline aprovados, sem regressões
+(33 novos). Comando: python -B -m unittest discover -s tests -q.
+Inclui transporte negado, preflight por servidor, falhas/atrasos, recuperação
+persistente/idempotência, IDs antigos compatíveis, estados ambíguos, prontidão,
+integridade da proposta e resumos/auditoria 1.1 pela suíte existente.
+
+Inventário antes/depois: 1.269 arquivos protegidos, zero hashes SHA256 alterados.
+Abrange fontes/EX5/headers/perfis INI/SET da instalação MQL5 conhecida e arquivos
+existentes em runs, MQL5, config e auditorias do projeto. Três EAs, manifestos,
+tentativas, resultados e configurações protegidas preservados. Dados privados
+criados nesta fase ficam em diretório novo de runs e fora do Git.
+Publicação apenas de código, testes sintéticos, proposta sanitizada e documentação;
+sem EX5, SQLite, logs brutos, credenciais ou autorizações.
+
+9. Pendências e critérios objetivos para a próxima fase
+
+Consulta MCP disponível não significa execução operacional homologada. Permanecem:
+contrato real de consentimento/registro/revogação/consumo atômico por tentativa;
+transporte com limites observáveis e recuperação operacional revisada sob locks
+reais; preflight fresco com exclusividade; identidade do payload em runtime;
+períodos/histórico/ticks independentes; custos completos, margem/shorts; orçamento
+físico/watchdog e evidências nativas suficientes. Não há garantia contra partida
+manual externa ou falha abrupta do sistema/armazenamento com o teste offline.
+
+Antes de qualquer piloto: resolver ou aceitar formalmente cada lacuna, preencher
+e congelar períodos/limites, verificar fontes/EX5/INI/inputs, confirmar Tester
+parado/agentes/exclusividade e obter autorizações NOVAS específicas. Nenhuma
+classificação de estratégia pode se apoiar somente no lucro líquido.
+Recomendação: revisar estes gates e o procedimento de recuperação na próxima fase,
+mantendo execução bloqueada até autorização própria. Fase 3.3D não iniciada.
