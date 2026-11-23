@@ -1,0 +1,124 @@
+{
+  "schema_version": "3.3A-1",
+  "manifest": {
+    "schema_version": "1.0",
+    "batch_id": "synthetic-phase33a",
+    "revision": 1,
+    "policy": {
+      "simulation_default": true,
+      "environment": "strategy_tester",
+      "optimization": false,
+      "forward_mode": 0,
+      "local_agents_only": true,
+      "allow_live_trading": false,
+      "automatic_retries": false
+    },
+    "budget": {
+      "max_strategies": 1,
+      "max_backtests": 2,
+      "timeout_per_test_seconds": 180,
+      "timeout_batch_seconds": 360,
+      "max_attempts_per_test": 1,
+      "max_concurrency": 1,
+      "max_artifact_bytes": 1048576,
+      "max_run_artifact_bytes": 262144,
+      "min_free_disk_bytes": 67108864
+    },
+    "strategies": [
+      {
+        "strategy_id": "homologacao-002",
+        "version": "1.00",
+        "ea": {
+          "path": "C:\\MT5-LAB\\MQL5\\Experts\\Homologacao_002\\MT5SF_Homologacao_002.ex5",
+          "compiled_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    ],
+    "runs": [
+      {
+        "run_id": "petr4-first",
+        "strategy_id": "homologacao-002",
+        "parameters": {
+          "symbol": "PETR4",
+          "timeframe": "M5",
+          "from_date": "2026-11-03",
+          "to_date": "2026-11-07",
+          "deposit": 10000,
+          "currency": "BRL",
+          "leverage": 1,
+          "model": "every tick",
+          "execution_delay": 0
+        },
+        "inputs": {
+          "InpFastPeriod": 9,
+          "InpSlowPeriod": 21,
+          "InpStopLossPercent": 1,
+          "InpTakeProfitPercent": 2,
+          "InpMagic": 20261123002,
+          "InpDeviationPoints": 5
+        }
+      },
+      {
+        "run_id": "petr4-second",
+        "strategy_id": "homologacao-002",
+        "parameters": {
+          "symbol": "PETR4",
+          "timeframe": "M5",
+          "from_date": "2026-11-09",
+          "to_date": "2026-11-14",
+          "deposit": 10000,
+          "currency": "BRL",
+          "leverage": 1,
+          "model": "every tick",
+          "execution_delay": 0
+        },
+        "inputs": {
+          "InpFastPeriod": 9,
+          "InpSlowPeriod": 21,
+          "InpStopLossPercent": 1,
+          "InpTakeProfitPercent": 2,
+          "InpMagic": 20261123002,
+          "InpDeviationPoints": 5
+        }
+      }
+    ]
+  },
+  "controls": {
+    "execution_enabled": false,
+    "authorization_scope": "planning_only",
+    "automatic_retries": false,
+    "local_agents_only": true,
+    "exclusive_terminal_required": true,
+    "reconciliation_required": true
+  },
+  "periods": {
+    "development": {
+      "from_date": "2026-11-03",
+      "to_date": "2026-11-07",
+      "warmup_from": "2026-11-03",
+      "history_status": "unverified",
+      "selection_basis": "prospective_not_result_selected"
+    },
+    "out_of_sample": {
+      "from_date": "2026-11-09",
+      "to_date": "2026-11-14",
+      "warmup_from": "2026-11-09",
+      "history_status": "unverified",
+      "selection_basis": "prospective_not_result_selected"
+    },
+    "final_test": null
+  },
+  "scenarios": [
+    {
+      "run_id": "petr4-first",
+      "stage": "development",
+      "scenario_sha256": "0c35125fa1dd4dc9b5573ab6d5f76ef4d0098065f26f0957619b5b5053e45bdc"
+    },
+    {
+      "run_id": "petr4-second",
+      "stage": "out_of_sample",
+      "scenario_sha256": "39e4a400328b5e7c81637af724a7e227582d01c7979a3db43f8227e266db0753"
+    }
+  ]
+}

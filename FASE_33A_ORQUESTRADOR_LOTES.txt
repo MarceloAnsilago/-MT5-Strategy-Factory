@@ -1,0 +1,198 @@
+MT5 STRATEGY FACTORY — FASE 3.3A
+Infraestrutura de orquestração offline — 23/11/2026
+
+1. Escopo e arquitetura
+
+Extensão incremental, sem recriar o projeto. Não houve backtest, compilação,
+otimização, ordem, configuração operacional do MT5, autorização executável ou
+reserva/consumo de tentativa real. A Fase 3.3B não foi iniciada.
+
+Inspecionados tester.py, batch_manifest.py, batch_control.py, batch.py,
+analysis.py, financial.py, reports.py, traceability.py e execution_audit.py;
+também a ponte privada do controlador individual e os relatórios 3.2D/F/H.
+A ponte foi apenas lida, nunca importada/executada: contém partida no nível
+de módulo e não deve ser usada como biblioteca offline.
+
+Reutilizados: manifesto 1.0/BacktestConfig, hash JSON canônico, SQLite/eventos,
+lock simulation.lock, orçamentos, cancelamento/retomada do BatchController,
+summarize_run 1.1 e compare_runs. Não foi criado outro executor de MT5.
+TesterRunner individual permanece inalterado. Identificados seus locks por
+runner e identidade MQL5, deadline cooperativo, propriedade do run_id e retenção
+de locks em ambiguidade. A ponte individual acrescenta preflight sob locks,
+reserva durável, transporte limitado e reconciliação de parada em 45 segundos.
+
+2. Arquivos novos e contratos
+
+- strategy_factory/batch_safety.py: contrato estrito e política fail-closed.
+- strategy_factory/batch_offline.py: OfflineBatchController e CLI sem transporte.
+- strategy_factory/batch_consolidation.py: consolidador de resumos auditados 1.1.
+- tests/test_batch_safety.py: regressão e injeção de falhas offline.
+- config/batches/phase33a.synthetic.json: exemplo fictício, hashes fictícios,
+  histórico não verificado; não é plano operacional aprovado.
+- Este relatório. README/.gitignore atualizados; batch_control.py estendido.
+
+Entrada: envelope schema_version=3.3A-1 com manifest 1.0, controls, periods e
+scenarios. Cada cenário tem run_id, stage e scenario_sha256. Seu hash inclui
+estratégia/versão, caminho EX5, SHA256 obrigatório de fonte/EX5, parâmetros,
+inputs, etapa, configurações do Tester, recursos e política de tentativas.
+Excluir run_id do payload impede que mudar somente o ID evite a duplicação.
+O manifesto legado também detecta duplicações; aliases do mesmo EA/caminho/hash
+são recusados. Campos desconhecidos não são aceitos.
+
+Configurações fixadas: optimization/genetic/visual/profit_in_pips false,
+forward_mode 0, use_local true, use_remote/use_cloud false. Limites herdados:
+concorrência 1, timeout por teste/lote, tentativas, bytes por tentativa/lote
+e piso de espaço em disco. Não há limite físico de CPU/RAM.
+
+Saída: estado/eventos SQLite, manifest.json e safe_plan.json exclusivos,
+attempt.json e run_summary.json 1.1 por tentativa sintética. batch_context
+contém hashes plano/manifesto/cenário, versão, hashes declarados, etapa e estado
+do histórico. Nenhuma métrica de mercado é inventada pelo dry-run.
+Hash do envelope fixado em safe_plans; adulteração/preparação incompleta bloqueia
+uso. Ledger histórico sem safe_plans é recusado antes de escrita: sem migração
+automática nem reaproveitamento dos controles individuais ou lotes antigos.
+verify_ea_files confere bytes locais opcionalmente, sem compilar. Hash em disco
+não comprova identidade do binário efetivamente carregado em runtime.
+
+3. Máquina de estados formal
+
+Nomes existentes preservados por compatibilidade com ledgers/consumidores.
+RUN_TRANSITIONS:
+pending -> simulating | cancelled
+simulating -> simulated | failed | interrupted
+failed -> simulating, somente por plano explícito da próxima tentativa
+interrupted -> simulating, após reconciliação e plano explícito
+cancelled -> simulating, por plano explícito
+simulated -> nenhum outro estado
+
+BATCH_TRANSITIONS:
+planned -> simulating | cancelled
+simulating -> simulated | failed | blocked | interrupted | paused |
+              cancel_requested | cancelled
+cancel_requested -> cancelled | failed | blocked | interrupted
+failed | blocked | interrupted | paused -> simulating | cancelled
+cancelled -> simulating
+simulated -> nenhum outro estado
+
+Autotransição permite registrar eventos sem mudança de estado. _save verifica
+transições contra o estado persistido na transação SQLite. Sucesso offline
+chama-se simulated, nunca completed real. Falha não transita diretamente para
+sucesso. Lote só fica simulated quando todos os cenários estão simulated;
+seleção parcial deixa paused. Validação/autorização são gates, não novos nomes
+de estado que exigiriam migração dos registros existentes.
+
+4. Falhas, retomadas, locks e recursos
+
+outcomes aceita simulated, failed, failed_before_start e ambiguous, além de
+duration_seconds/partial_note sintéticos. failed_before_start registra ausência
+de partida sintética. ambiguous registra interrupted e requires_reconciliation.
+Ambos param a fila; timeout também falha sem retry. Consumo de IDs ocorre apenas
+no ledger sintético novo, nunca nos controladores reais das Fases 3.2.
+
+Após ambiguidade ou recuperação de crash, reconcile_simulation(stopped=True)
+registra observação exclusivamente sintética. Depois resume_plan pode propor
+novo número de tentativa, dentro do limite. Nunca reutiliza o anterior. O plano
+é revalidado antes de simular. Crash abrupto pode deixar simulation.lock; não há
+remoção automática de locks órfãos. Nenhuma reconciliação offline toca lock real.
+
+Lock exclusivo por raiz impede workers cooperantes concorrentes e preserva
+locks preexistentes. Raízes offline diferentes podem simular em paralelo, pois
+não acessam Tester. Execução operacional é impossível neste controlador, mesmo
+com outro processo no Tester. Integração real futura exige os locks do runner,
+preflight atualizado e exclusividade; lock cooperante não impede partida manual.
+
+Tempo offline é lógico/determinístico, não prazo físico do MT5. Envelope máximo
+de tentativas e armazenamento/espaço livre são verificados. SQLite/eventos,
+cache/logs MT5 ficam fora da cota de artefatos; sem watchdog físico nesta fase.
+
+5. Política de autorização
+
+controls exige execution_enabled=false e authorization_scope=planning_only.
+execute/execution_gate sempre negam, inclusive com autorização ou enabled=True.
+OfflineBatchController não aceita runner, transporte ou callback; não instancia
+RicoMCP nem chama TesterRunner.run. Dry-run não exige permissão operacional,
+pois não tem caminho para iniciar EA.
+
+check_planning_authorization verifica registro fornecido: schema 3.3A-1,
+scope planning_only, ID, hash do envelope, hash dos controles, hash do cenário,
+run_id, tentativa e emissão/expiração com timezone. O método do controlador
+confere consumo persistido. authorization do novo controlador nega emissão.
+Registros 1.0/autorizações individuais 3.2 são incompatíveis com esse contrato.
+Checker valida integridade/escopo, não assinatura ou prova de consentimento.
+A API legada permanece para planejamento compatível, com execute bloqueado;
+não há conversão de aprovações antigas nem autorização de execução nesta fase.
+
+6. Períodos independentes
+
+periods contém development, out_of_sample e final_test. Etapas podem ficar null
+enquanto não escolhidas. Uma etapa preenchida exige from_date/to_date/warmup_from,
+history_status e selection_basis=prospective_not_result_selected. Intervalos
+[início,fim) ordenados, sem interseção, incluindo warmup. Cenário deve coincidir
+com o período declarado. A política de warmup é conservadora.
+Não foram escolhidos períodos definitivos nem buscado histórico novo.
+history_status é declaração, não prova de qualidade. Validação impede vazamento
+estrutural por sobreposição; não prova que alguém não selecionou datas depois
+de ver resultados. Isso exige congelamento prévio auditável e revisão humana.
+
+7. Consolidação e qualidade
+
+consolidate exige resumo 1.1 com execution_audit 1.0 do mesmo run_id; reutiliza
+compare_runs, preserva cópia integral e SHA256 dos originais. Mantém métricas:
+lucro/perda brutos, líquido MT5, drawdowns saldo/equity, operações, taxa de acerto,
+fator de lucro e qualidade. Comissão, swap, spread, slippage, fees/modelos ficam
+separados via traceability, incluindo campos não verificados. Período efetivo,
+barras/ticks, qualidade/cobertura e configuração mantêm status de evidência.
+Ausência continua null; comissão zero não prova ausência de custos reais.
+all_costs_net_profit/effective_margin ficam null. Não deduz novamente diferenças
+de execução já embutidas no resultado. Amostra abaixo de 30 recebe small;
+atingir esse limiar tampouco valida estratégia. Sem ranking, soma de carteira
+ou garantia de rentabilidade.
+
+Leitura dos resumos históricos locais auditados preservou exatamente:
+EMA 9/21 + ADX: 6 operações, -143 BRL;
+RSI + ADX: 1 operação, -52 BRL;
+Tendência: 14 operações, +369 BRL.
+Os três pares continuam conditional, pelas limitações de evidência existentes.
+Fixtures públicas contêm referências documentadas explicitamente sintéticas;
+relatórios nativos privados não são publicados.
+
+8. Uso offline
+
+python -B -m strategy_factory.batch_offline validate config/batches/phase33a.synthetic.json
+python -B -m strategy_factory.batch_offline dry-run config/batches/phase33a.synthetic.json --root runs/phase33a_dryrun_NOVO
+python -B -m strategy_factory.batch_offline consolidate RESUMO_A RESUMO_B RESUMO_C --output NOVO_ARQUIVO.json
+
+Raiz explícita e separada obrigatória para dry-run. Criação exclusiva, sem
+sobrescrita/retry implícito. Falhas/retomadas usam a API Python descrita acima;
+não construir transporte operacional. Consolidações privadas ficam em runs.
+
+9. Validação e preservação
+
+Baseline: 199 testes aprovados antes de editar. Final: 225 testes offline
+aprovados, sem regressões: python -B -m unittest discover -s tests -q.
+Inclui manifestos/hash/duplicação, períodos/warmup, transições ilegais, consumo,
+expiração/escopo, falhas antes/depois da partida sintética, crash/reconciliação,
+locks, runner/rede proibidos, consolidação e compatibilidade 1.1.
+Teste histórico é opcional em clone público sem evidências privadas; nesta
+máquina os três resumos estavam presentes e foram efetivamente conferidos.
+
+Inventário prévio de 345 arquivos runs/MQL5/config: nenhum SHA256 alterado.
+Três fontes gerados têm hashes históricos congelados nos testes. Os seis
+fonte/EX5 instalados foram conferidos com os hashes documentados em 3.2D/F/H.
+EAs, parâmetros, resultados, ledgers e locks reais preservados. Publicação
+limitada a código, testes sintéticos, exemplo fictício e documentação.
+
+10. Limitações e critérios para 3.3B
+
+Dry-run aprovado NÃO valida executor real. Ainda não implementados: transporte
+de lotes, emissão/registro/revogação de consentimento executável, reserva real,
+watchdog físico, adaptador genérico de evidência nativa e atestado de identidade
+runtime. Não verificadas datas novas, custos completos, margem ou mercado.
+
+Para 3.3B: revisar contrato de autorização executável novo por tentativa e vínculo
+manifesto/controles/cenário; registro/revogação/consumo atômico; integrar ao runner
+existente com preflight sob seus locks reais; confirmar parada/propriedade,
+janela exclusiva, agentes locais/rede/Cloud; limitar transporte/timeout e reter
+locks em ambiguidade; validar evidências/custos/histórico e congelar períodos
+antes de resultados. Qualquer backtest exige autorização futura explícita.
+Não se habilita execução operacional apenas mudando booleano no manifesto.

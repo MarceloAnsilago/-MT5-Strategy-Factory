@@ -129,3 +129,6 @@ logs/
 /config/generator/*
 !/config/generator/demo_specs.json
 !/config/generator/demo_manifest.json
+!/FASE_33A_ORQUESTRADOR_LOTES.txt
+!/tests/test_batch_safety.py
+!/config/batches/phase33a.synthetic.json

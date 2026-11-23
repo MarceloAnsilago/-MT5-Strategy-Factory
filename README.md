@@ -231,3 +231,12 @@ compilados pelo MCP Rico: **0 erros e 0 avisos em cada um**. **158 testes aprova
 Nenhum backtest ou ordem foi iniciado. Consulte [GERADOR.md](GERADOR.md) para regras,
 limites, arquivos, compilação e integração com manifesto/resumo. O backend real
 continua desabilitado; a Fase 3.2 depende de nova autorização.
+
+### Fase 3.3A — orquestração segura offline
+
+`strategy_factory.batch_offline` estende o controlador existente com contrato
+de cenário/hash, períodos independentes, simulação de falhas e reconciliação
+explícita. Consolida resumos auditados 1.1 sem ranking ou soma de carteira.
+**225 testes offline aprovados**; execução real permanece bloqueada.
+Consulte [FASE_33A_ORQUESTRADOR_LOTES.txt](FASE_33A_ORQUESTRADOR_LOTES.txt)
+para contratos, transições, comandos, limitações e critérios da Fase 3.3B.

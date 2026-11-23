@@ -18,6 +18,28 @@ class BatchBlocked(RuntimeError):
     pass
 
 
+# Legacy state names remain stable for existing ledgers and consumers.
+RUN_TRANSITIONS = {
+    'pending': {'simulating', 'cancelled'},
+    'simulating': {'simulated', 'failed', 'interrupted'},
+    'failed': {'simulating'}, 'interrupted': {'simulating'},
+    'cancelled': {'simulating'}, 'simulated': set(),
+}
+BATCH_TRANSITIONS = {
+    'planned': {'simulating', 'cancelled'},
+    'simulating': {'simulated', 'failed', 'blocked', 'interrupted', 'paused', 'cancel_requested', 'cancelled'},
+    'cancel_requested': {'cancelled', 'failed', 'blocked', 'interrupted'},
+    'failed': {'simulating', 'cancelled'}, 'blocked': {'simulating', 'cancelled'},
+    'interrupted': {'simulating', 'cancelled'}, 'paused': {'simulating', 'cancelled'},
+    'cancelled': {'simulating'}, 'simulated': set(),
+}
+
+
+def check_transition(before, after, transitions):
+    if before not in transitions or after not in transitions or (before != after and after not in transitions[before]):
+        raise BatchBlocked('illegal state transition')
+
+
 class BatchController:
     def __init__(self,root='runs/batches',*,free_bytes=None):
         self.root=Path(root)
@@ -54,6 +76,12 @@ class BatchController:
         return manifest,json.loads(row[2])
 
     def _save(self,db,batch_id,state):
+        previous=db.execute('SELECT state FROM batches WHERE id=?',(batch_id,)).fetchone()
+        if previous:
+            old=json.loads(previous[0])
+            check_transition(old['status'],state['status'],BATCH_TRANSITIONS)
+            for key,run in state['runs'].items():
+                check_transition(old['runs'][key]['status'],run['status'],RUN_TRANSITIONS)
         encoded=json.dumps(state,allow_nan=False,sort_keys=True)
         db.execute('UPDATE batches SET state=? WHERE id=?',(encoded,batch_id))
         db.execute('INSERT INTO events(batch,time,state) VALUES(?,?,?)',
@@ -164,7 +192,7 @@ class BatchController:
             return {'valid_for_planning':True,'live_execution_enabled':False}
 
     def execute(self,*args,**kwargs):
-        raise PermissionError('live batch backend is disabled in phase 2.6, including with a valid authorization')
+        raise PermissionError('live batch backend is disabled, including with a valid authorization')
 
     @contextmanager
     def _worker(self,batch_id):
@@ -188,12 +216,29 @@ class BatchController:
                 if run_id not in state['runs']:
                     raise ValueError('unknown run')
                 run=state['runs'][run_id]
+                if run.get('requires_reconciliation'):
+                    raise BatchBlocked('ambiguous simulation requires explicit reconciliation')
                 if run['status'] in ('simulated','simulating') or type(attempt) is not int or attempt!=len(run['attempts'])+1:
                     raise BatchBlocked('completed, active or duplicate attempt')
                 if attempt>manifest['budget']['max_attempts_per_test']:
                     raise BatchBlocked('attempt budget exhausted')
             return dict(schema_version='1.0',resume_id=uuid.uuid4().hex,batch_id=batch_id,
                 manifest_sha256=state['manifest_sha256'],selected=dict(selected),simulation_only=True)
+
+    def reconcile_simulation(self,batch_id,run_id,*,stopped):
+        """A synthetic observation only; never reconciles a real terminal lock."""
+        if stopped is not True:
+            raise BatchBlocked('synthetic stopped observation required')
+        with self._worker(batch_id):
+            with self._db() as db:
+                _,state=self._load(db,batch_id)
+                run=state['runs'][run_id]
+                if run['status']!='interrupted' or not run.get('requires_reconciliation'):
+                    raise BatchBlocked('no ambiguous simulation to reconcile')
+                run['requires_reconciliation']=False
+                run['attempts'][-1]['simulation_reconciled_stopped']=True
+                self._save(db,batch_id,state)
+                return deepcopy(state)
 
     def recover_interrupted(self,batch_id):
         """Only when no worker owns the shared lock. Never replay the uncertain attempt."""
@@ -205,6 +250,7 @@ class BatchController:
                 for run in state['runs'].values():
                     if run['status']=='simulating':
                         run['status']='interrupted'
+                        run['requires_reconciliation']=True
                         run['attempts'][-1]['status']='interrupted'
                 state['status']='interrupted'
                 self._save(db,batch_id,state)
@@ -235,7 +281,7 @@ class BatchController:
                         raise BatchBlocked('resume is not applicable')
                     for run_id,attempt in selected.items():
                         run=state['runs'].get(run_id)
-                        if run is None or run['status'] in ('simulated','simulating') or type(attempt) is not int or attempt!=len(run['attempts'])+1 or attempt>manifest['budget']['max_attempts_per_test']:
+                        if run is None or run.get('requires_reconciliation') or run['status'] in ('simulated','simulating') or type(attempt) is not int or attempt!=len(run['attempts'])+1 or attempt>manifest['budget']['max_attempts_per_test']:
                             raise BatchBlocked('resume would duplicate or exceed an attempt')
                 if set(outcomes)-set(selected):
                     raise ValueError('simulation outcome outside selected runs')
@@ -277,9 +323,15 @@ class BatchController:
                     if type(duration) not in (int,float) or not 0<=duration<1e100:
                         raise ValueError('invalid synthetic duration')
                     outcome_status=outcome.get('status','simulated')
-                    if outcome_status not in ('simulated','failed'):
+                    if outcome_status not in ('simulated','failed','failed_before_start','ambiguous'):
                         raise ValueError('invalid synthetic status')
-                    if duration>budget['timeout_per_test_seconds']:
+                    start_requested=outcome_status!='failed_before_start'
+                    ambiguous=outcome_status=='ambiguous'
+                    if outcome_status=='failed_before_start':
+                        outcome_status='failed'
+                    elif ambiguous:
+                        outcome_status='interrupted'
+                    if duration>budget['timeout_per_test_seconds'] and not ambiguous:
                         outcome_status='failed'
                     self._write(manifest,relative/'attempt.json',{'simulation_only':True,'run_id':run_id,
                         'attempt':attempt,'manifest_sha256':fingerprint(manifest),'requested':spec,
@@ -289,7 +341,7 @@ class BatchController:
                     strategy=next(s for s in manifest['strategies'] if s['strategy_id']==spec['strategy_id'])
                     summary=summarize_run(None,parameters=dict(spec['parameters'],expert=strategy['ea']['path']),
                         local_run_id=batch_id+'_'+run_id+'_'+str(attempt),inputs=spec['inputs'],
-                        execution={'status':'failed' if outcome_status=='failed' else 'simulated',
+                        execution={'status':'failed' if outcome_status in ('failed','interrupted') else 'simulated',
                                    'timeout_seconds':budget['timeout_per_test_seconds']})
                     summary['batch_context']=dict(batch_id=batch_id,manifest_sha256=fingerprint(manifest),
                         strategy_id=strategy['strategy_id'],strategy_version=strategy['version'],
@@ -304,11 +356,14 @@ class BatchController:
                         run=state['runs'][run_id]
                         run['status']=outcome_status
                         run['attempts'][-1].update(status=outcome_status,synthetic_duration_seconds=duration,
-                            timeout=duration>budget['timeout_per_test_seconds'])
-                        if outcome_status=='failed':
-                            state['status']='failed'
+                            timeout=duration>budget['timeout_per_test_seconds'],simulation_only=True,
+                            synthetic_start_requested=start_requested)
+                        if ambiguous:
+                            run['requires_reconciliation']=True
+                        if outcome_status in ('failed','interrupted'):
+                            state['status']=outcome_status
                         self._save(db,batch_id,state)
-                        if outcome_status=='failed':
+                        if outcome_status in ('failed','interrupted'):
                             return deepcopy(state) # Fail fast; no implicit next attempt.
                     finished+=1
                 with self._db() as db:
@@ -322,6 +377,7 @@ class BatchController:
                     for run in state['runs'].values():
                         if run['status']=='simulating':
                             run['status']='interrupted'
+                            run['requires_reconciliation']=True
                             run['attempts'][-1]['status']='interrupted'
                     state['status']='blocked' if isinstance(exc,BatchBlocked) else 'failed'
                     state['error_type']=type(exc).__name__ # Never persist a possibly sensitive exception message.
