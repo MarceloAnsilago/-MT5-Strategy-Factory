@@ -111,6 +111,10 @@ class TesterRunner:
         self.call_tool = call_tool
         self.clock, self.sleep = clock, sleep
 
+    def _terminal_lock_root(self):
+        """Default operational lock namespace; fake harnesses isolate their locks."""
+        return Path(tempfile.gettempdir()) / 'mt5-strategy-factory-locks'
+
     def run(self, config, *, simulate=True, authorized=False, timeout=300, poll_interval=1,
             prepared_config_path=None, inputs_path=None):
         if not math.isfinite(timeout) or timeout <= 0 or not math.isfinite(poll_interval) or poll_interval <= 0:
@@ -151,7 +155,7 @@ class TesterRunner:
                 raise TesterError('backtest unavailable')
             mql5 = workspace['workspace']['mql5_folder']
             # Same terminal is serialized even when callers use different run roots.
-            lock_root = Path(tempfile.gettempdir()) / 'mt5-strategy-factory-locks'
+            lock_root = self._terminal_lock_root()
             lock_root.mkdir(exist_ok=True)
             identity = hashlib.sha256(ntpath.normcase(ntpath.normpath(mql5)).encode()).hexdigest()
             candidate_lock = lock_root / (identity + '.lock')

@@ -1,0 +1,201 @@
+MT5 STRATEGY FACTORY — FASE 3.3B
+Integração simulada com o controlador individual — 23/11/2026
+Base: 7c7db1e970c9e81ba3f35e1b95c9d3f3b2d10f2e, branch main.
+
+1. Resultado e fronteira de segurança
+
+Integração desenvolvida exclusivamente offline. Nenhum backtest, otimização,
+compilação, ordem, alteração da instalação MT5, autorização executável ou
+tentativa real foi solicitado. A Fase 3.3C não foi iniciada.
+live_execution_enabled permanece false. Adaptador operacional não aceita
+transporte e seu request chama o gate incondicional de bloqueio da Fase 3.3A.
+Configuração ou autorização de lote não remove esse bloqueio.
+
+O novo harness aceita somente type(adapter) is FakeTesterAdapter; adaptador
+operacional, implementações externas e subclasses são recusados antes de mudar
+estado. Não há descoberta automática de MCP, endpoint, credencial ou MT5.
+Esses gates são proteção contra uso acidental, não uma sandbox de segurança
+contra alguém capaz de alterar o código Python em execução.
+
+2. Arquitetura e reutilização
+
+Inspecionados batch_control, batch_offline, batch_safety, batch_consolidation,
+TesterRunner, BacktestConfig, RicoMCP, relatórios/ponte individual 3.2 e schema 1.1.
+A ponte privada foi lida, nunca importada: contém partida no nível de módulo.
+
+Novos componentes:
+- strategy_factory/tester_adapter.py: protocolo IndividualTesterAdapter,
+  OperationalTesterAdapter bloqueado, FakeTesterAdapter e relógio lógico.
+- strategy_factory/batch_integration.py: IntegrationBatchController, derivado
+  do OfflineBatchController, reserva sintética e reconciliação verificável.
+- strategy_factory/integration_policy.py: recursos, critérios de aceitação e
+  validação de fixtures individuais não executáveis.
+- tests/test_batch_integration.py: 31 testes novos offline.
+
+Reutilizados o contrato/hash de plano e cenário 3.3A, SQLite/eventos/transições,
+lock de worker e limites do BatchController, manifesto 1.0, BacktestConfig,
+TesterRunner, summarize_run, auditoria de execução e consolidação 1.1.
+Validação de seleção/retomada foi extraída para _select_attempts e compartilhada
+pelos dois modos offline, evitando uma segunda política de replay.
+
+Única extensão ao runner individual: _terminal_lock_root devolve o mesmo caminho
+operacional de antes. _FakeRunner sobrescreve somente esse método para isolar
+locks dentro da sandbox sintética. Não foi alterada a seleção de locks do fluxo
+operacional padrão, nem copiado um novo loop de execução individual.
+
+O harness exercita o ramo completo do TesterRunner com call_tool falso, clock
+lógico e sleep lógico. Os argumentos internos simulate=False/authorized=True
+servem apenas para testar esse ramo com o fake; não são uma autorização real.
+O cliente RicoMCP nunca é construído pelo novo fluxo. Chamadas chamadas
+tester_run_backtest nos testes são nomes roteados exclusivamente ao método
+_fake_call, sem rede, subprocesso, EA ou terminal. Artefatos desse runner ficam
+sob sandbox marcada synthetic_tester_state, com resultados synthetic.
+
+3. Entrada, saída e fluxo
+
+Entrada: plano 3.3A válido e fixado no ledger, run_id, tentativa selecionada,
+ResourcePolicy, AcceptanceCriteria e fixture individual específica por cenário.
+Usar raiz de integração NOVA: ledger 3.3A ou individual antigo é recusado antes
+de escrita. Reabertura exige marcador integration_sandbox existente. O método
+simulate legado é bloqueado para impedir mistura de motores no mesmo ledger.
+
+Fluxo simulate_integration:
+1) Validar adaptador exato, plano, transições, seleção e orçamento.
+2) Validar fixture individual e observações sintéticas de parada/agentes/recursos.
+3) Delegar ao runner individual; repetir preflight sob seus dois locks isolados.
+4) Reservar exatamente uma tentativa sintética em transação SQLite antes do
+   pedido falso de partida. Persistir hash de request, terminal e sandbox.
+5) Monitorar status com relógio lógico, cancelamento e observações de recursos.
+6) Quando necessário, pedir parada cooperativa somente com propriedade confirmada
+   do run_id; consultar até stopped ou esgotar o limite de reconciliação.
+7) Validar resultado/auditoria antes de promover o cenário a simulated.
+8) Gravar audited_summary.json e acceptance.json exclusivos e entregar os
+   resumos ao consolidador existente. Coleção fica no estado/eventos privados.
+
+Configuração, inputs e resumo devem coincidir com o cenário. Contexto inclui
+hash de plano/cenário/request, versão, ID e tentativa. Resumo failed ou inválido
+nunca é promovido a sucesso. Auditoria deve ter escopo do mesmo run_id e status
+consistent ou partial; lacunas mantêm-se visíveis. Sucesso do harness é simulated,
+não homologação de execução real. Uma execução sintética sem operações pode
+concluir tecnicamente e falhar nos critérios de amostra.
+
+API de referência (sem exemplo de emissão de autorização):
+controller = IntegrationBatchController(raiz_nova)
+controller.plan(plano_3_3A)
+fake = FakeTesterAdapter(sandbox_nova)
+controller.simulate_integration(batch_id, fake, fixtures_individuais,
+    resources=ResourcePolicy(...), criteria=AcceptanceCriteria(...))
+
+Não foi adicionada CLI de execução operacional. Fixtures de autorização só são
+construídas nos testes, em memória, explicitamente não executáveis.
+
+4. Autorizações e identidade
+
+Contrato de fixture: schema_version 3.3B-1,
+fixture_kind synthetic_non_executable, scope simulation_individual_attempt,
+authorization_id, plan_sha256, controls_sha256, scenario_sha256, run_id, attempt,
+issued_at e expires_at com timezone. Hash de controles inclui recursos, critérios
+e live_execution_enabled=false. Revalidado imediatamente antes da reserva.
+As tentativas já consumidas são conferidas no ledger sob lock/transação.
+Autorização antiga, expirada, de planejamento, lote ou outro cenário não serve.
+Não existe issuer operacional, assinatura, conversão de autorização 3.2 ou
+consentimento automaticamente emitido em nome do usuário.
+
+Hashes estruturais são reais; observações de fonte/EX5/agentes são simuladas.
+Esta fase não verifica um novo payload binário em runtime nem homologa o binding
+de um adaptador real aos arquivos instalados. O fault hash_mismatch testa a
+negação na fronteira, sem ler/compilar EA durante a simulação.
+
+5. Falhas, interrupções e reconciliação
+
+Faults determinísticos: completed, zero_trades, before_start, after_start,
+timeout, stop_requested, busy, remote_agent, hash_mismatch,
+duplicate_reservation, unknown_final, communication_lost, terminal_closed,
+invalid_audit, resource_exceeded, resource_after_start, stop_unconfirmed,
+python_interrupted e codex_interrupted. Ausência/expiração/escopo incorreto da
+autorização também são testados. Nenhum processo real é encerrado para testá-los.
+
+Antes da partida: falha bloqueia a fila, sem inventar consumo de tentativa.
+Depois da partida: tentativa permanece no histórico; falha não vira sucesso.
+Timeout/cancelamento/recursos solicitam parada cooperativa. Estado desconhecido,
+comunicação perdida ou parada não confirmada retêm locks sintéticos e marcam
+requires_reconciliation/integration_blocked. Nenhum cenário seguinte pode partir.
+SystemExit simula encerramento do Python/Codex; reabertura só lê o estado e não
+dispara trabalho. Arquivo de estado incompleto não pode ser reinicializado por cima.
+
+reconcile_simulation(stopped=True) é recusado neste harness. A reconciliação exige
+reconcile_integration com observação do fake do mesmo terminal/sandbox/request e
+run_id esperado, stopped e não ocupado. FakeTesterAdapter(..., reopen=True)
+valida envelope/checksum do estado. finish_simulated_run altera apenas o mundo
+sintético para testar observações posteriores de parada; não envia parada ao MT5.
+
+Só locks conhecidos dentro daquela sandbox, com proprietário conferido, podem
+ser liberados. Evidência de locks incompleta ou run_id diferente bloqueia a
+reconciliação sem remover locks. Histórico e número da tentativa são preservados.
+Reconciliação não reinicia: precisa de resume_plan explícito e nova fixture
+individual para o próximo número. Limites de falhas/recursos seguem válidos.
+Um crash abrupto pode deixar simulation.lock; não é removido automaticamente.
+Estado incompleto exige revisão/reparo externo, nunca reconstrução para retry.
+
+6. Recursos e aceitação
+
+ResourcePolicy fixa max_active_per_terminal=1; não usa 24 cores como permissão
+para 24 testes. Prepara máximo de agentes locais, timeout por tentativa/lote,
+janela de reconciliação, memória/CPU e limite de falhas consecutivas.
+Timeouts não podem exceder o manifesto. Cada nova partida reserva o envelope
+de tempo restante e respeita tentativas/armazenamento/espaço livre herdados.
+Cancelamento durante monitoramento é encaminhado ao runner. Condições de
+segurança param a fila imediatamente, mesmo antes do teto de falhas.
+
+CPU/memória são observações fictícias, sem limite físico do sistema operacional.
+Defaults são valores do harness, não dimensionamento aprovado de produção.
+Artefatos de runner/estado do fake e SQLite ficam fora da cota de resumos do
+lote; isso é uma limitação explícita, não garantia física de armazenamento.
+
+AcceptanceCriteria tem min_trades e drawdown máximo de saldo/equity opcionais;
+nenhum limite de lucro/fator de lucro foi inventado. Limites ausentes produzem
+unverifiable. assess_acceptance avalia cenário, amostra, drawdown, execução,
+auditoria, histórico, custos e períodos development/out_of_sample/final_test.
+Margem continua explicitamente não verificável. Histórico/custos exigem
+evidência do resumo, não apenas declaração do plano. Comissão zero não comprova
+custos completos. Nenhum resultado recebe strategy_approved=true; diagnósticos
+são criteria_not_met, insufficient_evidence ou ready_for_review.
+Independência estrutural reutiliza 3.3A; escolha humana posterior aos resultados
+continua exigindo governança e congelamento auditável, não só validação de JSON.
+
+7. Testes e preservação
+
+Baseline correto: main no SHA esperado, árvore limpa e 225 testes aprovados.
+Final: 256 testes offline aprovados, sem regressões (225 anteriores + 31 novos).
+Comando: python -B -m unittest discover -s tests -q.
+Testes proíbem socket e construção de RicoMCP no novo fluxo, verificam uso do
+runner/consolidador existentes, isolamento do namespace de locks, gates reais,
+resumos inválidos, falhas, retomada, reconciliação, orçamento e cancelamento.
+Testes antigos que já usam fakes continuam sem chamadas operacionais.
+
+Inventário antes/depois: 1.188 arquivos protegidos; zero hashes SHA256 alterados.
+Abrange runs/config/MQL5/auditorias do projeto e fontes/EX5/headers da instalação
+Rico conhecida. Três EAs, parâmetros, EX5 e resultados anteriores preservados.
+GeraSet e Uni.mql5 não foram localizados no projeto/instalação Rico inspecionados;
+não foram modificados, mas não se certificam hashes de cópias em outros caminhos.
+Nenhum lock/ledger/autorização operacional foi alterado pelo novo harness.
+Não se publicam sandboxes, SQLite, logs, resumos nativos, autorizações ou
+manifestos privados. Somente código, testes sintéticos e documentação.
+
+8. Limitações e próximo passo
+
+Integração SIMULADA validada; integração real NÃO homologada nesta fase.
+Protocolo preparado e adaptador real inacessível: ainda faltam consentimento
+operacional novo por tentativa, registro/revogação/consumo atômico real,
+transporte com deadlines, preflight atualizado sob locks reais, conferência de
+fonte/EX5/INI/inputs efetivos, histórico/custos/margem e identidade runtime.
+Também faltam orçamento físico, watchdog, tratamento homologado de crash real
+e monitoramento externo. Locks cooperantes não impedem partida manual externa.
+
+Para futura execução individual supervisionada: revisar esses contratos,
+resolver/aceitar limitações explicitamente, congelar cenário e limites, confirmar
+janela exclusiva/Tester parado/agentes locais e obter autorização específica
+nova. Nenhum booleano de configuração ou teste offline autoriza essa execução.
+Recomendação para 3.3C: revisar a fronteira operacional e o procedimento de
+recuperação antes de qualquer piloto individual; lotes automáticos continuam
+bloqueados. Aguardar novas instruções, sem iniciar a próxima fase.

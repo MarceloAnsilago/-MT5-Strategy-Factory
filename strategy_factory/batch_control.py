@@ -256,6 +256,28 @@ class BatchController:
                 self._save(db,batch_id,state)
                 return deepcopy(state)
 
+    @staticmethod
+    def _select_attempts(manifest,state,resume):
+        """Shared explicit resume validation for both offline harnesses."""
+        if resume is None:
+            if state['status']!='planned':
+                raise BatchBlocked('explicit resume plan required; no automatic repetition')
+            return {r:1 for r in state['runs']}
+        required={'schema_version','resume_id','batch_id','manifest_sha256','selected','simulation_only'}
+        if (not isinstance(resume,dict) or set(resume)!=required or resume['schema_version']!='1.0' or
+            resume['simulation_only'] is not True or resume['batch_id']!=manifest['batch_id'] or
+            resume['manifest_sha256']!=fingerprint(manifest)):
+            raise PermissionError('invalid or outdated resume plan')
+        identifier(resume['resume_id'])
+        selected=resume['selected']
+        if not isinstance(selected,dict) or not selected or state['status'] in ('simulating','cancel_requested','simulated'):
+            raise BatchBlocked('resume is not applicable')
+        for run_id,attempt in selected.items():
+            run=state['runs'].get(run_id)
+            if run is None or run.get('requires_reconciliation') or run['status'] in ('simulated','simulating') or type(attempt) is not int or attempt!=len(run['attempts'])+1 or attempt>manifest['budget']['max_attempts_per_test']:
+                raise BatchBlocked('resume would duplicate or exceed an attempt')
+        return deepcopy(selected)
+
     def simulate(self,batch_id,*,outcomes=None,cancel_after=None,resume=None):
         """Deterministic logical-time simulation, without sleeps, callbacks or MCP.
 
@@ -266,23 +288,7 @@ class BatchController:
         with self._worker(batch_id):
             with self._db() as db:
                 manifest,state=self._load(db,batch_id)
-                if resume is None:
-                    if state['status']!='planned':
-                        raise BatchBlocked('explicit resume plan required; no automatic repetition')
-                    selected={r:1 for r in state['runs']}
-                else:
-                    required={'schema_version','resume_id','batch_id','manifest_sha256','selected','simulation_only'}
-                    if set(resume)!=required or resume['schema_version']!='1.0' or resume['simulation_only'] is not True or resume['batch_id']!=batch_id or resume['manifest_sha256']!=fingerprint(manifest):
-                        raise PermissionError('invalid or outdated resume plan')
-                    identifier(resume['resume_id'])
-                    # Recheck persisted state, not just the proposal created earlier.
-                    selected=resume['selected']
-                    if not selected or state['status'] in ('simulating','cancel_requested','simulated'):
-                        raise BatchBlocked('resume is not applicable')
-                    for run_id,attempt in selected.items():
-                        run=state['runs'].get(run_id)
-                        if run is None or run.get('requires_reconciliation') or run['status'] in ('simulated','simulating') or type(attempt) is not int or attempt!=len(run['attempts'])+1 or attempt>manifest['budget']['max_attempts_per_test']:
-                            raise BatchBlocked('resume would duplicate or exceed an attempt')
+                selected=self._select_attempts(manifest,state,resume)
                 if set(outcomes)-set(selected):
                     raise ValueError('simulation outcome outside selected runs')
                 if cancel_after is not None and (type(cancel_after) is not int or cancel_after<0):

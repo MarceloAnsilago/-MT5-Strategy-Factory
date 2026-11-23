@@ -132,3 +132,5 @@ logs/
 !/FASE_33A_ORQUESTRADOR_LOTES.txt
 !/tests/test_batch_safety.py
 !/config/batches/phase33a.synthetic.json
+!/FASE_33B_INTEGRACAO_SEGURA.txt
+!/tests/test_batch_integration.py

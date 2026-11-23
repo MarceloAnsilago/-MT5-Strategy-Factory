@@ -240,3 +240,11 @@ explícita. Consolida resumos auditados 1.1 sem ranking ou soma de carteira.
 **225 testes offline aprovados**; execução real permanece bloqueada.
 Consulte [FASE_33A_ORQUESTRADOR_LOTES.txt](FASE_33A_ORQUESTRADOR_LOTES.txt)
 para contratos, transições, comandos, limitações e critérios da Fase 3.3B.
+
+### Fase 3.3B — integração simulada com o runner individual
+
+`IntegrationBatchController` delega ao `TesterRunner` existente usando apenas
+`FakeTesterAdapter`, com autorizações sintéticas individuais, reserva isolada,
+parada cooperativa, reconciliação verificável e diagnóstico de aceitação.
+**256 testes offline aprovados**; adaptador operacional permanece bloqueado.
+Consulte [FASE_33B_INTEGRACAO_SEGURA.txt](FASE_33B_INTEGRACAO_SEGURA.txt).
