@@ -1,0 +1,265 @@
+MT5 STRATEGY FACTORY — FASE 3.3D
+Prontidão e preparação não executável — 23/11/2026
+Base: 153a3b628d9f80e0441bac5b3f08a8f3a8357555, main, árvore inicial limpa.
+
+1. Resultado e baseline
+
+Estado final de revisão: BLOCKED_MISSING_EVIDENCE. live_execution_enabled=false.
+Nenhum backtest, otimização, compilação, ordem, OrderCheck, reserva real,
+autorização executável, desbloqueio ou configuração do Tester foi solicitado.
+A próxima fase não foi iniciada. A entrega exige revisão humana, não execução.
+
+Lidos o relatório/proposta 3.3C, transporte HTTP/homologação, runner individual,
+prontidão, recuperação e contratos de autorização. Os três resumos auditados
+1.1 foram integralmente carregados, conferidos com a consolidação existente e
+inspecionados em parâmetros, execução, custos, histórico, auditoria e limitações.
+Preservados os resultados de referência: 6 operações/-143 BRL, 1/-52 BRL,
+14/+369 BRL. Esses resultados não foram entrada do algoritmo de escolha de datas.
+Cada ledger individual 3.2 conserva uma tentativa completed e uma chamada de início.
+Não se reutilizou autorização, tentativa, lock ou registro operacional antigo.
+
+2. Consultas efetivas ao MT5
+
+get_workspace_info em rico_metaeditor/rico_terminal: sucesso, build 6230,
+mesmo MQL5 esperado da instalação Rico, identidade de pasta
+38FF261A42172F3478E54D3A1A8FE02B. get_trading_account_info: Rico-DEMO,
+demo/hedging, BRL e conectado. tester_get_status, usando ID histórico conhecido:
+stopped, run_id 0 ocioso. Nenhum novo ID de execução foi solicitado.
+get_marketwatch_symbols consultou somente PETR4. Não foram chamados métodos de
+preparação, partida, parada, compilação, OrderSend, OrderCheck ou relatório nativo.
+
+Não se repetiu inspeção visual de agentes nesta fase: o menu local/rede/Cloud
+foi confirmado em 3.3C, mas local_agents_only fica desconhecido para um futuro
+preflight atualizado. Processos/locks consultados: nenhum metatester64 ou lock
+de execução encontrado. Isso não reserva janela exclusiva futura nem bloqueia
+partida manual por outro cliente. Nenhum lock real foi removido.
+
+3. Cobertura local e critérios de seleção
+
+Usados apenas snapshots locais existentes. As ferramentas get_chart_history e
+get_chart_ticks_history não expõem local_only: não foram chamadas para evitar
+sincronização/download implícito sem autorização específica. A allowlist do
+transporte de homologação foi preservada. Não se alterou Max Bars/cache/símbolo.
+Não se conclui que a corretora ou o cache inteiro não disponham de mais dados;
+o que falta é evidência local suficiente e verificável dentro deste escopo.
+
+Fontes locais principais:
+- phase32h/history_preflight_raw.json: 780 barras M5 em 26/10–06/11/2026.
+- phase32g/history_raw.json: 377 barras de 03–06/11, duplicadas na fonte acima.
+- phase22_control/history.json: 472 barras de 09–13/11/2026.
+- phase23_preparation/ticks.json: zero registros retornados no snapshot salvo.
+Nomes phase32h/g acima abreviam os diretórios de execução/preflight existentes.
+
+União: 1.252 barras distintas, sem conflito entre cópias observadas.
+Contagem por dia:
+26/10 73; 27/10 82; 28/10 83; 29/10 83; 30/10 82;
+03/11 94; 04/11 94; 05/11 94; 06/11 95;
+09/11 94; 10/11 95; 11/11 94; 12/11 95; 13/11 94.
+
+data_available_from=2021-11-19 é metadado anunciado, não prova de barras locais
+contínuas desde 2021. O tick snapshot anuncia início em 16/11, mas contém zero
+registros; isso tampouco prova ausência global de ticks na corretora.
+tick_volume de candle não é exportação dos ticks. Os resumos antigos registram
+377 barras e 437.624 ticks GERADOS, com qualidade informada 100%; isso não é
+fingerprint dos ticks reais nem certificação independente de completude.
+
+period_planning inventaria os snapshots sem consultar terminal ou preços de
+resultado. Agrupa sessões observadas por semana de calendário, exclui o período
+de resultado conhecido [03/11,07/11) e usa os primeiros blocos cronológicos que
+tenham prefixo de aquecimento suficiente. Não preenche candles ausentes nem
+assume calendário oficial de pregão. Barras conflitantes impedem a seleção.
+
+4. Períodos candidatos, ainda não congelados
+
+Etapa                 Warmup       Avaliação [início,fim)       Barras
+Desenvolvimento        26/10/2026   [27/10/2026,31/10/2026)       73 + 330
+Validação candidata    09/11/2026   [10/11/2026,14/11/2026)       94 + 378
+Teste final            PENDENTE    PENDENTE                     desconhecido
+
+Os três EAs exigem no máximo 53 barras fechadas para a guarda de aquecimento
+existente (WARMUP 50 mais 3); ambos os prefixos observados excedem esse piso.
+Intervalos e aquecimentos são separados, cronológicos e sem reutilização entre
+etapas. A validação compartilhada de períodos 3.3A foi extraída/reutilizada;
+acrescentada rejeição do período conhecido como final independente, incluindo
+seu warmup. Fontes e constantes dos EAs não foram alteradas.
+
+As datas vieram de disponibilidade/cronologia, não de lucro ou ranking.
+Ainda NÃO são períodos homologados nem amostras cegas certificadas: os dados
+já foram consultados e novembro também participou de homologações anteriores.
+Requer revisão da exposição prévia, política de amostra, integridade das sessões,
+M1 para geração every tick e congelamento humano prospectivo antes de resultados.
+history_status=unverified e frozen=false; não foi criado manifesto executável.
+
+Falta para o final: novo intervalo observado, separado da validação inclusive
+no warmup, ao menos 53 barras fechadas de aquecimento e dados de avaliação;
+proveniência/completude das sessões e M1 para o modelo gerado. Um modelo de
+ticks reais exigiria evidência própria e decisão separada, não troca silenciosa.
+Nenhuma data final foi inventada. O snapshot local mais recente contém barras
+até 13/11, insuficiente para comprovar essa etapa posterior e independente.
+
+5. Custos, margem e restrições
+
+Cada linha do relatório local registra fonte/hash, data da consulta, escopo demo
+PETR4 e limitações. confirmed abaixo significa apenas metadado corrente consultado,
+nunca condição histórica efetiva ou garantia aplicável à conta real.
+
+volume_min=100, volume_step=100: confirmed no snapshot corrente.
+tick_size=0,01, tick_value=0,01: confirmed no snapshot corrente.
+Moeda de conta/lucro/margem BRL: confirmed no snapshot corrente.
+Spread flutuante: partially_confirmed; modelo declarado não comprova o custo
+efetivo/execução histórica. Nenhum valor de slippage foi inferido de preço de fill.
+Comissão por operação: unknown. Totais antigos registrados zero continuam
+parcialmente confirmados, sem comprovar ausência de comissão/fees/emolumentos.
+Swap: partially_confirmed, modo/taxas declarados zero; sem modelo completo.
+Slippage: unknown. Margem exigida efetiva: unknown; margin_initial=0 não a prova.
+Venda a descoberto: partially_confirmed, trade_mode FULL; short simulado não
+comprova aluguel, elegibilidade ou margem em conta real.
+Alavancagem da conta: unknown, não exposta na consulta recebida. Alavancagem 1:1
+permanece apenas configuração proposta do Tester e observada nos testes antigos.
+Restrições da demo: partially_confirmed, demo/hedging e read_only=false; isso
+não enumera regras da corretora nem concede autorização para negociar.
+
+Não foram chamados serviços externos financeiros ou operações para preencher
+essas lacunas. Nenhum desconhecido foi convertido em zero ou estimado como fato.
+
+6. Contrato individual: projeto e testes offline
+
+consent_contract.py cria somente contextos de revisão e um laboratório de fixtures.
+Não há emissor de autorização real, token operacional, callback de transporte
+ou integração para executar o Tester. ConsentSimulationLedger.execute nega sempre.
+O mecanismo não é um substituto homologado do controlador/ledger individual real.
+
+review_context reutiliza validate_plan, hash canônico, BacktestConfig, ResourcePolicy
+e validação de períodos. Exige/binda: cenário, hashes do plano/manifesto/controles,
+fonte/EX5, caminho e versão, inputs, parâmetros, modelo, datas/warmup/etapa,
+recursos, critérios de aceitação, identidade da instalação/servidor/build demo,
+run_id e tentativa específica. Identidades incompletas/divergentes são recusadas.
+
+O único registro aceito é synthetic_non_executable, scope offline_contract_test,
+schema 3.3D-contract-1. Fixtures são construídas apenas nos testes, em memória.
+Exigem emissão/expiração com timezone e frase explícita de CONSENTIMENTO HUMANO
+SINTÉTICO ligada ao hash integral do contexto; origem codex/agent e texto genérico
+não servem. actor_kind=human_test_fixture é uma marca de TESTE, não autenticação
+de uma pessoa. Codex pode construir dados de teste, mas não se autoriza a executar.
+Registros reais, legados, de lote ou planejamento são inelegíveis nesse laboratório.
+
+O futuro consentimento real exigirá canal humano verificado e proveniência,
+registro/revogação próprios e confiança revisada. Isso NÃO foi implementado
+como emissão executável nesta fase e aparece como lacuna crítica na checklist.
+Não existe chave booleana para contornar o gate. READY_FOR_REVIEW não o modifica.
+
+7. Consumo, revogação, persistência e recuperação
+
+Banco sintético criado somente em raiz nova/exclusiva, com marcador de proibição
+operacional. Reabertura exige marcador/schema existentes; arquivo perdido não
+é recriado silenciosamente. Nenhum ledger antigo ou lock real é tocado.
+
+BEGIN IMMEDIATE e synchronous=FULL protegem consumo+evento na mesma transação.
+UNIQUE impede reuso do registro e da combinação cenário/tentativa, mesmo com
+outro authorization_id. Dois consumidores concorrentes tiveram exatamente um
+vencedor. Falha de evento/commit reverte consumo; histórico nunca é apagado.
+O recibo é não executável e registra somente teste. record_simulated_start escreve
+outro evento atômico, sem pedido externo, revalidando expiração, revogação,
+contexto e recibo consumido. Segunda partida sintética com o mesmo recibo é negada.
+
+Revogação é idempotente e pode bloquear a partida sintética mesmo após consumo;
+consumo permanece registrado. Registro repetido idêntico é idempotente; alteração
+sob mesmo ID é recusada. Perda do recibo após commit mantém consumo pendente de
+revisão na reabertura, sem partida/repetição automática.
+
+Essa atomicidade é de armazenamento local de TESTE. Não comprova atomicidade
+entre commit e partida externa real, nem autenticação humana ou resistência a
+adulteração deliberada do banco inteiro. A integração futura precisará de locks
+reais compartilhados, revalidação imediatamente antes da partida e reconciliação
+de propriedade/verificação. Nenhuma falha real destrutiva foi provocada.
+
+A suíte existente continua exercitando falhas antes/durante reserva, possível
+partida sem resposta, MCP perdido, Python/Codex/reinício simulado, Tester ocupado,
+run_id divergente, timeout/parada e relatório ausente/inválido. Estados ambíguos
+retêm locks sintéticos e bloqueiam novas partidas. Não foram removidos locks reais.
+
+8. Recursos e proposta dos três EAs
+
+Mantidos: 1 execução ativa por terminal; 1 agente local; 1 tentativa NOVA por
+cenário; 180 s por tentativa; 900 s por lote; reconciliação 45 s; parar na primeira
+falha de segurança. Sem otimização, forward, agentes de rede ou Cloud.
+Os três cenários seguem PETR4 M5, every tick gerado, BRL 10.000, 1:1 e parâmetros
+originais. A proposta 3.3C foi preservada byte a byte. A nova revisão local só
+referencia/copia esses candidatos e acrescenta períodos candidatos e bloqueios;
+não converte a proposta em manifesto nem cria reserva/consentimento executável.
+EAs, todos versão 1.00: MT5SF_G_ff2190c4549a31aa,
+MT5SF_G_fcb7f99b53c86641 e MT5SF_G_a7e690b3b483dde0.
+Hashes de cenário da proposta 3.3C continuam correspondendo à proposta sem datas.
+Manifesto futuro e hashes que incorporem datas/controles finais precisam de nova
+materialização/revisão explícita; o plano local desta fase não faz essa conversão.
+
+Tempos dos três resumos auditados: 15,297 s; 14,297 s; 14,391 s de orquestração,
+soma 43,985 s. Tempos externos do controlador são ligeiramente diferentes por
+medirem outra fronteira. O maior tempo observado fica abaixo de 180 s.
+Envelope lógico conservador: 3 x (180+45)=675 s, abaixo de 900, deixando 225 s
+para outras etapas. Compatível aritmeticamente com as três observações curtas,
+sem previsão validada para períodos maiores, sincronização lenta ou falhas reais.
+Configuração incoerente é marcada incompatible pelo avaliador de recursos.
+
+CPU 100%/memória 512 MiB são tetos lógicos propostos, sem enforcement físico,
+medição de pico validada, isolamento ou watchdog de SO homologado. HTTP timeout
+e deadline do wrapper não provam cancelamento físico no instante exato; o SSE
+pode exigir revisão de prazo total além do timeout de leitura. Nenhum isolamento
+físico não testado foi anunciado como funcional.
+
+9. Checklist verificável e decisões humanas
+
+operational_review.py exige todos os campos críticos de evidência, metadados,
+segurança, integração e decisões; omissão de comissão/margem não desaparece.
+Inclui runtime binário, canal de consentimento real, prazo do transporte real
+e recuperação operacional. Evidência faltante não pode ser dispensada por flags
+de decisão humana. Regras de prioridade:
+BLOCKED_SAFETY > BLOCKED_MISSING_EVIDENCE > REQUIRES_HUMAN_DECISION > READY_FOR_REVIEW.
+
+READY_FOR_REVIEW: requisitos de revisão satisfeitos; authorization_granted=false.
+BLOCKED_MISSING_EVIDENCE: ausente, parcial ou sem suporte verificável.
+BLOCKED_SAFETY: condição incompatível/unsafe identificada.
+REQUIRES_HUMAN_DECISION: evidências suficientes para avaliar decisão ainda pendente.
+Os quatro estados são testados; todos mantêm live_execution_enabled=false.
+
+Saída atual: BLOCKED_MISSING_EVIDENCE. Entre os bloqueios: final independente,
+qualidade/M1/ticks, custos completos, margem/shorts, alavancagem efetiva, preflight
+de agentes atualizado, identidade runtime, canal humano de consentimento e
+transporte/recuperação operacionais. Não foi alegada homologação real por fakes.
+Decisões pendentes: congelamento prospectivo/exposição prévia dos períodos,
+critérios de aceitação (sem limite arbitrário de rentabilidade), janela exclusiva
+supervisionada e aceitação/revisão dos riscos de recursos lógicos.
+
+Como pedir consentimento FUTURO: apresentar contexto imutável completo por EA/
+período/tentativa e seus hashes, evidências/limitações, recursos, identidade do
+terminal, prazo e procedimento de revogação; obter ação explícita humana pelo
+canal verificado ainda a implementar. Vincular a resposta ao contexto exato,
+registrar e consumir atomicamente sob os locks reais na futura fase autorizada.
+Não reutilizar consentimentos 3.2 ou fixtures. Nenhum pedido executável foi emitido
+nesta fase; a revisão humana desta entrega não é aprovação de partida.
+
+10. Testes, preservação e publicação
+
+Baseline: 289 testes aprovados. Final: 320 testes offline aprovados, 31 novos,
+sem regressões. Comando: python -B -m unittest discover -s tests -q.
+Novos testes cobrem consentimento, expiração/revogação, reuso/concorrência,
+hashes/escopo, rollback/reabertura, períodos, evidências/custos/margem desconhecidos,
+gates e classificação de revisão. Duas verificações locais de cobertura/tempos
+são opcionais em clones sem dados privados; neste ambiente foram executadas.
+
+Inventário antes/depois: 1.277 arquivos protegidos com SHA256 mantidos.
+Inclui EAs, fontes/EX5/headers/perfis da instalação conhecida, MQL5/config/runs e
+auditorias existentes. Os três históricos/ledgers/resultados permanecem intactos.
+Código novo: period_planning.py, consent_contract.py, operational_review.py e
+tests/test_operational_preparation.py; validate_periods extraído de batch_safety
+para reutilização. Não foram alterados testes antigos, EAs ou parâmetros.
+
+Evidências e plano de revisão não executável em runs/phase33d_preparation_20261123,
+fora do Git. Versões iniciais de relatórios mantidas, com checklist/plano v2
+acrescentando explicitamente as lacunas da integração operacional. Nenhum banco
+de consentimento foi criado nessa pasta: o laboratório só foi usado em diretórios
+temporários dos testes. Publicação limitada a código, testes e documentação
+sanitizados; sem EX5, SQLite, logs brutos, dados de conta ou autorizações.
+
+Próxima fase depende de nova instrução e revisão humana dos bloqueios acima.
+Não executar lote nem desbloquear executor a partir desta checklist.

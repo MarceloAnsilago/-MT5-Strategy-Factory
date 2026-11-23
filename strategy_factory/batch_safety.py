@@ -23,6 +23,26 @@ def scenario_payload(manifest, run, stage):
                                     automatic_retries=False))
 
 
+def validate_periods(periods):
+    """Shared half-open chronological intervals including isolated warmup."""
+    exact(periods,STAGES,'independent periods')
+    previous=None
+    for stage in STAGES:
+        interval=periods[stage]
+        if interval is None:
+            continue  # Structure can be prepared without choosing final periods.
+        exact(interval, {'from_date','to_date','warmup_from','history_status','selection_basis'}, 'period')
+        start,end,warmup=(date.fromisoformat(interval[k]) for k in ('from_date','to_date','warmup_from'))
+        if any(date.fromisoformat(interval[k]).isoformat()!=interval[k] for k in ('from_date','to_date','warmup_from')):
+            raise ValueError('canonical ISO dates required')
+        if not warmup<=start<end or (previous is not None and warmup<previous):
+            raise ValueError('overlapping periods or warmup leakage')
+        if interval['history_status'] not in ('unverified','verified') or interval['selection_basis']!='prospective_not_result_selected':
+            raise ValueError('history status and prospective selection must be explicit')
+        previous=end
+    return deepcopy(periods)
+
+
 def validate_plan(document):
     """Strict envelope; no missing identities, guessed history or implicit dates.
 
@@ -44,22 +64,7 @@ def validate_plan(document):
         if identity in binaries:
             raise ValueError('duplicate EA under another strategy ID')
         binaries.add(identity)
-    periods=document['periods']
-    exact(periods,STAGES,'independent periods')
-    previous=None
-    for stage in STAGES:
-        interval=periods[stage]
-        if interval is None:
-            continue  # Structure can be prepared without choosing final periods.
-        exact(interval, {'from_date','to_date','warmup_from','history_status','selection_basis'}, 'period')
-        start,end,warmup=(date.fromisoformat(interval[k]) for k in ('from_date','to_date','warmup_from'))
-        if any(date.fromisoformat(interval[k]).isoformat()!=interval[k] for k in ('from_date','to_date','warmup_from')):
-            raise ValueError('canonical ISO dates required')
-        if not warmup<=start<end or (previous is not None and warmup<previous):
-            raise ValueError('overlapping periods or warmup leakage')
-        if interval['history_status'] not in ('unverified','verified') or interval['selection_basis']!='prospective_not_result_selected':
-            raise ValueError('history status and prospective selection must be explicit')
-        previous=end
+    periods=validate_periods(document['periods'])
     scenarios=document['scenarios']
     if not isinstance(scenarios,list) or len(scenarios)!=len(manifest['runs']):
         raise ValueError('exact scenario coverage required')

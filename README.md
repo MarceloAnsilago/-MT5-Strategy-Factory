@@ -257,3 +257,12 @@ ledgers sem escrita, e a prontidão distingue evidência efetiva de metadados.
 **289 testes offline aprovados**. A proposta supervisionada preserva os três
 EAs, sem datas definitivas ou autorização; execução operacional segue bloqueada.
 Consulte [FASE_33C_HOMOLOGACAO_TRANSPORTE.txt](FASE_33C_HOMOLOGACAO_TRANSPORTE.txt).
+
+### Fase 3.3D — prontidão e contrato de consentimento offline
+
+Cobertura local sustenta candidatos de desenvolvimento e validação; teste final
+permanece pendente. O laboratório de consentimento testa vínculo individual,
+consumo atômico, revogação e recuperação sem emitir autorização executável.
+**320 testes offline aprovados**. Checklist: **BLOCKED_MISSING_EVIDENCE**;
+executor bloqueado, sem backtests ou reservas reais.
+Consulte [FASE_33D_PRONTIDAO_OPERACIONAL.txt](FASE_33D_PRONTIDAO_OPERACIONAL.txt).

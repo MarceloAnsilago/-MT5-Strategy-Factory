@@ -137,3 +137,5 @@ logs/
 !/FASE_33C_HOMOLOGACAO_TRANSPORTE.txt
 !/tests/test_homologation.py
 !/config/batches/phase33c.supervised.proposal.json
+!/FASE_33D_PRONTIDAO_OPERACIONAL.txt
+!/tests/test_operational_preparation.py
