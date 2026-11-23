@@ -1,0 +1,169 @@
+MT5 STRATEGY FACTORY — FASE 3.3G
+Transporte de aquisição autorizado; aquisição aguardando vigência
+Preparação: 23/11/2026, America/Sao_Paulo (UTC−03:00).
+Base local/remota inicial: 6332223380e5ef783a643d3b2557993864febe6f, main.
+
+1. Resultado desta execução
+Estado: AWAITING_AUTHORIZATION_WINDOW. Aquisição real ainda NÃO realizada.
+O relógio UTC consultado marcou 23/11/2026 21:47:34 UTC no início e
+21:53:07 UTC na verificação intermediária, equivalentes a 18:47 e 18:53 UTC−03.
+A autorização começa em 24/11/2026 às 08:00 UTC−03 e termina às 18:00 desse dia.
+Nenhuma consulta de histórico foi iniciada antecipadamente. A fase de aquisição
+não é declarada concluída: piloto e escala continuam pendentes da vigência.
+Não há serviço, tarefa agendada ou processo aguardando em segundo plano.
+Retomar esta mesma fase na janela já autorizada; não é necessário repetir a
+aprovação enquanto escopo, plano e vigência permanecerem válidos.
+Após 18:00 será necessária nova instrução humana para qualquer nova consulta.
+
+2. Plano, escopo e preservação
+Plano original: config/history/phase33f.proposal.json, mantido sem alteração.
+SHA256 canônico confirmado:
+ba41024e0dd5e66a4a6a9e3f3ae086e3afa57c413836ce994bfedce39d6e88ca
+Escopo humano registrado exclusivamente para Rico-DEMO, PETR4, M1/M5,
+[2024-01-01,2026-10-01), com sincronização/download implícito e alteração de
+cache histórico permitidos nesse escopo. A vigência registrada é exatamente:
+2026-11-24T08:00:00-03:00 <= início de consulta < 2026-11-24T18:00:00-03:00.
+O código registra esta instrução humana; não emite aprovações gerais, não
+autentica atores a partir de strings e não cria autorização de backtests.
+Não foi alterado o laboratório 3.3F, o executor, a allowlist de negociação,
+os EAs ou os snapshots anteriores.
+
+3. Identidade, ferramentas e espaço
+get_workspace_info respondeu nos dois MCPs. MetaEditor e terminal informaram
+build 6230 e o mesmo diretório MQL5 esperado. O hash da instalação corresponde
+ao registrado no plano. Conta conectada: Rico-DEMO, tipo demo, programa Rico -
+MetaTrader 5. Consulta exata ao Market Watch confirmou PETR4 selecionado.
+Foram quatro chamadas MCP diagnósticas nesta execução: workspace MetaEditor,
+workspace terminal, informações de conta/terminal e símbolo PETR4.
+Nenhuma delas solicita histórico. Nenhum dado pessoal/financeiro é publicado.
+Espaço livre medido: 338.201.849.856 bytes (~315 GiB), superior à reserva de 4 GiB.
+Identidade e espaço são observações pontuais: devem ser renovados antes do piloto.
+O contrato get_chart_history permanece: símbolo exato, timeframe, início ISO
+inclusivo, fim exclusivo e limit; padrão 100000, máximo não documentado.
+Não há cursor, local_only, cancelamento de histórico ou fuso explicitamente
+garantido pelo contrato. A autorização admite sincronização; não resolve essas
+outras lacunas. Nenhuma consulta de ticks reais foi feita ou preparada para envio.
+
+4. Transporte separado e controles
+Novo módulo: strategy_factory/history_transport.py.
+AuthorizedHistoryTransport recebe a ponte call_tool(name, arguments) conectada
+ao rico_terminal e somente despacha get_chart_history. Não importa o runner,
+não possui métodos de backtest/ordem/OrderCheck, não busca credenciais e não
+altera os clientes ou allowlists operacionais existentes.
+O ponto de integração recebe a chamada MCP do ambiente; não inicia conexões
+HTTP nem processos ocultos por conta própria. A invocação real desse ponto de
+integração só poderá ser feita na janela, com identidade renovada e piloto.
+Não existe execução agendada automática nem laço que ignore interrupções.
+acquire_next executa no máximo uma consulta e exige:
+  - plano original validado por hash, também a cada retomada;
+  - autorização temporal vigente, início inclusivo e término exclusivo;
+  - observação sanitizada da identidade do terminal com no máximo 60 segundos;
+  - ausência de resposta anterior falha, ambígua ou de desfecho desconhecido;
+  - orçamento restante e espaço livre medido antes da consulta/gravações;
+  - ausência de pedido cooperativo de interrupção.
+A janela é conferida novamente após persistir a intenção, antes do despacho,
+e após a resposta. Resposta que chega tarde é preservada e registrada como
+falha; não permite próxima chamada. Timeout é cooperativo: não há como garantir
+cancelamento instantâneo de RPC/sincronização interna usando esses contratos.
+Quem conectar a ponte deve manter timeout limitado do transporte, sem retry.
+
+Limites originais preservados: 2100 consultas de histórico, 1.800.000 registros,
+2000 registros/chamada, 2 MiB/resposta, 2 GiB em páginas, mínimo 4 GiB livres,
+6 horas acumuladas de processamento medido, concorrência 1, zero retry automático.
+As quatro chamadas de diagnóstico são contabilizadas separadamente e também
+integram o teto conservador de 2100 chamadas MCP totais. Novas inspeções devem
+ser registradas por record_diagnostic antes do envio para consumir esse teto.
+Páginas e contadores são recarregados de evidência persistida. Alteração de
+plano em memória ou arquivo, bytes, recibos ou identidade impede continuação.
+Há reserva conservadora de armazenamento de página antes do envio; o transporte
+pode parar antes do teto absoluto se não houver espaço para uma página inteira.
+
+5. Piloto e expansão
+Primeiras quatro consultas, nesta ordem e sem execução antes da vigência:
+  1) PETR4 M1 [2024-01-02T00:00:00,2024-01-03T00:00:00), limit 2000.
+  2) PETR4 M5 no mesmo intervalo, limit 2000.
+  3) PETR4 M1 [2024-01-03T00:00:00,2024-01-04T00:00:00), limit 2000.
+  4) PETR4 M5 no mesmo intervalo, limit 2000.
+Qualquer resposta vazia, inválida, saturada, incompleta ou ambígua bloqueia
+novas consultas imediatamente, mesmo antes de completar quatro chamadas.
+Os contratos ainda não comprovam quais metadados reais virão nas respostas.
+O parser exige confirmação positiva de completude, identidade, interpretação
+do intervalo e fuso; não injeta complete=true ou timezone a partir de suposição.
+Esses requisitos são verificações fail-closed, NÃO afirmações sobre o MCP real.
+Se os metadados não existirem ou não tiverem esse significado, preservar a
+resposta e solicitar orientação, sem adaptar silenciosamente ou repetir a consulta.
+Mesmo quatro respostas válidas não liberam escala automaticamente: accept_pilot
+exige revisão explícita dos recibos, disponibilidade, fuso e compatibilidade M1/M5.
+Uma comparação parcial ou discrepante mantém o bloqueio. Não certifica calendário,
+origem econômica, ajustes ou suficiência estatística dos candidatos.
+Após piloto satisfatório, as páginas seguem sequencialmente o plano original,
+saltando as quatro janelas já coletadas, sem duplicar consultas do piloto.
+Nenhum intervalo é ampliado nem substituído por disponibilidade anunciada.
+
+6. Persistência e recuperação
+Diretório privado exclusivo criado:
+runs/history_acquisition/33g-f36ba4bcd0ae401540718ba6
+No momento contém session.json com escopo e vínculo ao plano aprovado e quatro
+registros de contagem de diagnóstico, sem dados pessoais ou de mercado.
+Nenhuma página de mercado foi criada. Preparação separada em
+runs/phase33g_preparation_20261123/status.json, também privada e ignorada pelo Git.
+Cada consulta futura usa call-NNNNNN:
+  intent.json: intenção exclusiva e durável antes de enviar, ferramenta, argumentos,
+    identidade observada, horário e hashes de plano/aprovação;
+  response.txt: texto MCP recebido codificado em UTF-8, sem reserializar conteúdo;
+  audit.json: auditoria 3.3E derivada, quando interpretável;
+  failure.json: motivo de falha/ambiguidade, se houver;
+  receipt.json: resultado final, hashes de arquivos/intenção, cadeia do recibo
+    anterior, registros, captura e tempo de processamento; escrito por último.
+Os bytes de texto MCP não são bytes HTTP/JSON-RPC originais: as ferramentas
+conectadas não expõem esse nível de transporte, e essa diferença é registrada.
+Envelope sem texto bruto reconhecível interrompe, sem fabricar bytes originais.
+Se uma resposta exceder 2 MiB, guardar apenas prefixo limitado mais hash/contagem
+do recebido completo e indicar explicitamente que o conteúdo retido é parcial.
+Isso registra violação do provedor; não torna a resposta uma página válida.
+Gravações exclusivas com flush/fsync e recibo final. Diretório determinístico
+por aprovação impede reiniciar orçamento criando outro acquisition_id por engano.
+Dois workers disputam a criação exclusiva da mesma intenção; uma intenção
+pendente impede qualquer outro despacho. Não é reserva operacional do Tester.
+Retomada só usa recibos íntegros e nunca repete consulta de desfecho desconhecido.
+Falha de escrita mantém a evidência existente e bloqueia; não apagar/recriar
+o diretório nem editar recibos para contornar esse bloqueio.
+
+7. Cobertura, volume e qualidade efetivamente obtidos
+Consultas reais de histórico: 0.
+Piloto executado: não.
+Registros novos M1: 0. Registros novos M5: 0. Ticks reais: 0.
+Páginas armazenadas: 0; armazenamento de páginas/mercado: 0 bytes.
+Há apenas metadados locais de autorização/preparação, fora desse contador.
+Falhas de aquisição real: nenhuma chamada foi feita; impedimento atual é temporal.
+Cobertura nova efetiva: nenhuma. Qualidade de novos dados: ainda não avaliável.
+O acervo da Fase 3.3E permanece inalterado e insuficiente: 1252 M5 distintos,
+sete M1 e nenhum tick nos snapshots então examinados. Não somar testes sintéticos
+ao acervo real. Cobertura certificada permanece false.
+
+8. Testes e integridade
+python -B -m unittest discover -s tests -q: 412 testes aprovados,
+preservando os 388 anteriores e adicionando 24 testes totalmente offline.
+Cobrem vigência exata/relógio ingênuo, plano original, identidade/frescor,
+piloto antes da escala, bytes/hashes, retomada sem repetição, falha de conexão,
+falha de armazenamento/desfecho desconhecido, segundo worker, limite de disco,
+registros/chamadas/tempo, interrupção, resposta tardia, oversize, ambiguidade,
+mudança de escopo/identidade e corrupção persistida.
+Dados de teste são sintéticos e não acessam endpoints de histórico.
+1778 arquivos protegidos comparados por SHA256 antes/depois, sem alteração,
+incluindo os três EAs, EX5/inputs/configurações inventariados, execuções e
+resultados anteriores e o plano 3.3F. Inventário privado não publicado.
+Nenhum backtest, otimização, compilação, ordem, OrderCheck, tick real, alteração
+de EA, reserva operacional ou desbloqueio do Strategy Tester foi realizado.
+
+9. Publicação e continuidade
+Publicar somente novo módulo, testes, README, allowlist de arquivos do Git e
+este relatório; nenhum bruto de mercado, EX5, SQLite, credencial ou log privado.
+Commit e push normal em origin/main, sem force; SHA remoto e árvore limpa
+confirmados na entrega após publicação.
+Próxima ação desta MESMA FASE: na janela vigente, renovar relógio/identidade/
+espaço, executar uma página do piloto por vez pela ponte MCP, inspecionar cada
+resposta e parar por qualquer incompatibilidade/ambiguidade. Não solicitar
+novamente autorização idêntica enquanto a autorização humana atual for válida.
+A aquisição ainda está pendente, sem prometer início automático às 08:00.
+Nenhuma outra fase foi iniciada.

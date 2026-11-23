@@ -147,3 +147,5 @@ logs/
 !/config/history/
 /config/history/*
 !/config/history/phase33f.proposal.json
+!/tests/test_history_transport.py
+!/FASE_33G_AQUISICAO_HISTORICO.txt

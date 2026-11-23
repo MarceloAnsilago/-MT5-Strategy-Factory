@@ -287,3 +287,13 @@ O laboratório aceita somente fontes sintéticas; o adaptador real permanece
 bloqueado. **388 testes aprovados**, preservando os 354 anteriores.
 Consulte [FASE_33F_PLANO_AQUISICAO_HISTORICO.txt](FASE_33F_PLANO_AQUISICAO_HISTORICO.txt)
 e [a proposta sanitizada](config/history/phase33f.proposal.json).
+
+### Fase 3.3G — transporte autorizado, aguardando vigência
+
+`history_transport` implementa a fronteira de aquisição exclusiva M1/M5, com
+janela temporal, identidade recente, piloto obrigatório, limites e recibos
+persistentes sem repetição automática. O plano original permanece intacto.
+A autorização vale em **24/11/2026, das 08:00 às 18:00 UTC−03:00**; a preparação
+foi realizada em 23/11, com **zero consultas de histórico**. São **412 testes
+offline aprovados**; execução de estratégias continua bloqueada.
+Consulte [FASE_33G_AQUISICAO_HISTORICO.txt](FASE_33G_AQUISICAO_HISTORICO.txt).
