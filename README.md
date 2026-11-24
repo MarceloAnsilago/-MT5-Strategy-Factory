@@ -309,3 +309,8 @@ terminal e não reaproveita a autorização ou a sessão MCP bloqueada.
 A [proposta de homologação](config/history/python_mt5.homologation.proposal.json)
 está **não aprovada**, sem conta vinculada, janela de autorização ou calendário
 confirmado. Veja [o relatório técnico](FASE_33G_ADAPTADOR_PYTHON_OFFLINE.txt).
+
+Revisão offline de 24/11: interrupção cooperativa com preservação de evidência,
+contratos estritos de tipo e rejeição de caminhos por links/reparse points.
+**450 testes aprovados**, sem importar `MetaTrader5`; backend real desabilitado.
+Veja [a revisão técnica](FASE_33G_REVISAO_ADAPTADOR_PYTHON_OFFLINE.txt).

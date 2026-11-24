@@ -75,6 +75,18 @@ class ContractTests(unittest.TestCase):
             with self.subTest(key=key),self.assertRaises(PermissionError):
                 validate_plan(dict(proposal(),**{key:value}))
 
+    def test_boolean_and_numeric_aliases_cannot_change_the_offline_contract(self):
+        for key,value in [('acquisition_enabled',0),('live_execution_enabled',0),
+                          ('automatic_retries',0),('max_concurrency',True),('build',6230.0)]:
+            with self.subTest(key=key),self.assertRaises(PermissionError):
+                validate_plan(dict(proposal(),**{key:value}))
+
+    def test_extra_page_parameters_and_unbound_account_are_rejected(self):
+        with self.assertRaises(ValueError):api_interval(dict(proposal()['pages'][0],symbol='OTHER'))
+        for binding in (None,'',False):
+            with self.subTest(binding=binding),self.assertRaises(PermissionError):
+                verify_identity(observation(),proposal(),binding,NOW)
+
     def test_interval_utc_exclusive_end_and_invalid_inputs(self):
         page=proposal()['pages'][0]
         a,b=api_interval(page)
@@ -156,6 +168,40 @@ class LaboratoryTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             self.lab.acquire_next(self.source,now=lambda:NOW+timedelta(hours=1))
         self.assertEqual(self.source.calls,[]);self.assertEqual(self.lab.status()['pages'],0)
+
+    def test_cooperative_stop_before_intent_does_not_consume_a_fixture(self):
+        with self.assertRaisesRegex(PermissionError,'interruption'):self.run_page(stop=lambda:True)
+        self.assertFalse(self.source.calls)
+        self.assertEqual(self.lab.status()['pages'],0)
+
+    def test_stop_after_intent_blocks_resume_without_repeating(self):
+        signals=iter([False,True])
+        with self.assertRaisesRegex(PermissionError,'interruption'):self.run_page(stop=lambda:next(signals))
+        self.assertFalse(self.source.calls)
+        self.assertEqual(self.reopen().status()['state'],'BLOCKED')
+        self.assertTrue((self.root/'call-000000/receipt.json').exists())
+        with self.assertRaises(PermissionError):self.run_page()
+
+    def test_stop_after_response_preserves_array_and_structured_error(self):
+        signals=iter([False,False,True])
+        with self.assertRaisesRegex(PermissionError,'interruption'):self.run_page(stop=lambda:next(signals))
+        self.assertTrue((self.root/'call-000000/array.npy').exists())
+        result=json.loads((self.root/'call-000000/result.json').read_text())
+        self.assertEqual(result['error']['code'],1)
+        self.assertEqual(self.reopen().status()['state'],'BLOCKED')
+        with self.assertRaises(PermissionError):self.run_page()
+        self.assertEqual(len(self.source.calls),1)
+
+    def test_reparse_point_is_refused_before_resolving_or_creating_the_ledger(self):
+        from types import SimpleNamespace
+        candidate=Path(self.temp.name)/'reparse-session'
+        original=Path.lstat
+        def lstat(path,*args,**kwargs):
+            if path==candidate.absolute():return SimpleNamespace(st_file_attributes=0x400,st_mode=0o040755)
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'lstat',lstat),self.assertRaisesRegex(PermissionError,'reparse'):
+            OfflinePythonHistoryAdapter(candidate,proposal(),consent(),now=NOW)
+        self.assertFalse(candidate.exists())
 
     def test_changed_consent_or_prior_index_blocks(self):
         for attr in ('consent','prior'):

@@ -1,0 +1,127 @@
+MT5 STRATEGY FACTORY — REVISÃO DO ADAPTADOR PYTHON OFFLINE
+24/11/2026 — C:\estrategia
+Base: df4a4e24d1c504aa9fc648d573538da04c6f826a, main.
+
+1. Resultado
+O relatório FASE_33G_AVALIACAO_API_PYTHON.txt foi lido integralmente antes das
+alterações, assim como o código, testes e proposta existentes. O projeto já
+continha a implementação independente solicitada; ela foi reutilizada e
+completada, sem criar outro backend ou duplicar o controlador.
+O backend real continua incondicionalmente desabilitado. Nenhuma autorização
+anterior foi reutilizada; nenhum novo consentimento operacional foi emitido.
+Nenhuma conexão MCP/MT5, importação/inicialização de MetaTrader5, aquisição,
+ordem/OrderCheck, compilação, otimização ou backtest foi realizada nesta revisão.
+
+2. Componentes existentes revisados e preservados
+strategy_factory/python_history_adapter.py contém:
+- PythonHistoryPort: Protocol abstrato; nenhum objeto nativo é instanciado.
+- DisabledPythonHistoryAdapter: acquire e initialize sempre recusados.
+- RecordedPythonSource: fonte finita de fixtures sintéticas, sem callback real.
+- OfflinePythonHistoryAdapter: laboratório privado, ledger próprio, planos e
+  consentimentos exclusivamente sintéticos, sem reaproveitar a sessão 3.3G.
+- UTC explícito, tradução [a,b) para [a,b-1 segundo] da API inclusiva e validação
+  posterior de abertura da barra; nenhuma relabelagem de horário do broker.
+- Identidade obrigatória antes/depois: instalação Rico, caminho MQL5, build 6230,
+  servidor Rico-DEMO, modo demo, binding de conta, símbolo e observação recente.
+- Arrays NumPy tipados preservados sem pickle, last_error estruturado e
+  descrições redigidas por hash, erros/None/vazio tratados separadamente.
+- Auditoria 3.3E reutilizada para OHLC/volumes/grid/duplicatas/lacunas e M1/M5.
+- Limites, intenções exclusivas, hashes, cadeia de recibos, retomada sem retry,
+  índice de tentativas anteriores e bloqueio de resposta ambígua/incompleta.
+O Protocol é um contrato de desenho, não uma ponte para o pacote instalado.
+
+3. Melhorias implementadas nesta revisão
+O Protocol agora também declara initialize e shutdown, somente assinaturas
+abstratas para uma futura ponte revisada; nenhuma dessas funções foi chamada.
+validate_plan passou a comparar o fingerprint canônico do contrato: rejeita
+False substituído por 0, True por 1 e build inteiro por float. Igualdade comum
+do Python aceitava essas representações como equivalentes.
+api_interval exige exatamente timeframe/from_utc/to_utc: argumentos extras
+não são ignorados. A verificação de identidade rejeita binding de conta
+ausente, vazio ou de tipo incorreto.
+A checagem de symlinks/reparse points ocorre antes de resolve e examina os
+componentes do caminho; antes, uma verificação feita só após resolve perdia
+a referência ao link. Namespace privado continua obrigatório.
+Foi acrescentado stop cooperativo: antes de criar intenção, após intenção e
+após preservar resposta. Antes da intenção, nenhuma fixture é consumida.
+Após intenção/retorno, recibo falho e evidências permanecem; retomada não repete
+a consulta. Array e last_error já recebidos são mantidos antes da interrupção.
+Nenhuma mudança removeu os bloqueios de negociação ou acrescentou despacho real.
+
+4. Arquivos desta entrega
+Alterados: strategy_factory/python_history_adapter.py,
+tests/test_python_history_adapter.py, README.md e .gitignore.
+Criado: FASE_33G_REVISAO_ADAPTADOR_PYTHON_OFFLINE.txt (este relatório).
+Inventário privado adicional: runs/python_adapter_revision_preservation_20261124.json,
+ignorado pelo Git. Fixtures temporárias de testes ficam no laboratório privado.
+Relatórios anteriores, proposta, plano aprovado MCP e recibos antigos intactos.
+
+5. Proposta separada de homologação — mantida NÃO APROVADA
+Arquivo: config/history/python_mt5.homologation.proposal.json.
+SHA256 canônico:
+f7ce0de8e1ab0d603575301c83a9e7f0ffc1f17b720aac58cdd407930237d426
+Nenhum campo foi alterado ou aprovado nesta revisão.
+Instalação candidata: C:\Program Files\Rico - MetaTrader 5\terminal64.exe,
+build 6230, servidor Rico-DEMO, Python 3.11 e pacote 5.0.5430.
+Conta específica permanece pendente (account_binding=null); janela de
+autorização, calendário e revisão de tentativas anteriores também pendentes.
+São valores de referência da avaliação local, não compatibilidade operacional
+ou versão atual do terminal comprovada por conexão nesta revisão.
+Piloto candidato: PETR4 M1/M5 em [03/11/2026 13:00,13:05) e [13:05,13:10),
+explicitamente UTC. Homologação funcional curta; não amostra final independente.
+Limites propostos: quatro páginas, 80 operações totais, 8000 registros,
+2000/página, 2 MiB/array, 32 MiB de armazenamento, 4 GiB livres, 600 segundos,
+um worker e nenhuma repetição automática. Cada página reserva 14 operações
+conceituais, incluindo metadados/last_error; lifecycle futuro tem custo separado.
+Vazio, erro, parcial, identidade divergente, lacuna não explicada ou timeout
+interrompem e exigem revisão, sem fallback por posição ou repetição para sincronizar.
+Aceite: identidade exata, erros tratados, UTC/fronteiras corretos, integridade de
+arrays/recibos, orçamento respeitado, cobertura justificada independentemente,
+M1/M5 consistentes e revisão humana após piloto. Não certifica resultado econômico.
+
+6. Validação offline
+Baseline: 444 testes aprovados antes das alterações.
+Após revisão: 450 testes aprovados, sendo 35 do adaptador Python (29 anteriores
+mais seis regressões novas). Nenhum teste anterior removido ou desativado.
+Novos casos: aliases booleanos/numéricos, escopo extra e binding vazio,
+interrupção antes da intenção, após intenção, após resposta e reparse point.
+Suíte completa executada por unittest discover('tests') em processo Python -B,
+com builtins.__import__ substituído por guarda que rejeita MetaTrader5 e
+verificação de sys.modules antes/depois. MetaTrader5 não foi importado.
+Usados apenas arrays NumPy e fixtures finitas; nenhum endpoint real foi acessado.
+
+7. Integridade e segurança
+948 arquivos existentes protegidos conferidos antes/depois por SHA256:
+zero alterações, abrangendo planos/configurações, fontes/EX5 locais, resultados,
+auditorias, evidências privadas e todos os arquivos inventariados da sessão 3.3G.
+A sessão histórica continua bloqueada, com sua tentativa falha original;
+nenhum recibo foi apagado, recriado ou desbloqueado.
+GeraSet e Uni.mql5 não foram encontrados no workspace e não foram modificados.
+Não se buscou nem alterou arquivos fora de C:\estrategia nesta revisão.
+Nenhum EA, EX5 ou configuração protegida foi alterado.
+
+8. Limitações e condições antes de qualquer teste real
+A biblioteca real não é encapsulada por este laboratório. Uma flag no JSON ou
+aprovação do plano não habilita a classe desabilitada. É necessária ponte real
+separada, revisada e explicitamente autorizada por novo plano e novo consentimento.
+Faltam conta vinculada privadamente, autorização temporal, validação de processo/
+EXE/junctions e instância exclusiva, compatibilidade nativa/ABI, política de
+conexão/possível lançamento do terminal, orçamento completo do lifecycle e
+supervisor/deadline. Não executar initialize sem essas condições aprovadas.
+O índice de tentativas recebido pelo laboratório é fixture; um índice global
+entre backends e diretório determinístico por aprovação precisam ser implementados
+antes de uso real. Mudar backend não transforma tentativa anterior em página inédita.
+Grades de fixtures não certificam calendário, ausência de negociação, leilões,
+ajustes de preços, eventos corporativos ou proveniência. Essas evidências
+independentes são necessárias para aceitar cobertura real.
+copy_rates_range não impõe limit nem garante completude; teto de array é
+pós-retorno. Timeout/shutdown não comprovam cancelamento de sincronização no MT5.
+Autorizar primeiro conexão/identidade sem barras; depois, em aprovação específica,
+um piloto com períodos UTC e efeitos de sincronização explicitamente aceitos.
+Nesta entrega, nenhum desses passos foi iniciado ou aprovado automaticamente.
+
+9. Publicação
+Publicação limitada a código, testes e documentação revisados. Nenhum bruto de
+mercado, credencial, resultado privado, EX5, SQLite ou runs é incluído no commit.
+Commit/push normal em origin/main, sem force; SHA remoto e árvore limpa
+confirmados na entrega. Aguardar nova instrução, sem iniciar outra fase.

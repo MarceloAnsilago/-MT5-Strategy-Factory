@@ -15,7 +15,7 @@ import shutil
 import time
 from typing import Protocol
 
-from .batch_manifest import fingerprint
+from .batch_manifest import fingerprint, exact
 from .history_audit import audit_snapshot, audit_collection
 
 SCHEMA = 'python-history-proposal-1'
@@ -28,11 +28,13 @@ FIELDS = ('time','open','high','low','close','tick_volume','spread','real_volume
 
 class PythonHistoryPort(Protocol):
     """Design boundary only; no implementation is connected by this module."""
+    def initialize(self, path, *, login, server, timeout, portable): ...
     def terminal_info(self): ...
     def account_info(self): ...
     def symbol_info(self, symbol): ...
     def copy_rates_range(self, symbol, timeframe, date_from, date_to): ...
     def last_error(self): ...
+    def shutdown(self): ...
 
 
 class DisabledPythonHistoryAdapter:
@@ -54,6 +56,7 @@ def utc(value):
 
 
 def api_interval(request):
+    exact(request, {'timeframe','from_utc','to_utc'}, 'Python history UTC page')
     start, end = utc(request['from_utc']), utc(request['to_utc'])
     if start >= end or end-start > timedelta(days=1): raise ValueError('invalid page interval')
     step = 60 if request['timeframe']=='M1' else 300 if request['timeframe']=='M5' else 0
@@ -90,7 +93,9 @@ def proposal():
 
 def validate_plan(plan):
     # This implementation accepts only the reviewed, non-executable proposal shape.
-    if plan != proposal(): raise PermissionError('unsupported or altered offline proposal')
+    # Python equality aliases False/0 and True/1, and int/float. The canonical
+    # contract must preserve their distinct types as well as their values.
+    if fingerprint(plan) != fingerprint(proposal()): raise PermissionError('unsupported or altered offline proposal')
     for page in plan['pages']: api_interval(page)
     return deepcopy(plan)
 
@@ -129,6 +134,8 @@ def error_record(error):
 
 def verify_identity(observation, plan, account_binding, now):
     """Input is a synthetic recorded observation; never calls a terminal."""
+    if not isinstance(account_binding,str) or not account_binding:
+        raise PermissionError('explicit private account binding required')
     term,account,symbol = (observation[k] for k in ('terminal','account','symbol'))
     observed=utc(observation['observed_at'])
     if now.tzinfo is None or not timedelta(0)<=now-observed<=timedelta(seconds=plan['limits']['identity_age_seconds']):
@@ -202,7 +209,15 @@ class OfflinePythonHistoryAdapter:
 
     def __init__(self, root, plan, consent, *, now, prior_intents=()):
         self.plan=validate_plan(plan);self.consent=deepcopy(consent)
-        self.root=Path(root).resolve()
+        supplied_root=Path(root).absolute()
+        for component in (supplied_root,*supplied_root.parents):
+            try:
+                info=component.lstat()
+            except FileNotFoundError:
+                continue
+            if component.is_symlink() or getattr(info,'st_file_attributes',0)&0x400:
+                raise PermissionError('symlink or reparse-point ledger path forbidden')
+        self.root=supplied_root.resolve()
         if not self.root.is_relative_to(LAB_ROOT.resolve()) or self.root==LAB_ROOT.resolve():
             raise PermissionError('separate private Python laboratory directory required')
         if self.root.is_symlink(): raise PermissionError('symlink ledger forbidden')
@@ -298,11 +313,12 @@ class OfflinePythonHistoryAdapter:
             except (ValueError,TypeError): overlap=True
             if overlap: raise PermissionError('prior backend attempt requires separate human disposition')
 
-    def acquire_next(self, source, *, now, free_bytes=None, clock=time.monotonic):
+    def acquire_next(self, source, *, now, free_bytes=None, clock=time.monotonic, stop=lambda:False):
         # Concrete finite source only: no Protocol object, callback, module or subclass.
         if type(source) is not RecordedPythonSource: raise PermissionError('recorded synthetic source only')
         self._check(now());self.reload()
         if self.blockers: raise PermissionError('BLOCKED: no retries or recovery by resetting counters')
+        if stop(): raise PermissionError('cooperative interruption')
         if self.calls>=len(self.plan['pages']): raise PermissionError('pilot review required; no expansion implemented')
         request=self.plan['pages'][self.calls];key=logical_key(request);self._prior_overlap(request)
         lim=self.plan['limits'];available=free_bytes or (lambda:shutil.disk_usage(self.root).free)
@@ -324,6 +340,7 @@ class OfflinePythonHistoryAdapter:
             _save(folder/name,data);files[name]=hashlib.sha256(data).hexdigest()
         try:
             self._check(now())
+            if stop(): raise PermissionError('cooperative interruption')
             reply=RecordedPythonSource._take(source,key)
             err=error_record(reply['last_error'])
             metadata_errors=[error_record(e) for side in ('before','after')
@@ -341,6 +358,9 @@ class OfflinePythonHistoryAdapter:
                     raise ValueError('oversized array; hash only retained, not a complete raw artifact')
                 save('array.npy',raw)
             else: save('result.json',_encode(dict(error=err,rows=None,identity=pre)))
+            # Preserve the received representation before responding to a stop.
+            # A consumed fixture is a durable attempt and cannot be replayed.
+            if stop(): raise PermissionError('cooperative interruption')
             if err['code']!=1: raise ValueError('provider_'+err['category'])
             if bars is None: raise ValueError('None result despite success code')
             if not count: raise ValueError('empty response')
@@ -365,7 +385,7 @@ class OfflinePythonHistoryAdapter:
             save('failure.json',_encode(dict(error_type=type(exc).__name__,
                 reason=str(exc) if str(exc) in ('empty response','incomplete_or_ambiguous_grid',
                     'record limit exceeded','M1_M5_conflict','processing deadline',
-                    'None result despite success code') else 'synthetic_page_failed',
+                    'None result despite success code','cooperative interruption') else 'synthetic_page_failed',
                 last_error=err,metadata_errors=metadata_errors,
                 exception_sha256=hashlib.sha256(str(exc).encode()).hexdigest())))
             raise
