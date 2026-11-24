@@ -1,0 +1,66 @@
+{
+  "schema_version": "python-history-proposal-1",
+  "backend": "python_mt5",
+  "status": "PROPOSED_NOT_APPROVED",
+  "acquisition_enabled": false,
+  "live_execution_enabled": false,
+  "automatic_retries": false,
+  "max_concurrency": 1,
+  "symbol": "PETR4",
+  "installation": "C:\\Program Files\\Rico - MetaTrader 5",
+  "exe": "terminal64.exe",
+  "mql5_path_sha256": "c9c24fd63fce9cebca6adc7228f2e166ae7e900a575c9e9d4b46c37ecc4b4d65",
+  "terminal_name": "Rico - MetaTrader 5",
+  "build": 6230,
+  "server": "Rico-DEMO",
+  "account_binding": null,
+  "python_version": "3.11",
+  "package_version": "5.0.5430",
+  "utc_semantics": "UTC_windows_not_unverified_broker_dates",
+  "pages": [
+    {
+      "timeframe": "M1",
+      "from_utc": "2026-11-03T13:00:00+00:00",
+      "to_utc": "2026-11-03T13:05:00+00:00"
+    },
+    {
+      "timeframe": "M5",
+      "from_utc": "2026-11-03T13:00:00+00:00",
+      "to_utc": "2026-11-03T13:05:00+00:00"
+    },
+    {
+      "timeframe": "M1",
+      "from_utc": "2026-11-03T13:05:00+00:00",
+      "to_utc": "2026-11-03T13:10:00+00:00"
+    },
+    {
+      "timeframe": "M5",
+      "from_utc": "2026-11-03T13:05:00+00:00",
+      "to_utc": "2026-11-03T13:10:00+00:00"
+    }
+  ],
+  "valid_from": null,
+  "valid_to": null,
+  "calendar_evidence": null,
+  "prior_attempt_review": null,
+  "limits": {
+    "max_pages": 4,
+    "max_operations": 80,
+    "max_records": 8000,
+    "records_per_page": 2000,
+    "raw_page_bytes": 2097152,
+    "storage_bytes": 33554432,
+    "min_free_bytes": 4294967296,
+    "elapsed_seconds": 600,
+    "identity_age_seconds": 60
+  },
+  "allowed_future_functions": [
+    "initialize",
+    "terminal_info",
+    "account_info",
+    "symbol_info",
+    "copy_rates_range",
+    "last_error",
+    "shutdown"
+  ]
+}

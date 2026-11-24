@@ -297,3 +297,15 @@ A autorização vale em **24/11/2026, das 08:00 às 18:00 UTC−03:00**; a prepa
 foi realizada em 23/11, com **zero consultas de histórico**. São **412 testes
 offline aprovados**; execução de estratégias continua bloqueada.
 Consulte [FASE_33G_AQUISICAO_HISTORICO.txt](FASE_33G_AQUISICAO_HISTORICO.txt).
+
+### Alternativa Python — adaptador exclusivamente offline
+
+`python_history_adapter` mantém o backend real desabilitado e aceita somente
+fixtures sintéticas finitas em um laboratório privado separado. Valida identidade
+Rico-DEMO/build 6230, UTC, barras, lacunas e consistência M1/M5, com orçamento,
+intenção durável, hashes e recibos. Não importa `MetaTrader5`, não conecta ao
+terminal e não reaproveita a autorização ou a sessão MCP bloqueada.
+
+A [proposta de homologação](config/history/python_mt5.homologation.proposal.json)
+está **não aprovada**, sem conta vinculada, janela de autorização ou calendário
+confirmado. Veja [o relatório técnico](FASE_33G_ADAPTADOR_PYTHON_OFFLINE.txt).

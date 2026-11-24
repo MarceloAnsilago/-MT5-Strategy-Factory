@@ -258,6 +258,10 @@ class AuthorizedHistoryTransport:
             save('response.txt',raw)
             if result.get('isError') is True: raise ValueError('MCP error response')
             payload=decode_artifact(raw.decode('utf-8'))
+            # Provider failure is independent of MCP envelope delivery success.
+            # Keep the original text and do not infer any missing metadata.
+            if isinstance(payload,dict) and payload.get('ok') is False:
+                raise ValueError('history provider reported ok=false')
             rows=payload.get('history')
             if not isinstance(rows,list): raise ValueError('missing history records')
             count=len(rows)

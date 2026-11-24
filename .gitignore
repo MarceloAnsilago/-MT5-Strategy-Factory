@@ -149,3 +149,6 @@ logs/
 !/config/history/phase33f.proposal.json
 !/tests/test_history_transport.py
 !/FASE_33G_AQUISICAO_HISTORICO.txt
+!/tests/test_python_history_adapter.py
+!/config/history/python_mt5.homologation.proposal.json
+!/FASE_33G_ADAPTADOR_PYTHON_OFFLINE.txt

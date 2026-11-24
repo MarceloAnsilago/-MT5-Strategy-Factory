@@ -174,6 +174,45 @@ class TransportTests(unittest.TestCase):
                 with self.assertRaises(PermissionError):self.invoke(session)
                 self.assertEqual(session.calls,1)
 
+    def test_observed_provider_failure_precedes_missing_metadata_and_stays_blocked(self):
+        text='{ "symbol": "PETR4", "period": "M1", "data_available_from": "2021-11-24T00:00:00", "ok": false, "history": [\n\n]\n}'
+        result=dict(content=[dict(type='text',text=text)],isError=False)
+        calls=[]
+        def tool(name,request):
+            calls.append((name,request));return result
+        with patch.object(socket,'socket',side_effect=AssertionError('network forbidden')):
+            with self.assertRaisesRegex(ValueError,'history provider reported ok=false'):
+                self.session.acquire_next(tool,identity(),now=lambda:NOW,free_bytes=lambda:10**12)
+        folder=self.session.root/'call-000000'
+        self.assertEqual((folder/'response.txt').read_bytes(),text.encode('utf-8'))
+        self.assertEqual(read_artifact(folder/'failure.json')['reason'],'history provider reported ok=false')
+        receipt=read_artifact(folder/'receipt.json')
+        self.assertEqual(receipt['outcome'],'failed');self.assertEqual(receipt['record_count'],0)
+        self.assertFalse((folder/'audit.json').exists())
+        reopened=AuthorizedHistoryTransport(plan(),base_root=self.base)
+        with self.assertRaisesRegex(PermissionError,'ACQUISITION_BLOCKED'):
+            reopened.acquire_next(tool,identity(),now=lambda:NOW,free_bytes=lambda:10**12)
+        self.assertEqual(len(calls),1)
+        self.assertEqual(reopened.status(now=NOW)['history_calls'],1)
+
+    def test_provider_failure_with_otherwise_valid_metadata_is_explicit(self):
+        with self.assertRaisesRegex(ValueError,'history provider reported ok=false'):
+            self.session.acquire_next(lambda name,request:response(request,ok=False),
+                identity(),now=lambda:NOW,free_bytes=lambda:10**12)
+        self.assertEqual(self.session.status(now=NOW)['state'],'ACQUISITION_BLOCKED')
+
+    def test_success_still_requires_all_temporal_and_identity_metadata(self):
+        for field in ('complete','timezone','connection','datetime_from','datetime_to'):
+            session=AuthorizedHistoryTransport(plan(),base_root=self.base/field)
+            def tool(name,request):
+                result=response(request)
+                payload=json.loads(result['content'][0]['text']);del payload[field]
+                result['content'][0]['text']=json.dumps(payload)
+                return result
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                session.acquire_next(tool,identity(),now=lambda:NOW,free_bytes=lambda:10**12)
+            self.assertEqual(session.status(now=NOW)['state'],'ACQUISITION_BLOCKED')
+
     def test_oversize_keeps_bounded_prefix_and_hash_without_more_calls(self):
         text='x'*(2*1024*1024+1)
         with self.assertRaisesRegex(ValueError,'2 MiB'):

@@ -1,0 +1,181 @@
+MT5 STRATEGY FACTORY — ADAPTADOR PYTHON EXCLUSIVAMENTE OFFLINE
+24/11/2026 — C:\estrategia
+
+1. Resultado e escopo
+Implementado módulo independente para validação e simulação persistente de
+aquisição futura via Python. Nenhuma conexão, importação de MetaTrader5 ou
+consulta real. Backend real permanece incondicionalmente desabilitado.
+O relatório local FASE_33G_AVALIACAO_API_PYTHON.txt foi lido antes da implementação;
+as diferenças entre UTC, fim inclusivo da API, limit ausente e sincronização
+foram incorporadas ao desenho. A avaliação prévia não foi convertida em licença
+para executar initialize nem em novo consentimento operacional.
+
+2. Arquivos de código, testes, proposta e documentação
+strategy_factory/python_history_adapter.py
+  PythonHistoryPort: interface abstrata para o futuro limite de integração.
+  DisabledPythonHistoryAdapter: acquire/initialize sempre lançam PermissionError.
+  RecordedPythonSource: somente mapeamentos finitos de fixtures sintéticas.
+  OfflinePythonHistoryAdapter: ledger privado com simulação de páginas.
+  Helpers de identidade, UTC, códigos de erro, arrays e auditoria.
+tests/test_python_history_adapter.py
+  29 testes novos; somente dados sintéticos, sem importação da biblioteca MT5.
+config/history/python_mt5.homologation.proposal.json
+  Proposta separada, schema python-history-proposal-1, não aprovada.
+README.md e .gitignore
+  Documentação do backend bloqueado e allowlist explícita dos arquivos públicos.
+Este relatório registra condições, limites e homologação pendente.
+
+Também serão publicados os ajustes offline já realizados anteriormente nesta
+conversa em history_transport.py e test_history_transport.py: prioridade de
+ok=false e três regressões. Foram revisados; não mudam o recibo histórico.
+
+3. Isolamento do terminal e da sessão anterior
+O módulo não importa MetaTrader5, não usa descoberta dinâmica de módulos,
+subprocessos, HTTP ou uma função de despacho fornecida pelo chamador.
+A classe de laboratório aceita somente o tipo concreto RecordedPythonSource;
+callbacks, objetos arbitrários e subclasses são recusados. O Protocol não é
+um mecanismo para injetar uma biblioteca real neste laboratório.
+Uma flag approved=true ou o consentimento MCP anterior não habilitam nada.
+O schema aceito é exatamente a proposta não executável revisada; alterar
+seus campos para aprovar/habilitar o backend causa rejeição.
+
+Todos os ledgers novos ficam sob runs/python_history_lab, em diretórios novos,
+separados de runs/history_acquisition. O consentimento de laboratório é
+explicitamente synthetic_offline_only, vinculado ao hash do plano, limitado
+a uma janela sintética e a synthetic-demo-account. Não é autenticação humana.
+Não há emissão, aceite ou aplicação de uma autorização operacional nova.
+O laboratório tem raízes de teste configuráveis para isolar fixtures, portanto
+seus diretórios não constituem um registro global de orçamento de produção.
+
+4. Identidade obrigatória e limites da implementação
+Fixtures devem declarar exatamente:
+- instalação C:\Program Files\Rico - MetaTrader 5;
+- nome Rico - MetaTrader 5, build inteiro 6230, connected=True;
+- hash do caminho MQL5 esperado, consistente com o inventário anterior;
+- servidor Rico-DEMO, trade_mode demo e binding sintético exato de conta;
+- símbolo PETR4, select=True, custom=False;
+- observações com no máximo 60 segundos, sem datas futuras;
+- sucesso dos três resultados de metadados de cada observação.
+Identidade é verificada antes e depois do resultado simulado. Persistência
+usa somente identidade sanitizada; não guarda login, nome, saldo ou senha.
+
+Limitação explícita: fixtures não provam existência de processo, credenciais,
+resolução de junctions, arquivo executável ou exclusividade física da instância.
+A futura ponte real deve validar essas condições, usar Python 3.11/EXE explícitos,
+fixar conta demo por binding privado e impedir fallback/autostart não aprovado.
+Comparação textual de caminhos neste laboratório não é garantia de identidade
+do arquivo em produção. Nenhuma dessas verificações reais foi executada.
+
+5. UTC, barras, lacunas e respostas ambíguas
+Somente timestamps UTC explícitos, em segundos inteiros, janelas positivas
+de até um dia e timeframes M1/M5 alinhados são aceitos. A chamada conceitual
+inclusiva da API recebe [início, fim-1 segundo]; a validação mantém [início,fim).
+As novas janelas são UTC por definição, sem reinterpretar datas broker-clock
+do plano MCP antigo. copy_rates_from_pos não é fallback desta implementação.
+
+Arrays NumPy unidimensionais sem objetos, com as oito colunas documentadas,
+são preservados em .npy com allow_pickle=False. Dtype/shape/hash e contagem
+ficam no manifesto de resultado; isso representa o array, não bytes originais
+do IPC. real_volume permanece no bruto; volume é apenas a visão derivada.
+Validação rejeita fora de intervalo, grid inválido, reversão, duplicatas,
+tipos incorretos, NaN/infinito e OHLC inconsistente.
+
+Lacunas entre barras são descritas pela auditoria existente. O laboratório
+também compara com grades esperadas independentes definidas no consentimento
+sintético; não deriva uma grade de sucesso a partir da própria resposta.
+Grade ausente, linha esperada ausente ou linha inesperada bloqueiam a página.
+Calendário real de bolsa, barras sem negociação e intervalos de leilão ainda
+exigem evidência específica antes de uma homologação real. Nunca preencher
+lacunas nem considerar que toda diferença entre barras é dado perdido.
+Conflito M1/M5 interrompe a próxima página; consistência sintética não certifica
+origem, calendário ou cobertura real. coverage_certified permanece false.
+
+6. Erros, orçamento e persistência
+last_error simulado registra código, categoria documentada e SHA256 da descrição.
+Textos livres de erro/exception não são publicados: podem conter credenciais
+ou identificação de conta. Códigos desconhecidos, None, vazio, erros de identidade,
+respostas incompletas ou inconsistentes resultam em falha durável.
+Metadados registram também códigos de erro; a futura ponte deve capturá-los
+imediatamente após cada chamada, sem sobrescrever com outra operação.
+
+Cada página reserva 14 operações conceituais: seis metadados antes/depois e
+uma leitura de barras, cada uma acompanhada por last_error. Não são chamadas
+reais. initialize/shutdown não são simulados como operações executadas aqui;
+o futuro plano deve reservar seu custo separadamente dentro do teto total.
+Limites da proposta: 4 páginas, 80 operações, 8000 registros acumulados,
+2000/página, 2 MiB/array, 32 MiB de armazenamento total, 4 GiB livres,
+600 segundos acumulados, concorrência 1, zero retries. A API real não aceita
+limit para copy_rates_range: esse teto é validado após retorno, não imposto
+ao servidor. Array excessivo mantém hash/contagem, sem truncamento silencioso.
+
+Criação exclusiva de diretório e intent.json antes de consumir a fixture;
+gravações exclusivas com flush/fsync; receipt.json por último. Recibos possuem
+hash da intenção, cadeia anterior, hashes dos arquivos, linhas, tempo e resultado.
+Retomada recarrega contadores de arquivos, valida manifesto, plano, consentimento,
+índice de tentativas, sequência e bytes. Modificação/arquivo desconhecido impede
+retomada. Intenção sem recibo bloqueia como unknown_outcome; não se repete.
+Orçamento excedido permanece visível como bloqueio, sem descartar linhas recebidas.
+Falha de armazenamento preserva o que já foi escrito e não limpa a sessão.
+
+As chaves lógicas UTC não incluem backend/versão do plano. Um índice de intenções
+anteriores, fornecido ao laboratório e vinculado ao manifesto por hash, bloqueia
+sobreposição. Se uma tentativa anterior tem fuso desconhecido, comparação por
+data é conservadora, sem anexar UTC artificialmente. O índice é entrada de teste;
+não foi criado ou alterado um registro global de tentativas no projeto existente.
+A futura ponte deve carregar/verificar obrigatoriamente o índice completo entre
+backends e usar namespace determinístico por aprovação, com reserva concorrente.
+Sem isso, mudar o backend ou diretório poderia reiniciar orçamento indevidamente;
+esta limitação é uma condição de bloqueio para qualquer integração real futura.
+
+7. Proposta de homologação futura — NÃO APROVADA
+Instalação/build/servidor: os valores exatos acima. Conta individual: PENDENTE,
+account_binding=null; não foram publicados identificadores pessoais.
+Janela de autorização: PENDENTE, valid_from/valid_to=null. Calendário e revisão
+de tentativas anteriores: PENDENTES. A autorização MCP anterior não é reutilizada.
+
+Intervalos candidatos, início inclusivo e término exclusivo, explicitamente UTC:
+1) PETR4 M1 [03/11/2026 13:00,13:05).
+2) PETR4 M5 [03/11/2026 13:00,13:05).
+3) PETR4 M1 [03/11/2026 13:05,13:10).
+4) PETR4 M5 [03/11/2026 13:05,13:10).
+São sugestões de uma homologação curta e não certificam disponibilidade/pregão.
+Não ampliam o período da sessão MCP, não repetem a página falha de 02/01/2024
+e não autorizam escala. Disponibilidade e exposição prévia precisam de revisão.
+
+Critérios propostos de aceite: identidade sem divergência em todas as observações,
+erros de API tratados, bytes/recibos íntegros, janela/limites respeitados,
+sem duplicatas ou anomalias e cobertura das aberturas esperadas justificada
+por calendário e evidência independentes. Comparação M1/M5 deve ser consistente;
+nenhuma lacuna ambígua pode ser aceita. Revisão humana obrigatória após o piloto.
+Resposta vazia, parcial, erro, timeout ou identidade alterada interrompe a
+sequência sem fallback/retry. Timeout real não garante cancelamento do download
+no terminal; resultado desconhecido continua bloqueado para novas tentativas.
+
+Condições antes de um teste real: revisar e aprovar novo plano/hash/conta/janela;
+implementar e revisar ponte nativa separada, proteção de processo/IPC e índice
+global; definir calendário/critério de completude; autorizar separadamente
+conexão e eventuais efeitos de initialize/sincronização; homologar identidade
+sem barras antes de autorizar o piloto. Aprovação de JSON sozinha não altera
+DisabledPythonHistoryAdapter. Nenhum desses próximos passos foi executado.
+
+8. Validação e preservação
+29 testes novos do adaptador; suíte completa: 444 testes exclusivamente offline.
+Regressão executada com bloqueio explícito de import de MetaTrader5 e verificação
+de ausência do pacote em sys.modules. Fixtures e temporários usados no projeto.
+Casos incluem: autorização antiga rejeitada, identidade divergente/velha/futura,
+UTC/fronteiras, NaN/OHLC/grid/duplicatas, None/vazio/erros, lacunas, conflito M1/M5,
+capacidade, orçamento, timeout, concorrência, escrita de recibo interrompida,
+tampering, retomada e expansão recusada após as quatro páginas sintéticas.
+Inventário privado de preservação: runs/python_adapter_preservation_20261124.json.
+912 arquivos existentes protegidos conferidos por SHA256 antes/depois: configurações,
+EAs/fontes/EX5 locais, resultados anteriores, auditorias e sessão histórica.
+GeraSet e Uni.mql5 não foram encontrados no inventário do projeto e não foram
+criados, procurados fora do workspace ou modificados. .codex preservado.
+O plano novo é arquivo adicional; nenhum plano aprovado foi substituído.
+Sessão 3.3G continua com uma tentativa, zero registros e seu bloqueio original.
+
+9. Publicação
+Somente arquivos revisados de código, testes, documentação, proposta não aprovada
+e allowlist do Git. Sem runs, inventário privado, brutos de mercado, credenciais,
+logs, EX5 ou alterações de EA. Commit/push normal em origin/main, sem force.
+Nenhuma outra fase foi iniciada. Aguardar avaliação humana do desenho.
