@@ -72,6 +72,20 @@ def logical_key(request):
         start=int(utc(request['from_utc']).timestamp()),end=int(utc(request['to_utc']).timestamp())))
 
 
+def reject_prior_overlap(page, prior_intents):
+    """Shared conservative cross-backend guard; no UTC relabeling of old dates."""
+    a,b=utc(page['from_utc']),utc(page['to_utc'])
+    for intent in prior_intents:
+        r=intent.get('request',intent)
+        if r.get('symbol','PETR4')!='PETR4' or r.get('period',r.get('timeframe'))!=page['timeframe']: continue
+        start=r.get('datetime_from',r.get('from_utc'));end=r.get('datetime_to',r.get('to_utc'))
+        try:
+            x,y=datetime.fromisoformat(start),datetime.fromisoformat(end)
+            overlap=(a<y and x<b) if x.tzinfo and y.tzinfo else a.date()<=y.date() and x.date()<=b.date()
+        except (ValueError,TypeError): overlap=True
+        if overlap: raise PermissionError('prior backend attempt requires separate human disposition')
+
+
 def proposal():
     pages=[]
     for start,end in [('2026-11-03T13:00:00+00:00','2026-11-03T13:05:00+00:00'),
@@ -207,8 +221,12 @@ class OfflinePythonHistoryAdapter:
     acquisition_enabled=False
     live_execution_enabled=False
 
-    def __init__(self, root, plan, consent, *, now, prior_intents=()):
+    def __init__(self, root, plan, consent, *, now, prior_intents=(), attempt_index=None):
         self.plan=validate_plan(plan);self.consent=deepcopy(consent)
+        if attempt_index is not None:
+            from .python_connection_bridge import CrossBackendAttemptIndex
+            if type(attempt_index) is not CrossBackendAttemptIndex:raise PermissionError('reviewed synthetic attempt index required')
+        self.attempt_index=attempt_index
         supplied_root=Path(root).absolute()
         for component in (supplied_root,*supplied_root.parents):
             try:
@@ -226,6 +244,8 @@ class OfflinePythonHistoryAdapter:
         self.manifest=dict(schema_version='python-history-lab-1',synthetic_only=True,
             plan_sha256=fingerprint(self.plan),consent_sha256=fingerprint(self.consent),
             prior_intents_sha256=fingerprint(self.prior),acquisition_enabled=False)
+        if attempt_index is not None:
+            self.manifest['global_index_sha256']=fingerprint(dict(path=str(attempt_index.path),manifest=attempt_index.manifest))
         if not self.root.exists():
             self.root.mkdir(parents=True,exist_ok=False)
             _save(self.root/'session.json',_encode(self.manifest))
@@ -247,6 +267,9 @@ class OfflinePythonHistoryAdapter:
 
     def reload(self):
         validate_plan(self.plan)
+        actual_index=None if self.attempt_index is None else fingerprint(dict(path=str(self.attempt_index.path),manifest=self.attempt_index.manifest))
+        if self.manifest.get('global_index_sha256')!=actual_index:
+            raise PermissionError('global attempt index detached or changed')
         if (fingerprint(self.consent)!=self.manifest['consent_sha256'] or
             fingerprint(self.prior)!=self.manifest['prior_intents_sha256']):
             raise PermissionError('consent or prior-attempt index changed')
@@ -302,16 +325,7 @@ class OfflinePythonHistoryAdapter:
             acquisition_enabled=False,coverage_certified=False)
 
     def _prior_overlap(self, page):
-        a,b=utc(page['from_utc']),utc(page['to_utc'])
-        for intent in self.prior:
-            r=intent.get('request',intent)
-            if r.get('symbol','PETR4')!='PETR4' or r.get('period',r.get('timeframe'))!=page['timeframe']: continue
-            start=r.get('datetime_from',r.get('from_utc'));end=r.get('datetime_to',r.get('to_utc'))
-            try:
-                x,y=datetime.fromisoformat(start),datetime.fromisoformat(end)
-                overlap=(a<y and x<b) if x.tzinfo and y.tzinfo else a.date()<=y.date() and x.date()<=b.date()
-            except (ValueError,TypeError): overlap=True
-            if overlap: raise PermissionError('prior backend attempt requires separate human disposition')
+        reject_prior_overlap(page,self.prior)
 
     def acquire_next(self, source, *, now, free_bytes=None, clock=time.monotonic, stop=lambda:False):
         # Concrete finite source only: no Protocol object, callback, module or subclass.
@@ -328,6 +342,8 @@ class OfflinePythonHistoryAdapter:
             raise PermissionError('budget exhausted')
         if self.storage+reserve>lim['storage_bytes'] or available()<lim['min_free_bytes']+reserve:
             raise OSError('insufficient storage reserve')
+        if self.attempt_index is not None:
+            self.attempt_index.reserve_synthetic(request,backend='python_mt5',context_sha256=fingerprint(self.manifest))
         started=clock();folder=self.root/f'call-{self.calls:06d}'
         intent=dict(sequence=self.calls,request=deepcopy(request),logical_key=key,
             plan_sha256=fingerprint(self.plan),manifest_sha256=fingerprint(self.manifest),

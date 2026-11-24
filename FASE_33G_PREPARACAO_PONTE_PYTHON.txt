@@ -1,0 +1,152 @@
+MT5 STRATEGY FACTORY — PREPARAÇÃO DA PONTE PYTHON, SEM ATIVAÇÃO
+24/11/2026 — C:\estrategia
+Base: 0dca44e1aaf518812525a4af0318902d833982df, main.
+
+1. Resultado
+Lidos integralmente FASE_33G_REVISAO_ADAPTADOR_PYTHON_OFFLINE.txt e
+config/history/python_mt5.homologation.proposal.json antes das alterações.
+Arquitetura preparada com ponte desabilitada, laboratório de diagnóstico com
+port finito e índice compartilhado de tentativas. Nenhuma biblioteca nativa,
+conexão, diagnóstico real, consulta histórica, sincronização ou negociação.
+Nenhuma autorização MCP foi transferida nem novo plano aprovado.
+
+2. Implementação e reutilização
+Novo módulo strategy_factory/python_connection_bridge.py:
+  PreparedPythonBridge implementa PythonHistoryPort com todos os métodos
+  recusados incondicionalmente. Não armazena biblioteca, loader ou dispatcher.
+  Alterar atributos acquisition_enabled/approved não habilita chamadas.
+  validate_process_attestation verifica evidência fornecida de EXE, caminho
+  resolvido, hash, identidade de arquivo, processo/PID, início, diretório de
+  dados e ausência de reparse point; não enumera processos nem lê EXEs reais.
+  RecordedConnectionPort é uma sequência finita de retornos sintéticos.
+  ConnectionDiagnosticLab testa somente ciclo de conexão/metadados, com
+  intenções/recibos exclusivos e orçamento separado de cleanup.
+  CrossBackendAttemptIndex modela índice transacional compartilhado por
+  backend, com fontes de intenções anteriores somente para leitura.
+Reutilizados PythonHistoryPort, verify_identity, error_record, logical_key,
+UTC, fingerprints e gravação exclusiva/fsync do adaptador existente.
+Não foi criado outro controlador de aquisição de histórico.
+
+No adaptador existente python_history_adapter.py foi extraído reject_prior_overlap,
+para compartilhar a regra conservadora já existente, sem reinterpretar fuso.
+O laboratório histórico aceita opcionalmente o índice compartilhado estritamente
+tipado, vincula sua identidade ao manifesto e reserva antes da fixture.
+Um índice vinculado não pode ser removido/substituído silenciosamente na retomada.
+Sem esse argumento, os laboratórios sintéticos anteriores mantêm seu contrato;
+isso não constitui permissão para um produtor real omitir o índice obrigatório.
+
+3. Isolamento de instalação e política de initialize
+Identidade candidata continua Rico - MetaTrader 5, build 6230, servidor Rico-DEMO,
+modo demo, conta exata por binding privado e símbolo PETR4 selecionado/custom=False.
+EXE candidato: C:\Program Files\Rico - MetaTrader 5\terminal64.exe.
+MQL5 vinculado ao mesmo hash já documentado; diretório de dados deve corresponder
+à instalação esperada. Hash de caminho não é hash do executável.
+Exige-se um único processo previamente existente, seu EXE/file_id/data_path
+corretos e evidência recente. Zero instâncias, duplicação, outro EXE ou
+identidade inconsistente bloqueiam a simulação de inicialização.
+initialize conceitual usa EXE explícito, timeout 5000 ms, portable=False;
+não há descoberta de terminal, fallback, login alternativo ou symbol_select.
+Binding de conta vem de canal privado, nunca número em relatório/plano público.
+
+Política atual: NENHUM initialize REAL É PERMITIDO, mesmo com processo existente.
+allow_terminal_launch=false; native_attach_only_guaranteed=false. Esses campos
+expressam o risco e o bloqueio, não uma garantia inexistente de attach-only.
+A API pode iniciar terminal; pré-checagem não elimina race com saída/troca de
+processo. Para uma futura ativação, demonstrar controle que impeça lançamento ou
+revisar o plano e obter consentimento explícito para esse possível efeito.
+O plano novo proposto não autoriza lançamento, inicialização nem esse risco.
+Evidências sintéticas não autenticam arquivo/processo/conta reais; será necessário
+coletor confiável, exclusividade física e checagem novamente após conexão.
+
+4. Ciclo, erros, limites e interrupção
+Port sintético deve retornar operação e last_error imediatamente em seguida,
+antes de qualquer metadado/cleanup. Captura código, categoria e hash da descrição;
+dados de conta e textos livres de erros não são persistidos nos relatórios.
+None em metadados, initialize=False, código não sucesso ou last_error malformado/
+com exceção bloqueiam. Falha da captura deixa erro desconhecido, nunca sucesso.
+O simulador tenta shutdown depois de uma inicialização tentada, inclusive quando
+ela falha. Orçamento de duas operações (shutdown e last_error) é reservado;
+cleanup não repete inicialização nem consulta. Falhas principal/cleanup são
+registradas separadamente. Um diagnóstico é single-use, sem retomada automática.
+Intenção sem recibo preserva desfecho desconhecido, sem apagar/recriar artefatos.
+
+Limites candidatos: 16 operações totais incluindo last_error, initialize 5 s,
+metadados 5 s/operação, shutdown 5 s, total 30 s, 1 MiB de armazenamento,
+4 GiB livres, um worker e zero retries. Fluxo sintético nominal reserva dez
+operações. Nenhuma função de barras/ticks/ordens pertence à allowlist diagnóstica.
+Parada antes de inicialização não consome port; parada após identidade exige
+cleanup. Deadline é cooperativo: não cancela função bloqueada nem sincronização
+interna no terminal. Supervisor/processo isolado e teardown seguro permanecem
+obrigatórios antes de qualquer ponte real; shutdown não é prova de cancelamento.
+Falha de armazenamento pode impedir recibo/cleanup: evidência parcial deve
+permanecer bloqueada e exigir revisão, sem nova tentativa automática.
+
+5. Tentativas globais MCP/Python
+CrossBackendAttemptIndex usa SQLite com BEGIN IMMEDIATE para verificar
+sobreposições e inserir a reserva sintética na mesma transação. Chave de janela
+UTC não contém backend nem versão do plano. Intervalos adjacentes [a,b),[b,c)
+são distintos; sobreposição/exata repetição é bloqueada entre backends.
+Fontes históricas são referências somente para leitura com SHA256 revalidado.
+Timestamps de broker sem fuso são comparados conservadoramente por data;
+não recebem UTC fictício. Fonte incompreensível ou alterada bloqueia o índice.
+Não há método para limpar tentativas falhas/sucesso/desfecho desconhecido.
+Banco desaparecido não é recriado como contador zero; identidade do catálogo
+é verificada na reabertura. A reserva continua consumida se gravação posterior
+falhar. Mudar diretório do laboratório histórico não torna a janela nova quando
+o mesmo índice compartilhado é vinculado.
+Este é modelo persistente no laboratório privado, não migração/edição dos
+ledgers MCP existentes. Nenhum índice foi instalado nos produtores reais.
+Antes de uso real: namespace global único e determinístico, catálogo completo
+dos produtores, origem confiável, integridade externa/backups, exclusividade
+de escrita e disposição humana explícita para qualquer tentativa prévia.
+Não existe defesa contra código arbitrário que edite diretamente o banco;
+encapsulamento em Python não equivale a sandbox de segurança do sistema.
+
+6. Proposta separada de diagnóstico, sem consultas históricas
+Novo arquivo: config/history/python_mt5.connection-diagnostic.proposal.json.
+SHA256 canônico:
+d04d4030922921cb2d3d2514f63b0d9d4f094901879f7f3ff02a3b9a103cf527
+Estado PROPOSED_NOT_APPROVED; acquisition_enabled/live_execution_enabled=false.
+Conta, autorização temporal, hash/file_id do EXE, binding de processo e Python
+absoluto permanecem pendentes; valores reais não são inventados por fixtures.
+Funções propostas: initialize, terminal_info, account_info, symbol_info,
+last_error, shutdown. Histórico, ticks, seleção de ativo, login auxiliar,
+OrderCheck, ordens e Tester excluídos. Orçamentos: seção 4.
+O pacote 5.0.5430/build 6230 são referências locais anteriores, não compatibilidade
+nativa comprovada nesta entrega.
+
+Antes de solicitar aprovação futura, preencher privadamente conta/processo/EXE,
+Python absoluto e inventário de pacote, janela UTC explícita, política executável
+de não lançamento (ou plano revisado com risco explicitamente aceito), limites,
+destino, timeout/supervisor, cleanup e critério de identidade.
+A aprovação deverá nomear EXCLUSIVAMENTE diagnóstico de conexão e metadados,
+sem barras, ticks, sincronização de séries ou execução de estratégias. Se esse
+isolamento não puder ser garantido, interromper e rever o escopo com o humano.
+Não se pede nem se presume aprovação agora. Mesmo uma flag de aprovação não
+ativa PreparedPythonBridge: implementação nativa futura exige nova revisão.
+A proposta de homologação histórica anterior permanece integralmente intacta.
+
+7. Testes e preservação
+Suíte completa: 470 testes aprovados, preservando os 450 anteriores e adicionando
+20 testes da ponte/índice. Executada em Python -B com guarda de __import__ que
+recusa MetaTrader5 e conferência de sys.modules antes/depois: não importado.
+Cobertos identidade/EXE/build/processo/data_path/conta divergentes, init recusado,
+last_error falho, None, deadlines, interrupção, cleanup, orçamento/espaço,
+consentimento ausente/antigo, injeção de port real/subclasse, ativação por flag,
+repetição e sobreposição entre backends, fonte alterada, banco ausente e uso
+do índice pelo adaptador existente antes de consumir a fixture.
+Nenhuma chamada de API nativa, MCP, histórico ou operação financeira.
+Inventário privado: runs/python_bridge_preservation_20261124.json.
+950 arquivos existentes protegidos comparados por SHA256: sem alteração,
+incluindo planos, relatórios anteriores, dados/configurações/EAs/EX5 locais,
+histórico e sessão 3.3G com seus recibos e contadores. Código alterado é apenas
+o adaptador autorizado; nenhum EA, GeraSet, Uni.mql5 ou resultado foi alterado.
+
+8. Arquivos e publicação
+Criados: python_connection_bridge.py, test_python_connection_bridge.py,
+proposta de diagnóstico separada e este relatório.
+Alterados: python_history_adapter.py (reuso/índice), README.md e .gitignore.
+Fixtures/SQLite/recibos sintéticos e inventário ficam exclusivamente em runs,
+fora do Git; nenhum bruto, credencial, número de conta ou dado privado publicado.
+Commit/push normal em origin/main, sem force; verificar SHA remoto e árvore limpa
+na entrega. Não iniciar diagnóstico real ou próxima fase automaticamente.

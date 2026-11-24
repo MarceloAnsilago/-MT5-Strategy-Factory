@@ -314,3 +314,14 @@ Revisão offline de 24/11: interrupção cooperativa com preservação de evidê
 contratos estritos de tipo e rejeição de caminhos por links/reparse points.
 **450 testes aprovados**, sem importar `MetaTrader5`; backend real desabilitado.
 Veja [a revisão técnica](FASE_33G_REVISAO_ADAPTADOR_PYTHON_OFFLINE.txt).
+
+### Ponte Python — arquitetura preparada, sem ativação
+
+`python_connection_bridge` mantém a ponte nativa incondicionalmente bloqueada.
+Fixtures verificam EXE/processo/diretório de dados, identidade demo, ciclo de
+conexão, erros imediatos e desligamento com orçamento reservado. Um índice
+transacional modela tentativas compartilhadas MCP/Python, sem alterar a sessão
+3.3G. **470 testes offline aprovados**, sem importar `MetaTrader5`.
+Veja [o relatório](FASE_33G_PREPARACAO_PONTE_PYTHON.txt) e a
+[proposta de diagnóstico sem histórico](config/history/python_mt5.connection-diagnostic.proposal.json),
+ainda não aprovada.

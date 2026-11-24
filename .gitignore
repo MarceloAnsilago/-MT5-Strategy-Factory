@@ -153,3 +153,6 @@ logs/
 !/config/history/python_mt5.homologation.proposal.json
 !/FASE_33G_ADAPTADOR_PYTHON_OFFLINE.txt
 !/FASE_33G_REVISAO_ADAPTADOR_PYTHON_OFFLINE.txt
+!/tests/test_python_connection_bridge.py
+!/config/history/python_mt5.connection-diagnostic.proposal.json
+!/FASE_33G_PREPARACAO_PONTE_PYTHON.txt
