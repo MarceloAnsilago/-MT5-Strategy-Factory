@@ -325,3 +325,12 @@ transacional modela tentativas compartilhadas MCP/Python, sem alterar a sessão
 Veja [o relatório](FASE_33G_PREPARACAO_PONTE_PYTHON.txt) e a
 [proposta de diagnóstico sem histórico](config/history/python_mt5.connection-diagnostic.proposal.json),
 ainda não aprovada.
+
+### Fase 3.3H — decisão de isolamento
+
+Recomendada uma instalação MT5 dedicada à Factory, em modo padrão, com EXE,
+processo, data_path e conta demo vinculados a um novo plano. A instalação atual
+e a sessão 3.3G permanecem intactas; nenhuma instalação ou conexão foi realizada.
+**470 testes offline aprovados**. Leia
+[FASE_33H_ANALISE_ISOLAMENTO_MT5.txt](FASE_33H_ANALISE_ISOLAMENTO_MT5.txt)
+para evidências, limitações e o primeiro diagnóstico proposto, somente de metadados.

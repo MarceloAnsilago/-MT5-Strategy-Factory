@@ -1,0 +1,343 @@
+MT5 STRATEGY FACTORY — FASE 3.3H
+Análise de conexão e isolamento do MT5
+24/11/2026 — C:\estrategia
+Base: e183bf8fda1210e2262b6266bc7ccb649ae5b179, main.
+
+DECISÃO
+Recomendo a alternativa B: instalação MT5 dedicada à Factory, em modo padrão,
+com diretórios e identidade próprios, conta demo explicitamente aprovada e
+um worker Python exclusivo. Manter a instalação A e a sessão 3.3G intactas.
+Essa escolha reduz interferência e simplifica a operação contínua, ao custo
+de preparação adicional. Não garante histórico PETR4, autenticação simultânea
+ou isolamento absoluto do sistema. Instalação e conexão NÃO autorizadas aqui.
+Estado: ANÁLISE CONCLUÍDA; CONEXÃO E AQUISIÇÃO BLOQUEADAS.
+
+1. Escopo, evidências e classificação
+Foram lidos os relatórios locais de avaliação da API, diagnóstico da falha 3.3G,
+adaptador offline, revisão e preparação da ponte, além das propostas e código.
+Inspecionados python_history_adapter.py, python_connection_bridge.py e os
+contratos do transporte histórico. Componentes existentes foram reutilizados
+na análise; nenhum módulo/controlador foi recriado ou alterado nesta fase.
+
+DOCUMENTADO: garantias expressamente descritas nas fontes oficiais [D1–D12].
+OBSERVADO LOCALMENTE: conteúdo dos artefatos e testes desta execução; resultados
+de acesso ao terminal mencionados abaixo são evidência anterior, sem reconsulta.
+INFERÊNCIA/PROPOSTA: decisão de arquitetura e políticas ainda não homologadas.
+NÃO COMPROVADO: comportamento nativo da versão instalada, conta/histórico em B,
+reutilização de uma instância específica e isolamento do IPC entre instalações.
+Definir uma arquitetura não transforma hipóteses em garantia da API.
+
+2. Diagnóstico técnico da conexão
+2.1 initialize — DOCUMENTADO [D1]
+Sem path, a biblioteca procura um terminal; com path, recebe o EXE como primeiro
+argumento posicional. Pode iniciar o terminal se necessário. Login omitido usa
+a última conta; servidor/senha podem vir da base do terminal. Há timeout de
+conexão em milissegundos e portable=False por padrão. A assinatura não oferece
+PID nem parâmetro attach_only. True comprova retorno positivo da conexão,
+não a identidade completa ou a ausência de efeitos colaterais.
+
+2.2 Terminal já aberto — INFERÊNCIA A HOMOLOGAR
+Pré-abrir a instalação aprovada e fornecer seu EXE absoluto é a abordagem
+proposta para reduzir descoberta ambígua. A documentação não especifica todo
+o algoritmo de escolha/reutilização de instâncias. Nesta Factory não foi
+observada uma conexão Python real: não garantir anexação a um PID apenas por
+existir processo compatível. Há race se ele sair/trocar entre a checagem e IPC.
+O AlgoBook [D2] reforça o uso de caminho explícito e a possibilidade de lançamento;
+não fornece garantia adicional de seleção por PID ou attach-only.
+
+2.3 Caminhos e dados — DOCUMENTADO [D3]
+No modo padrão os dados editáveis ficam na área do usuário Windows; a identidade
+do diretório depende do caminho de instalação. Duas cópias simultâneas requerem
+diretórios de instalação distintos. Portable guarda dados na pasta de instalação
+e exige permissões apropriadas; não é sandbox. A documentação impõe condições
+adicionais para portable em Program Files. Não recomendar desabilitar UAC ou
+executar como administrador para contorná-las. O caminho de dados observado
+precisa ser conferido; não pode ser deduzido apenas de portable=False.
+
+2.4 Verificação — DOCUMENTADO E PROPOSTA [D4,D5,D6]
+terminal_info oferece estado/configuração, incluindo build, path, data_path e
+commondata_path; account_info fornece propriedades da conta e do servidor;
+modo demo é uma propriedade verificável. symbol_info permite consultar o ativo.
+Essas funções retornam None em erro. Proposta: validar um manifesto composto
+por EXE canônico, hash e identidade física de arquivo, PID/início do processo,
+data_path canônico, build aprovado, servidor exato, demo e binding privado.
+A API não substitui um observador confiável de processo/arquivo. Comparação
+textual, PID isolado ou hash de caminho não comprovam a identidade do EXE.
+Revalidar depois da conexão e recusar qualquer divergência, sem fallback.
+
+2.5 Encerramento — DOCUMENTADO E LIMITES [D7]
+shutdown fecha a conexão previamente estabelecida e retorna None. Não há nesse
+contrato promessa de terminar o processo MT5 ou cancelar downloads internos.
+Política: fechar IPC, verificar o processo e deixá-lo aberto; nunca interpretar
+shutdown como kill. Encerrar worker Python também não comprova que qualquer
+efeito já iniciado no terminal foi cancelado. Desfecho incerto exige revisão.
+
+2.6 Erros — DOCUMENTADO/IMPLEMENTADO [D8]
+last_error possui códigos próprios, distintos dos erros MQL5. Os helpers locais
+retêm código/categoria e hash da descrição; capturar imediatamente após cada
+operação, sem intercalar outro acesso. Código favorável não substitui validação
+do resultado/identidade. None, falha, timeout e captura de erro inválida não
+são sucesso; não repetir para testar se a conexão se recupera.
+
+3. O que os artefatos atuais realmente provam
+O piloto MCP anterior registrou uma tentativa PETR4 M1, zero barras e ok=false.
+O relatório da falha transcreve need sync e retorno de zero barras no journal.
+Isso não identifica a causa interna, não certifica ausência de histórico no
+broker e não prova que a API Python resolverá o incidente. Não houve nova
+consulta ao journal, servidor, histórico ou terminal nesta fase.
+Build 6230/instalação Rico-DEMO são referências confirmadas anteriormente;
+não uma leitura de estado atual pela API Python. Versão de pacote 5.0.5430 e
+Python 3.11 foram inventariados na avaliação anterior, não carregados agora.
+O laboratório prova contratos sintéticos e integridade das suas evidências,
+não compatibilidade nativa, ausência de lançamento ou comportamento da corretora.
+
+4. Comparação das arquiteturas — AVALIAÇÃO DE ENGENHARIA
+Critério                 A: Rico-DEMO existente         B: MT5 dedicado
+Preparação inicial       Menor; já identificado         Instalação/autenticação novas
+Processo                 Compartilhado com trabalho     Dono e janela exclusivos
+Dados/configuração       Mesmo cache/perfis atuais      Data_path independente verificado
+Interferência            Mudança de conta/manual/IPC    Menor, com exclusividade real
+Rastreabilidade          Mais difícil atribuir efeitos  Eventos/versões por instância
+Recursos                 Sem outro terminal             RAM/disco/update adicionais
+Python                   Candidato não homologado       Candidato não homologado
+MCP                      Configurado para A             Novo vínculo/configuração pendente
+PETR4/histórico           Ativo visto; histórico falhou  Disponibilidade desconhecida
+Conta demo               Vínculo atual conhecido        Vínculo/condições a confirmar
+Manutenção               Menos instalações              Mais uma instalação inventariada
+Tester nativo            Já integra o desenho atual     Continua sendo MT5; homologar vínculo
+
+A tem menor esforço imediato e pode servir para um diagnóstico excepcional
+com janela exclusiva, caso o humano escolha isso. Porém initialize pode afetar
+a conta/cache de uma instalação já usada, e outros consumidores tornam efeitos
+difíceis de atribuir. Parar EAs, desligar MCP ou mudar sua conta não está
+autorizado por esta análise. A não é fallback automático se B não funcionar.
+
+B separa o estado de trabalho e permite manter os controles sob um único dono.
+Uma instalação/worker a mais consome recursos; não foi medido o custo no host.
+Autenticação demo, permissões de múltiplas sessões, licença/condições do broker,
+retenção e cobertura PETR4 precisam de evidência própria. Não pressupor que a
+mesma conta funcione em paralelo; preferir demo dedicada se o broker permitir.
+Não copiar accounts.dat, senhas, cache, configuração ou estado da sessão A.
+
+5. Arquitetura recomendada em detalhe
+5.1 B, modo padrão, inicialmente no mesmo host
+Exemplo meramente proposto de diretório de instalação:
+C:\estrategia\infra\mt5-factory\terminal64.exe.
+Não criado, instalado ou reservado nesta fase. O caminho final precisa ser
+aprovado e não deve apontar para o EXE/dados principais via junction/hardlink.
+Modo padrão é a opção inicial mais simples; portable=False não garante seleção
+do data_path. Após preparação autorizada, capturar o data_path real e vinculá-lo
+ao plano, proibindo que seja igual ao da principal. Não alternar modos depois
+da homologação sem nova versão de identidade/plano.
+Portable pode ser alternativa posterior em pasta gravável própria, mas não é
+necessário para separar instâncias; nenhum modo elimina a validação posterior.
+
+5.2 Isolamento possível, sem exagerar a garantia
+Mesmo host/usuário continuam compartilhando recursos e áreas Common. FILE_COMMON
+é explicitamente compartilhado entre terminais [D9]. Não escrever ali durante
+o diagnóstico; namespace privado da Factory para logs/recibos. Inferência:
+processos, disco/rede, agentes locais e serviços podem concorrer; portas e raízes
+de MCP/tester precisam ser vinculadas a B, não herdadas por nome.
+Conta Windows dedicada ou VM podem aumentar separação, mas trazem custo extra;
+não são necessárias para a primeira homologação controlada e exigem decisão
+própria se o mesmo usuário/host não satisfizer o risco aceitável.
+
+5.3 Integração Python e MCP
+Um worker Python de processo único, caminho absoluto aprovado e ambiente
+inventariado, usa apenas o port revisado. MCP é outro canal, não aprovação
+substituta. Manter rico_terminal/rico_metaeditor atuais apontando a A.
+Se B precisar de MCP, configurar identidades/endpoint/permissões separados
+após autorização, sem reutilizar token, nome ambíguo ou roots de A.
+Suporte nativo MCP/Tester é documentado em [D10]; disponibilidade específica,
+build, habilitação e transporte de B não estão comprovados. Não habilitar
+MCP de escrita/trading como condição para um diagnóstico Python.
+
+5.4 Tester nativo preservado
+Coleta Python futura e execução Tester permanecem caminhos independentes.
+MT5 dedicado conserva a possibilidade de usar seu Strategy Tester [D11].
+O controlador individual/batch existente deve continuar recebendo plano,
+identidades e autorização de execução próprios. Não transformar Python em
+simulador de estratégias nem assumir equivalência entre .npy e cache do Tester.
+Se um dia EAs forem preparados em B, cópias/hashes devem ser revisados sob
+autorização específica; fontes/EX5 originais e resultados atuais ficam intactos.
+
+5.5 Dados e tentativas
+A API documenta UTC, extremos inclusivos e dependência de histórico acessível/
+Max. bars in chart [D12]. Não garante que B tenha dados de A, nem que criar B
+resolva a falha histórica. Aquisição posterior precisa de plano próprio com
+semântica UTC, proveniência, auditoria e limites. Não copiar caches para simular
+uma coleta homologada. O índice de tentativas deve ser único entre instalações
+e backends, com namespace/dataset de mercado e fontes completas: nova instalação
+não torna uma janela já tentada inédita. Toda nova tentativa exige disposição
+humana explícita; a sessão 3.3G permanece bloqueada e sem edição.
+
+6. Compatibilidade com o código existente e ajustes futuros
+PreparedPythonBridge e DisabledPythonHistoryAdapter continuam sempre recusando
+chamadas reais; RecordedConnectionPort/RecordedPythonSource aceitam só fixtures.
+ConnectionDiagnosticLab, helpers de identidade, UTC, erros e índice transacional
+serão reutilizados. Não há motivo para duplicá-los nesta fase documental.
+Limite observado no código: INSTALLATION, MQL5_SHA256, build e propostas atuais
+estão vinculados a A. B não passa nesses validadores e NÃO deve ser conectado
+com eles. Futuro trabalho offline deverá parametrizar um contrato de identidade
+tipado e imutável aprovado, com testes de divergência A/B, mantendo o bloqueio
+nativo. Não mudar constantes ou flags para fingir que B é a instalação aprovada.
+O laboratório de conexão atual faz uma rodada de metadados. As duas rodadas
+do plano abaixo exigem evolução offline e testes próprios antes de uso real;
+nenhum plano desta análise é executável pelo laboratório atual sem essa revisão.
+Os planos f7ce0de8... (histórico) e d04d4030... (diagnóstico) não são aprovação
+para B; permaneceram intactos. Plano B terá nova identidade, versão e hash.
+O índice atual é um modelo de laboratório, não um cadastro operacional completo;
+integração obrigatória de todos os produtores e proteção de integridade faltam.
+
+7. Primeiro diagnóstico real proposto — SOMENTE CONEXÃO/METADADOS
+Esta seção é plano operacional NÃO APROVADO; nenhum comando é executado aqui.
+Alvo recomendado: B, depois de preparação e autenticação demo autorizadas.
+Se B ainda não existir, o diagnóstico permanece bloqueado. Não conectar a A
+para contornar esse pré-requisito.
+
+7.1 Pré-requisitos antes de pedir a autorização de diagnóstico
+a) Aprovação separada da instalação/preparação de B e sua eventual abertura
+   manual; conta demo e servidor validados privadamente com o broker.
+b) Manifesto final: caminho EXE canônico, hash, file_id/volume, data_path real,
+   nome, build exato, pacote/ABI/Python absoluto, modo padrão, binding privado
+   da conta. Build 6230 é referência de A; B pode exigir versão diferente,
+   que deve ser inventariada/testada/aprovada, não aceita automaticamente.
+c) Processo B já aberto e autenticado pelo responsável, sem EAs, scripts,
+   sinais/copiers ou atividade de Tester, sem troca concorrente de conta.
+   Evidência de PID/início/EXE/data_path com no máximo cinco segundos, um único
+   processo para a instalação B. A pode continuar existindo: identificar e
+   excluir explicitamente seus PIDs/caminhos; não assumir um único MT5 no host.
+d) Plano/consentimento novos, destino privado exclusivo, orçamento e janela
+   UTC com início/fim explícitos. Binding de conta em canal privado, sem número
+   ou credencial no Git/linha de comando/relatório público.
+e) Ponte nativa/supervisor revisados, sem autoexecução/import no processo principal,
+   e testes offline para os novos perfis de identidade e deadlines.
+f) Política de lançamento resolvida: não existe garantia documentada de attach-only.
+   Se a proibição de lançamento acidental for absoluta, NÃO chamar initialize
+   até um controle externo verificável satisfazê-la. Caso contrário, o humano
+   deve aprovar expressamente o risco/possível lançamento SOMENTE de B em novo
+   plano. Um processo pré-aberto ou portable=False não substitui esse aceite.
+g) Reconhecer que conectar um terminal ao broker pode gerar tráfego, atualizar
+   conta/símbolos/logs/cache e fazer atividade de fundo mesmo sem pedir barras.
+   Não prometer zero sincronização interna. Se qualquer tráfego de séries de
+   fundo for incompatível com o escopo humano, o diagnóstico continua bloqueado.
+
+7.2 Allowlist mínima e orçamento candidatos
+Somente initialize, terminal_info, account_info, symbol_info('PETR4'),
+last_error e shutdown. Sem login auxiliar, symbol_select, version adicional,
+rates/ticks/market_book, ordens/positions/history_deals, Tester ou compilação.
+No máximo um initialize e um shutdown; duas rodadas de três metadados, cada
+operação seguida imediatamente por last_error: teto 16 chamadas da biblioteca.
+O segundo conjunto mede estabilidade; qualquer primeira divergência cancela
+os metadados restantes e vai para cleanup. Nenhuma repetição de uma falha.
+initialize timeout proposto 5000 ms; metadados até 5 s por operação; shutdown
+até 5 s; prazo global 30 s, com cinco finais reservados ao cleanup. Não iniciar
+novo metadado depois de T+25 s ou sem margem para terminar antes da autorização.
+Timeout por metadado não é parâmetro da API: será obrigação do supervisor,
+sem thread abandonada que continue fazendo chamadas depois da parada.
+Um worker, concorrência 1, sem retry, teto proposto de 512 MiB de memória do
+worker e 1 MiB de artefatos, 4 GiB livres. Memória/CPU reais do terminal não
+foram medidas; orçamento de B requer avaliação antes da abertura. Exceder
+limite interrompe; não elevar automaticamente nem afetar o terminal principal.
+
+7.3 Execução futura estritamente limitada
+1) Confirmar relógio/consentimento, espaço, processo e ausência de consumidor
+   concorrente. Registrar intenção durável antes de qualquer import/IPC.
+2) Em worker exclusivo autorizado, carregar pacote/versão aprovados e fazer
+   uma única tentativa initialize com EXE absoluto/modo/conta previamente
+   autorizados. Não procurar terminal, senha ou conta alternativa.
+3) Capturar last_error; em False/erro/timeout não reinicializar. Se True,
+   comparar metadados imediatamente com manifesto antes de outras operações.
+4) Conferir terminal path/data_path/build/connected, servidor exato, demo e
+   binding de conta; PETR4 deve existir/estar selecionado/custom=False sem
+   seleção automática. Guardar somente campos sanitizados, não saldo/cotações.
+5) Repetir apenas a rodada de metadados planejada para estabilidade, sem
+   consultas históricas. Se houver mudança de processo/conta/path/build, parar.
+6) Tentar shutdown no orçamento reservado, registrar resultado e observar
+   processos/arquivos relevantes após saída. Deixar B aberto; nenhuma ordem
+   de encerramento ao terminal principal, agentes, MetaEditor ou outros MT5.
+7) Finalizar recibo exclusivo com hashes, contexto, UTC, versões, eventos,
+   duração, resultado e erros sanitizados. Não aprovar aquisição ao terminar.
+
+7.4 Falhas e interrupção
+Pedido humano/stop impede próxima operação. Tentativa já despachada permanece
+consumida mesmo em exceção. Tentar fechamento IPC somente se puder fazê-lo com
+segurança e dentro da política de cleanup expressamente aprovada.
+Se o nativo travar, supervisor termina apenas o worker que ele próprio criou
+ao atingir deadline, marca desfecho desconhecido e bloqueia nova tentativa.
+Não usar kill por nome, matar árvore de MT5 ou supor que isso cancela tráfego.
+Falha de escrita/recibo, None, código de erro, deadline, identidade divergente ou
+processo inesperado: interromper, preservar tudo e submeter incidente ao humano.
+Se A for afetado ou surgir processo não previsto, não tentar corrigir/matar/
+trocar conta automaticamente. Não executar outro diagnóstico para confirmar.
+
+7.5 Critérios objetivos de aprovação do diagnóstico
+APROVADO_CONEXAO somente se: autorização vigente e exata; processo/arquivo/
+data_path de B identificados; initialize único positivo; duas rodadas idênticas
+de identidade requerida; conta privada/demo/servidor corretos; zero operações
+fora da allowlist; orçamento respeitado; IPC finalizado sem falha; recibos e
+hashes íntegros; sem mutação observada no inventário protegido de A/Factory.
+PETR4 indisponível ou identidade não verificável: BLOQUEADO, nunca presumido.
+Não haver mutação observada não prova ausência absoluta de efeitos não medidos.
+Resultado desconhecido ou cleanup falho: NÃO APROVADO, sem retry automático.
+Aprovar conexão não aprova cobertura, aquisição, portabilidade do MCP ou Tester.
+
+8. Riscos e pendências não resolvidos
+- Algoritmo de anexação/IPC e race de processo; initialize pode lançar B.
+- Compatibilidade real pacote/Python/build B, atualizações e hashes futuros.
+- Servidor/conta demo, restrições de múltiplas sessões e disponibilidade PETR4.
+- Tráfego de fundo e alterações internas mesmo sem consulta explícita de séries.
+- Efeitos de shutdown/worker morto sobre IPC e atividades internas pendentes.
+- Compartilhamento de Common, recursos e serviços locais no mesmo host/usuário.
+- Catálogo global de tentativas, completude de fontes e proteção contra edição.
+- Configuração MCP isolada e identidade do futuro Strategy Tester em B.
+Esses riscos não foram resolvidos por testes sintéticos ou por esta análise.
+
+9. Fontes e rastreabilidade — documentação oficial consultada em 24/11/2026
+[D1] https://www.mql5.com/en/docs/python_metatrader5/mt5initialize_py
+[D2] https://www.mql5.com/en/book/advanced/python/python_init
+[D3] https://www.metatrader5.com/en/terminal/help/start_advanced/start
+[D4] https://www.mql5.com/en/docs/python_metatrader5/mt5terminalinfo_py
+[D5] https://www.mql5.com/en/docs/python_metatrader5/mt5accountinfo_py
+     https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+[D6] https://www.mql5.com/en/docs/python_metatrader5/mt5symbolinfo_py
+[D7] https://www.mql5.com/en/docs/python_metatrader5/mt5shutdown_py
+[D8] https://www.mql5.com/en/book/advanced/python/python_last_error
+[D9] https://www.mql5.com/en/docs/constants/io_constants/fileflags
+[D10] https://www.metatrader5.com/en/terminal/help/mcp_and_ai
+[D11] https://www.metatrader5.com/en/terminal/help/algotrading/testing
+[D12] https://www.mql5.com/en/docs/python_metatrader5/mt5copyratesrange_py
+Instalações separadas: documentação complementar oficial consultada:
+https://www.metatrader5.com/en/terminal/help/start_advanced/installation
+Não se usaram posts de fórum, blogs ou scripts públicos como prova de isolamento.
+A página Reference last_error retornou indisponibilidade HTTP 503 durante uma
+consulta; usado AlgoBook oficial [D8]. Isso é falha da consulta web, não teste
+de conexão MT5. Nenhum exemplo das páginas foi executado.
+
+10. Validação e preservação desta fase
+470 testes da suíte completa aprovados em Python -B, com bloqueio explícito
+de importação MetaTrader5 e verificação de sys.modules antes/depois: não importado.
+Nenhum teste novo necessário para uma decisão documental; código permanece igual.
+1006 arquivos existentes conferidos por SHA256 antes/depois, sem alteração,
+incluindo todos os módulos/testes, planos, relatórios anteriores, EAs/EX5 locais,
+resultados, evidências privadas e a sessão 3.3G bloqueada com seus contadores.
+Inventário privado: runs/phase33h_preservation_20261124.json, fora do Git.
+Nenhuma conexão MCP/MT5, instalação de terminal, import nativo, histórico,
+compilação, otimização, backtest, ordem ou alteração de configuração/proteção.
+Criados apenas este relatório e inventário privado; README e allowlist Git
+atualizados. Publicação normal em origin/main, sem dados privados ou force push;
+SHA remoto e árvore limpa confirmados na entrega após o push.
+
+11. Decisões que exigem autorização humana
+1) Aceitar B e autorizar separadamente sua instalação/preparação, destino,
+   modo padrão, conta demo, eventual nova conta e condições do broker.
+2) Aprovar a evolução offline do contrato de identidade/supervisor para B;
+   não transplantar o hash de MQL5, credenciais ou aprovações de A.
+3) Resolver risco de lançamento/tráfego de fundo, aprovar plano/hash final,
+   conta privada e janela para diagnóstico exclusivamente de conexão/metadados.
+4) Após avaliar o diagnóstico, decidir separadamente homologação de aquisição;
+   qualquer nova tentativa histórica deve respeitar o índice global e o incidente.
+5) Configurar MCP de B e utilizar Strategy Tester somente em outras autorizações
+   explícitas, sem reabrir o consentimento antigo por conveniência.
+Nada nesta entrega aceita essas decisões pelo usuário. Aguardar autorização;
+não avançar para instalação, conexão ou aquisição automaticamente.

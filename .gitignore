@@ -156,3 +156,4 @@ logs/
 !/tests/test_python_connection_bridge.py
 !/config/history/python_mt5.connection-diagnostic.proposal.json
 !/FASE_33G_PREPARACAO_PONTE_PYTHON.txt
+!/FASE_33H_ANALISE_ISOLAMENTO_MT5.txt
