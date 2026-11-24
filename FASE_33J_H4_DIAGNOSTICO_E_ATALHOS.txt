@@ -1,0 +1,192 @@
+﻿MT5 STRATEGY FACTORY — FASE 3.3J-H4
+Diagnóstico de leitura e tentativa controlada de restauração de atalhos
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: be6e1576dfe131238b0501080f909f80822dd061, árvore Git inicialmente limpa.
+
+RESULTADO
+Diagnóstico concluído. Restauração dos dois atalhos BLOQUEADA por permissão
+Windows no Desktop público; nenhum atalho de sistema foi modificado.
+Não encerrado/reiniciado processo, não alterado MCP, não executada compilação,
+API, mercado, autenticação, histórico, Tester ou ordem. Aguardar orientação.
+
+1. Estado inicial e inventários
+Lidos integralmente H3 e os relatórios anteriores pertinentes desta sequência.
+Inventários privados H1/H2/H2B consultados diretamente; renovados arquivos,
+processos CIM, PID/caminho/início, janelas e portas em escuta.
+Não iniciados terminais, executáveis de diagnóstico do MT5 ou serviços.
+Pasta privada desta fase: runs/phase33j_h4_20261124, ignorada pelo Git.
+Há nove raízes conhecidas (incluindo a Factory), cinco entradas de registro,
+nove origin.txt e onze diretórios imediatos na área MetaQuotes\Terminal.
+No início da H4 havia três processos MT5/MetaEditor: terminal e editor Rico,
+e terminal dedicado. O MetaEditor dedicado presente na H3 já estava ausente.
+Não foi encerrado pelo agente; motivo/autor da saída não determinado.
+
+2. Atalhos: origem comprovada, tentativa e bloqueio
+Os três inventários H1, H2 e H2B concordam exatamente nos alvos, diretórios
+de trabalho e hashes originais dos dois atalhos do Desktop público:
+MetaTrader 5.lnk:
+  Alvo original: C:\Program Files\MetaTrader 5\terminal64.exe
+  Diretório original: C:\Program Files\MetaTrader 5
+MetaEditor 5.lnk:
+  Alvo original: C:\Program Files\Infinox MetaTrader 5 Terminal\MetaEditor64.exe
+  Diretório original: C:\Program Files\Infinox MetaTrader 5 Terminal
+Ambos os EXEs originais existem, têm assinatura Valid e o mesmo SHA256 dos
+três baselines. Não houve conflito de identidade nem substituição presumida.
+Os atalhos atuais ainda apontam aos EXEs dedicados da Factory, com argumentos
+vazios. Estado completo atual, propriedades e SHA256 preservados privadamente,
+além de cópias dos dois LNK atuais como evidência; nenhum EXE foi copiado.
+
+Preparado plano para restaurar somente TargetPath e WorkingDirectory a partir
+dos valores comprovados, preservando os demais campos atuais. Os inventários
+antigos não preservam a string completa de argumentos; não se afirmou que a
+string vazia atual seja uma recuperação histórica desse campo, nem que seria
+possível reproduzir o SHA256 original de todo o arquivo LNK.
+
+A primeira chamada Save em MetaTrader 5.lnk recebeu UnauthorizedAccessException:
+o Windows não permitiu salvar no Desktop público. O fluxo parou imediatamente,
+sem tentar gravar o segundo atalho. Hashes dos DOIS atalhos continuam idênticos
+aos capturados antes da tentativa. Não houve restauração parcial.
+Não alteradas ACLs, proprietário, atributos ou mecanismo de proteção; não
+solicitada elevação automática nem tentada escrita por ferramenta alternativa.
+Nenhum atalho da Factory ou de outro programa foi modificado.
+
+Validação final: alvos, argumentos vazios e diretórios atuais permanecem os
+mesmos de antes da tentativa, ainda vinculados ao dedicado. Não declarar os
+atalhos restaurados. Hashes anteriores/atuais e plano exato estão nos JSONs
+privados shortcut_current_private.json e shortcut_restore_plan_private.json.
+Próxima ação proposta: restauração manual assistida dos dois alvos e diretórios
+originais em sessão com permissão apropriada, com nova conferência das
+propriedades e hashes. Não conceder acesso amplo nem trocar ACLs como atalho.
+
+3. Diagnóstico MCP e correção da transcrição H3
+CORREÇÃO DOCUMENTAL: o log original registra 127.0.0.1:22346, código 10048.
+A referência a 122346 na H3 é transcrição incorreta da captura. Não há porta
+TCP 122346 válida; esse número não foi usado em nenhum comando de conexão.
+A H3 permanece preservada como documento histórico; a correção está nesta H4.
+
+Leitura do journal dedicado às 17:20:25.469: bind falhou em 127.0.0.1:22346
+porque o endereço/porta já estava em uso. Get-NetTCPConnection, sem conexão
+ativa ao endpoint, confirmou:
+- 127.0.0.1:22346 em escuta pelo terminal64.exe da Rico principal.
+- 127.0.0.1:22345 em escuta pelo MetaEditor64.exe da Rico principal.
+PID, caminho absoluto e início correlacionados por CIM e guardados privadamente.
+O terminal dedicado não possui listener MCP nas portas capturadas.
+
+.codex/config.toml do projeto continua configurando rico_terminal em 22346/mcp
+e rico_metaeditor em 22345/mcp. assistant.ini das áreas de dados Rico e Factory
+apresenta endpoints locais iguais para MetaTrader e MetaEditor. Somente campos
+não secretos foram apresentados; chaves/tokens não foram publicados, comparados
+por valor ou reutilizados. A igualdade de endpoints não prova cópia de segredo.
+A configuração global do cliente também foi inventariada por hash, sem edição.
+
+FATO: colisão do servidor terminal dedicado com o listener Rico em 22346.
+MetaEditor dedicado: já não executa nesta H4; não há prova atual de disputa de
+socket por ele nem linha de bind equivalente encontrada nos logs consultados.
+INFERÊNCIA: iniciar outro editor com a mesma porta 22345 cria risco adicional,
+mas não foi realizado teste, lançamento ou ligação MCP para confirmá-lo.
+RISCO: clientes que usem esses endpoints podem alcançar a Rico em vez da
+Factory, e o servidor dedicado não consegue reservar a porta já ocupada.
+Trocar nome do servidor no cliente sem separar endpoints/identidades não resolve.
+
+Proposta futura, NÃO executada: sob autorização própria, definir endpoints
+loopback exclusivos, livres e vinculados aos EXEs/dados da Factory; manter os
+endpoints Rico intactos; credenciais/permissões próprias e mínimas, sem copiar
+tokens. Se MCP não for necessário, considerar desabilitá-lo SOMENTE na Factory
+em fase autorizada. Revalidar listeners e identidade antes de qualquer cliente;
+não fazer teste MCP/conta/mercado para resolver esta H4.
+Fonte oficial consultada para arquitetura, sem executar exemplos:
+https://www.metatrader5.com/en/terminal/help/mcp_and_ai/configuration
+A documentação exige endereço distinto entre aplicações e permite configuração
+do servidor local. Ela não comprova isoladamente a identidade de um listener.
+
+4. Recompilação automática: fatos e limites
+Journal dedicado:
+  17:20:25.470 — Compiler registra início da recompilação completa.
+  17:21:11.661 — registra fim, 131 arquivos compilados.
+metaeditor.log da mesma área registra 131 entradas Compile com 131 entradas
+únicas, todas em MQL5 da nova instalação associada:
+  39 Experts, 71 Indicators, 21 Scripts; nenhuma entrada Libraries.
+Todas as entradas consultadas registram zero erros e zero avisos.
+Foram encontrados 131 EX5 nessa árvore dedicada, com tamanho/mtime/SHA256
+inventariados privadamente. Uma segunda verificação manteve os mesmos hashes.
+Nenhuma compilação foi solicitada pelo agente nesta fase.
+
+FATO: o componente Compiler do terminal registrou início/fim, e o log do
+MetaEditor registra o trabalho na área dedicada. Na H3 havia o processo
+MetaEditor64.exe do destino Factory (PID histórico no inventário privado).
+INFERÊNCIA: o fluxo de inicialização do terminal provocou a recompilação por
+MetaEditor; não há prova completa de criação/parentesco histórico desse editor.
+Não foi reconstruído um comando de lançamento nem afirmado qual gesto iniciou
+o processo. Os logs não associam cada compilação a um PID verificável.
+O terminal dedicado informa um ParentProcessId histórico cuja identidade
+não foi comprovada pelos inventários disponíveis; não se inferiu que seja
+o instalador nem se reabriu programa para validar esse parentesco.
+
+Todos os caminhos compilados registrados estão na árvore dedicada. Os 3668
+arquivos MQL5 protegidos das instalações anteriores mantêm seus hashes tanto
+em relação à H3 quanto antes/depois da H4. Não observada mudança de conteúdo
+em EAs, indicadores, includes, bibliotecas ou EX5 desse conjunto anterior.
+Isso comprova preservação dos conteúdos inventariados, não ausência absoluta
+de recompilação idêntica, de toda escrita ou de arquivo fora do escopo.
+Não existe baseline pré-instalação da nova árvore vazia para atribuir cada
+EX5 a uma linha individual; logs e arquivos presentes são evidências convergentes.
+
+5. Processos e preparação do fechamento manual — NÃO EXECUTADO
+Terminal dedicado atual: C:\estrategia\infra\mt5-factory\terminal64.exe.
+PID e início exatos, parent PID, handle e título da janela estão registrados
+em processes_private.json e process_windows_private.json, sem publicar um
+inventário pessoal completo. Início observado: 24/11/2026 17:20:24.333-03:00.
+Uma janela principal MetaTrader 5 associada ao processo dedicado foi encontrada.
+MetaEditor dedicado: ausente antes/depois; NÃO iniciar para fechar ou testar.
+Rico: terminal e MetaEditor com mesmos PID/caminho/início de H3, sem interação.
+Nenhum processo criado, encerrado ou reiniciado pelo agente.
+
+Procedimento proposto para futura execução manual, somente após orientação:
+1) Revalidar a janela com o processo/caminho dedicado, evitando títulos genéricos
+   ou os atalhos públicos ainda incorretos. Não tocar nas janelas Rico.
+2) Se houver assistente de conta, cancelá-lo sem selecionar empresa/autenticar.
+3) Usar o fechamento normal da janela dedicada e observar qualquer prompt.
+   Havendo atividade, salvamento ou dúvida, parar e comunicar antes de aceitar.
+4) Não clicar em respostas que criem conta, negociem ou iniciem serviços.
+   Não usar kill, finalizar tarefa por nome, fechar tudo ou reiniciar Windows.
+5) Após o humano informar o fechamento, conferir a ausência do PID/caminho
+   dedicado e a preservação dos processos Rico, sem relançar o terminal.
+Riscos: fechamento pode persistir configuração/logs e pedir confirmação de
+trabalho; título genérico pode levar à janela errada. Nenhum passo foi executado.
+
+6. Conferência de integridade
+Antes/depois H4, zero falhas de hash:
+  89 arquivos estáticos (EXEs/configurações/origin): iguais.
+  3668 arquivos MQL5 anteriores: iguais.
+  1013 arquivos protegidos anteriores da Factory: iguais.
+  9 raízes/origin, 5 entradas de registro, 11 diretórios de dados: iguais.
+  3 processos MT5/MetaEditor: mesma identidade antes/depois.
+  14 arquivos de configuração inspecionados, incluindo cliente e INIs locais:
+  hashes iguais antes/depois. Nenhuma modificação MCP observada nesse conjunto.
+O terminal.ini Rico permanece no hash conhecido de pós-H2B/H3. Não restaurado.
+Sessão 3.3G, propostas, recibos, resultados e contadores preservados por hashes;
+nenhum bloqueio foi retirado e nenhuma aquisição histórica foi repetida.
+
+Inventário de atalhos: 16 entradas de sistema antes, 18 entradas na busca
+posterior porque ela inclui também as DUAS cópias LNK de evidência dentro de
+runs. Nenhum caminho de atalho de sistema adicionado/removido/alterado pela H4.
+Os dois atalhos públicos e os dois atalhos exclusivos da Factory continuam
+com seus hashes anteriores. As cópias privadas não são novas entradas no Desktop.
+Inventário parcial do host; três negações de acesso conhecidas em outros produtos,
+sem contornar permissões. Logs/cache de apps abertas não declarados imutáveis.
+
+7. Testes e publicação
+470 testes offline aprovados em Python -B, com guarda que recusa import
+MetaTrader5 e verificação de sys.modules antes/depois: pacote ausente.
+Não modificados código ou testes; não executados compilador, Tester, API/MCP.
+Publicação somente deste relatório, README e allowlist .gitignore; inventários,
+LNK de evidência, logs, configurações e EXEs permanecem privados e ignorados.
+Commit/push, SHA remoto e árvore limpa confirmados na mensagem de entrega.
+
+8. Pendências e parada
+Atalhos continuam pendentes por permissão Windows; não declarar restauração
+bem-sucedida. Colisão terminal MCP identificada e correção apenas proposta.
+Recompilação histórica diagnosticada sem nova execução. MetaEditor dedicado
+não está aberto; terminal dedicado permanece aberto, sem fechamento nesta H4.
+Não alterar MCP, contas, EAs/EX5 ou processos para resolver pendências.
+Aguardar orientação humana; não avançar H5/H6/H7 automaticamente.

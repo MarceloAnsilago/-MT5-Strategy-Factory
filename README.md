@@ -383,3 +383,13 @@ o MetaEditor dedicado também iniciou e houve conflito de porta MCP: ocorrência
 registradas para revisão humana, sem correção automática.
 **470 testes offline aprovados**. Não avançar para conta, API ou histórico.
 Consulte [FASE_33J_H3_INSTALACAO_SUPERVISIONADA.txt](FASE_33J_H3_INSTALACAO_SUPERVISIONADA.txt).
+
+### Fase 3.3J-H4 — diagnóstico e atalhos pendentes
+
+Conflito confirmado na porta **22346**, ocupada pelo terminal Rico; o número
+122346 transcrito na H3 foi corrigido pelo log original. Logs registram 131
+compilações na área dedicada; MQL5 anterior preservado. A restauração dos dois
+atalhos públicos foi bloqueada pela permissão Windows, sem alteração parcial.
+Terminal dedicado segue aberto; nenhum processo encerrado ou MCP modificado.
+**470 testes offline aprovados**. Aguardar orientação humana.
+Consulte [FASE_33J_H4_DIAGNOSTICO_E_ATALHOS.txt](FASE_33J_H4_DIAGNOSTICO_E_ATALHOS.txt).
