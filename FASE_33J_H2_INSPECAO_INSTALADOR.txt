@@ -1,0 +1,143 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H2
+Abertura supervisionada e inspeção limitada do instalador
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: e703cab1c8cc02386016174960ddf34f07695e84, main.
+
+ESTADO
+H2: abertura única realizada; inspeção das opções limitada por ausência de
+resposta visível aos comandos de interface. Instalação NÃO iniciada.
+H3 NÃO AUTORIZADA. O resultado final do encerramento e inventários consta abaixo.
+
+1. Verificações anteriores à abertura
+Lidos integralmente FASE_33I_PREPARACAO_MT5_DEDICADO.txt e
+FASE_33J_H1_PREPARACAO_INSTALADOR.txt. Git inicialmente limpo na base indicada.
+Arquivo utilizado, sem novo download ou cópia de outra instalação:
+C:\estrategia\runs\phase33j_h1_20261124\mt5setup.exe
+SHA256 esperado e observado, idêntico ao da H1:
+20AFD50F66231F664556161795CAB50A4694083DAC83D1A7FE2E8EF7D9221FE3
+Tamanho: 23.455.320 bytes. Get-AuthenticodeSignature: Valid.
+Publicador: CN=MetaQuotes Ltd., O=MetaQuotes Ltd., S=Lemesos, C=CY.
+Thumbprint do assinante: 5A64A7AED24C33DED342D01D01FA5286F06DA6DC.
+X509Chain.Build=True, ChainStatus sem erros, revogação Online/EntireChain,
+VerificationFlags=NoFlag. Revalidação em 2026-11-24T16:51:19-03:00.
+Identidade do arquivo aprovado na H1 confirmada, sem divergência.
+Destino C:\estrategia\infra\mt5-factory vazio, inclusive ocultos; ele e
+todos os ancestrais conferidos sem ReparsePoint. Não criado data_path.
+Inventário renovado antes da abertura, sem acesso à API ou ao broker.
+
+2. Avaliação prévia do risco e abertura
+Fonte oficial consultada antes de executar:
+https://www.metatrader5.com/en/terminal/help/start_advanced/installation
+O procedimento documentado separa abertura, opções e início da instalação pelo
+botão Next/Avançar; o modo automático exige /auto. Com base nisso, não foi
+identificado impedimento documentado à abertura normal sem parâmetros.
+Isso não era garantia absoluta do comportamento deste binário, por isso a
+observação ficou limitada à tela inicial e controles de configuração/cancelar.
+
+Executada uma única abertura pela API de controle de aplicativos Windows,
+com caminho absoluto do arquivo autenticado e sem argumentos. Janela observada:
+MetaTrader 5 Configurar (64 bit), pertencente ao mt5setup.exe desse caminho.
+Não observada solicitação de UAC; nenhuma autorização administrativa concedida
+pela automação. Não se afirmou a integridade/elevação do token do processo.
+Nenhuma segunda abertura ou tentativa por outro lançador foi realizada.
+
+3. Opções efetivamente observadas
+Tela inicial: MetaTrader 5 Client Terminal; contrato de licença MetaQuotes Ltd.;
+botões Configuração, Avançar > e Cancelar; link Política de Privacidade.
+Aviso visível: clicar em Avançar implica concordância com os termos da licença.
+Avançar, Instalar e Finalizar NÃO foram acionados.
+
+A árvore de acessibilidade expôs apenas janela/barra de título. Dois cliques
+no botão Configuração, com nova observação e focalização entre tentativas,
+não produziram transição visível. Uma navegação Tab também não mudou o estado
+observável. Nenhum campo foi preenchido ou opção selecionada.
+Essa limitação não comprova a causa da ausência de resposta; não se alteraram
+permissões, não se elevou o controlador e não se tentou contornar proteções.
+
+Diretório exclusivo: o botão Configuração existe, mas o campo de diretório
+não foi efetivamente exibido. Portanto não foi possível validar na interface
+o uso de C:\estrategia\infra\mt5-factory. A possibilidade consta da fonte
+oficial, mas permanece NÃO HOMOLOGADA neste executável/host.
+Abertura automática do terminal: nenhuma opção para impedi-la foi observada.
+Não avançar a instalação supondo que a primeira abertura pode ser desmarcada.
+Componentes: nenhuma lista ou seleção de componentes foi exibida. A tela
+identifica o Client Terminal; não prova composição completa do futuro pacote.
+Download adicional: descrito na documentação oficial como instalador web,
+com distribuição baixada após Avançar. Não iniciado nem medido download de
+componentes nesta inspeção; tráfego necessário à abertura não foi capturado.
+Instalação existente: nenhuma mensagem de atualização/substituição observada
+na tela inicial. O diretório padrão não ficou visível. A documentação admite
+instalar sobre instalação existente; ausência de aviso não comprova separação.
+
+4. Cancelamento e limitação operacional
+O botão Cancelar estava visível na tela anterior ao início da instalação.
+Foi tentado um único clique nesse botão; a janela permaneceu listada na
+observação imediatamente posterior. A automação de entrada foi interrompida,
+sem kill, fechamento forçado ou novos cliques em botões alternativos.
+Solicitada orientação humana. O responsável respondeu que cancelaria
+manualmente e informaria o resultado. A verificação posterior de processos
+passou a não encontrar mt5setup.exe; não se atribui essa saída ao clique
+automatizado nem se infere qual controle foi acionado manualmente.
+Não houve reabertura para investigar. A confirmação humana, se fornecida,
+complementa a observação; a ausência do processo é evidência independente.
+
+5. Inventários antes/depois e testes
+Inventários privados em runs/phase33j_h2_20261124:
+before_system.json, before_hashes.json, after_system.json, after_hashes.json,
+comparison_private.json, installer_validation.json, observações textuais da UI
+e final_process_destination.json. Não serão publicados.
+
+Conjunto                                      Antes   Depois   Diferenças
+Binários/configurações/origin com SHA256          84       84          0
+Arquivos MQL5 protegidos com SHA256             3668     3668          0
+Arquivos protegidos do projeto com SHA256      1010     1010          0
+Atalhos MT5/MetaEditor, hashes e alvos             14       14          0
+Entradas relevantes de desinstalação               4        4          0
+Raízes de instalação conhecidas                   8        8          0
+Associações origin.txt                            8        8          0
+Diretórios imediatos MetaQuotes\Terminal          10       10          0
+Processos MT5/MetaEditor/MetaTester                 2        2          0
+
+Zero falhas de hash. Os binários protegidos incluem os oito terminal64.exe
+das instalações conhecidas, sem mudança. Mesmos PID/início/caminho dos dois
+processos da Rico principal: terminal64.exe e MetaEditor64.exe. Nenhum novo
+terminal identificado ou iniciado. Nenhuma entrada/atalho novo observado.
+Verificação às 16:54:26-03:00: zero processos mt5setup.exe, zero itens no destino.
+Não houve efeito inesperado observado nos conjuntos comparados; a ausência
+de mudança nesses conjuntos não demonstra ausência de toda escrita no host.
+Temporários e tráfego da abertura, autorizados pelo usuário, não foram medidos
+integralmente nem removidos. Logs/cache de aplicações abertas não integram
+esta garantia de hash e podem variar por atividade própria.
+
+Escopo renovado: Program Files, LocalAppData, Desktop, Downloads e projeto,
+complementado por origin.txt e raízes anteriores. A busca geral encontrou cinco
+terminais; o conjunto complementado confirma oito raízes. Mantidas três
+negações de acesso em subpastas de produtos não MT5, documentadas privadamente,
+sem contornar permissões. Não é varredura exaustiva de todos os discos/perfis.
+Não usado Win32_Product nem restauração/encerramento automático.
+
+470 testes offline aprovados em Python -B, com bloqueio explícito de imports
+MetaTrader5 e conferência de sys.modules antes/depois: pacote ausente.
+Código, testes, EAs/EX5, planos, resultados e sessão 3.3G permanecem íntegros.
+Depois da comparação, somente README e allowlist .gitignore foram atualizados
+nos arquivos já rastreados, além da criação deste relatório sanitizado.
+Publicação limitada a esses três arquivos; evidências privadas, binários,
+scripts locais e dados de outras aplicações permanecem ignorados pelo Git.
+Commit/push, SHA remoto e árvore limpa serão confirmados na mensagem de entrega.
+
+6. Riscos e prontidão para H3
+H2 encerrada sem instalar ou iniciar MT5 dedicado; inspeção de opções incompleta.
+H3 bloqueada: falta nova autorização humana e faltam observações efetivas do
+diretório, grupo de programas, componentes e controle da primeira abertura.
+Não há configuração concreta de instalação aprovada por esta inspeção.
+Uma futura inspeção precisa de autorização própria para reabrir o instalador,
+com interação humana se a interface continuar sem responder à automação.
+Revalidar hash, assinatura, destino e inventário antes de qualquer nova abertura.
+O pacote genérico continua sem compatibilidade Rico-DEMO comprovada.
+Não se aceitou contrato, não se configurou conta, não se importou/inicializou
+MetaTrader5, não se consultou histórico/ticks e não se executou backtest/ordem.
+Rico, POC, GeraSet, Uni e OptionsLab não foram controlados pela interface.
+A sessão 3.3G permanece bloqueada, sem alteração de planos ou contadores.
+
+ENCERRAMENTO OBRIGATÓRIO
+Aguardar autorização humana para H3. Não instalar nem iniciar MetaTrader 5.

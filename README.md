@@ -352,3 +352,13 @@ Destino futuro criado vazio: `C:\estrategia\infra\mt5-factory`.
 Integridade dos conjuntos protegidos preservada; **470 testes offline aprovados**.
 Compatibilidade com Rico-DEMO pendente. H2 aguarda nova autorização humana.
 Consulte [FASE_33J_H1_PREPARACAO_INSTALADOR.txt](FASE_33J_H1_PREPARACAO_INSTALADOR.txt).
+
+### Fase 3.3J-H2 — abertura e inspeção limitada
+
+Instalador revalidado e aberto uma única vez, sem iniciar instalação.
+Tela inicial observada; opções de diretório e primeira abertura não homologadas
+por ausência de resposta visível à interação automatizada. Solicitado cancelamento
+manual; processo posteriormente ausente e destino dedicado vazio.
+Inventários protegidos sem diferenças; **470 testes offline aprovados**.
+H3 permanece bloqueada, aguardando autorização e resolução dessas pendências.
+Consulte [FASE_33J_H2_INSPECAO_INSTALADOR.txt](FASE_33J_H2_INSPECAO_INSTALADOR.txt).
