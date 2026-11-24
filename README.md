@@ -403,3 +403,13 @@ observada. Alterações de configuração/log dedicados registradas sem restaura
 **470 testes offline aprovados**. MCP e atalhos permanecem pendentes; aguardar
 nova autorização.
 Consulte [FASE_33J_H5A_FECHAMENTO_TERMINAL.txt](FASE_33J_H5A_FECHAMENTO_TERMINAL.txt).
+
+### Fase 3.3J-H5B — plano offline MCP, edição bloqueada
+
+Arquivo Factory identificado e backup privado verificado. Portas candidatas
+22356/22355 sem ocupação ou reserva nos escopos consultados. Nenhum endpoint
+alterado: a documentação oficial encontrada não especifica a edição offline
+do INI para build 6328, condição de parada exigida nesta fase.
+**470 testes offline aprovados**; Rico, clientes, atalhos e arquivos protegidos
+sem diferenças observadas. Isolamento ainda pendente; aguardar nova orientação.
+Consulte [FASE_33J_H5B_ISOLAMENTO_MCP.txt](FASE_33J_H5B_ISOLAMENTO_MCP.txt).

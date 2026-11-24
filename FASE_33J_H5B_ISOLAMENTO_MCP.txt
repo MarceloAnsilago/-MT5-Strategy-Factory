@@ -1,0 +1,147 @@
+﻿MT5 STRATEGY FACTORY — FASE 3.3J-H5B
+Preparação offline do isolamento MCP — EDIÇÃO BLOQUEADA POR DOCUMENTAÇÃO
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 8b03270b886428c39f6b5b1db24c23291b910107, Git inicialmente limpo.
+
+RESULTADO
+Identidade do arquivo e portas candidatas conferidas; backup privado pronto.
+Nenhuma configuração foi editada. Isolamento MCP NÃO aplicado nesta fase.
+A instrução H5B determina interromper sem editar se o formato não estiver
+suficientemente documentado. A ajuda oficial consultada descreve alteração de
+endpoints pela interface e arquivos do cliente, mas não especifica o contrato
+de edição offline do assistant.ini para build 6328. Sem essa confirmação,
+não se tratou uma inferência local ou artigo comunitário como contrato oficial.
+Nenhum terminal/editor iniciado, nenhum MCP conectado, nenhuma conta configurada.
+
+1. Conferência inicial
+Relatórios H3, H4 e H5A lidos integralmente. Git/base esperados confirmados.
+Processos dedicados: terminal e MetaEditor ausentes antes/depois.
+Terminal e MetaEditor Rico continuam com mesmos PID, EXE e início nas duas
+capturas desta fase; nenhum processo encerrado ou reiniciado pelo agente.
+Inventários privados em runs/phase33j_h5b_20261124, ignorados pelo Git.
+
+2. Arquivo específico da Factory e identidade
+Arquivo encontrado por associação única de origin.txt, não por suposição de
+que instalação e dados usem a mesma pasta:
+  instalação: C:\estrategia\infra\mt5-factory
+  dados associados: área MetaQuotes\Terminal do usuário,
+  diretório AEF1E6F57078EAB3775179FCBD94D671
+  arquivo relativo: Config\assistant.ini
+Caminho completo e origin preservados no manifesto privado. Diretório de dados,
+Config e arquivo sem ReparsePoint. Fonte local compatível com a evidência H3/H4.
+Build 6328 confirmado anteriormente por EXEs/logs, cujos hashes permanecem iguais.
+Não consultado data_path via API e não iniciada aplicação para completar identidade.
+
+Leitura estrita do INI existente, UTF-16 com BOM, sem seções duplicadas:
+  [MCP.MetaTrader] Endpoint=http://127.0.0.1:22346/mcp, Enable=1
+  [MCP.MetaEditor] Endpoint=http://127.0.0.1:22345/mcp, Enable=1
+Campos de credencial já existem nesse próprio arquivo. Nenhum segredo foi
+exibido, gerado, importado ou transferido entre instalações. A preparação de
+endpoint não exige copiar credenciais Rico.
+Backup byte a byte SOMENTE do arquivo Factory, na pasta privada H5B com ACL
+restrita ao usuário atual, SYSTEM e Administradores. Verificada igualdade do
+backup. Ele pode conter valores privados já existentes da Factory e não será
+publicado. Nenhuma ACL da instalação, dados ou Rico foi modificada.
+
+3. Documentação e motivo exato do bloqueio
+Ajuda oficial MetaQuotes consultada:
+https://www.metatrader5.com/en/terminal/help/mcp_and_ai/configuration
+Ela documenta endereço local MCP, necessidade de exclusividade entre apps e
+alteração por Tools/Options/MCP; mostra configuração de clientes Codex.
+Não foi encontrada nessa ajuda a especificação de armazenamento/edição offline
+Config\assistant.ini, seções, chaves e compatibilidade explicitamente vinculada
+ao build 6328. Também não foi encontrada nota oficial de build que forneça
+esse contrato na pesquisa realizada. Isso é limite da evidência obtida, não
+prova de que documentação adicional inexista.
+
+A pesquisa também encontrou:
+https://www.mql5.com/en/articles/24265
+Artigo de Muhammad Minhas Qamar, publicado na comunidade MQL5, com exemplo do
+mesmo arquivo e seções. Não é a referência oficial da MetaQuotes exigida para
+confirmar edição offline neste build. Não foi usado como autorização ou
+especificação suficiente para escrever. Posts, fóruns e projetos de terceiros
+não foram usados para contornar a condição de parada.
+Portanto a identidade está resolvida, mas o requisito documental não foi
+satisfeito. Não se iniciou terminal para usar a interface, pois isso é proibido.
+
+4. Portas candidatas e consultas somente de leitura
+Plano proposto, NÃO aplicado:
+  Factory Terminal: http://127.0.0.1:22356/mcp
+  Factory MetaEditor: http://127.0.0.1:22355/mcp
+Somente loopback IPv4; manter Rico em 22346/22345.
+
+Consultas locais realizadas sem estabelecer socket ou conectar a endpoint:
+- Get-NetTCPConnection: zero listeners nas candidatas antes/depois e nenhuma
+  conexão TCP atual encontrada usando esses números na inspeção intermediária.
+- netsh interface ipv4/ipv6 show excludedportrange protocol=tcp:
+  exclusões 27339 e 50000–50059; nenhuma candidata incluída.
+- Intervalo dinâmico TCP IPv4 observado: 49152–65535; candidatas fora dele.
+- Reservas URL ACL HTTP e portproxy: nenhuma referência às candidatas.
+- Comandos de serviços conhecidos em Win32_Service: nenhuma referência aos
+  números candidatos; não foram iniciados/parados serviços.
+- 41 arquivos locais relevantes de configuração consultados: cliente do projeto,
+  cliente global e INIs das áreas MetaQuotes/instalação dedicada. Nenhuma
+  referência a 22355 ou 22356 encontrada. Conteúdos privados não publicados.
+Isso não é cadastro exaustivo de toda aplicação/usuário, não reserva as portas e
+não prova que estarão livres ou utilizáveis quando o servidor for iniciado.
+Não executados HTTP, bind de teste, MCP initialize ou MetaTrader5.initialize.
+
+5. Plano preciso preparado antes de qualquer possível escrita
+Somente no arquivo Factory identificado, caso o requisito documental seja
+resolvido e a execução seja novamente autorizada:
+  [MCP.MetaTrader] Endpoint: 22346 -> 22356, mantendo 127.0.0.1 e /mcp.
+  [MCP.MetaEditor] Endpoint: 22345 -> 22355, mantendo 127.0.0.1 e /mcp.
+Preservar byte a byte todos os outros campos, valores, Enable, credenciais,
+permissões, codificação, BOM e quebras de linha. Não habilitar serviço ou
+alterar configuração de segurança. Revalidar processos ausentes e hashes
+imediatamente antes de escrever e reabrir apenas o arquivo para conferência.
+Nenhuma parte desse plano foi executada nesta H5B.
+
+Hash SHA256 do arquivo Factory antes E depois (idênticos):
+3CA01C5C935D29C3CF1CD1F30119332FD5067BA25F7083424DE077BE4F864771
+Hash do backup igual. Alterações efetivamente aplicadas ao MCP: ZERO.
+Endpoints ainda persistidos: 22346 e 22345; conflito histórico permanece pendente.
+
+6. Cliente Codex e futura separação
+.codex/config.toml do projeto permanece com rico_terminal em 22346/mcp e
+rico_metaeditor em 22345/mcp. Cliente global somente lido; ambos sem edição.
+Os hashes anteriores/posteriores foram comparados privadamente, sem publicar
+segredos ou arquivos. Não foram criados/ativados clientes da Factory.
+
+Proposta documental futura, ainda não configurada:
+  factory_terminal -> http://127.0.0.1:22356/mcp
+  factory_metaeditor -> http://127.0.0.1:22355/mcp
+Essas entradas precisam de identidades, permissões e credenciais próprias da
+Factory, verificadas em etapa autorizada. Não reutilizar tokens Rico, não
+substituir os servidores rico_*, não assumir que nome distinto separa instâncias.
+A configuração do cliente só deve ocorrer após isolar e homologar os servidores.
+
+7. Integridade e testes
+4780 arquivos protegidos conferidos por SHA256: zero diferenças e zero falhas
+antes/depois desta fase, até a edição documental da entrega. Incluem EXEs MT5,
+MQL5 anterior, resultados/planos da Factory e arquivos privados preservados.
+41 configurações locais relevantes com hashes iguais; nenhuma modificação Rico,
+cliente global ou outras instalações observada nesse conjunto. Processos Rico
+com identidade inalterada. Arquivos Config/logs dedicados de pós-H5A preservados.
+Sessão histórica 3.3G e seus bloqueios/recibos/contadores permanecem intactos.
+Atalhos públicos e exclusivos da Factory sem alterações; restauração continua
+pendente conforme H4. Nenhuma escrita ou troca de ACL em atalhos nesta H5B.
+
+470 testes offline aprovados em Python -B, com guarda que recusa importação
+MetaTrader5 e conferência de sys.modules antes/depois: pacote ausente.
+Não modificados código/testes, EAs/EX5, contas, logs por comandos de terminal,
+MCP ou configurações de aplicações. Novos arquivos apenas de evidência privada
+e documentação sanitizada; README e allowlist .gitignore atualizados ao final.
+Publicar somente documentação, sem INI, backup, tokens, binários ou inventários.
+SHA remoto e árvore limpa confirmados na mensagem de entrega.
+
+8. Pendências e parada obrigatória
+H5B encerrada com plano/backup/verificação, mas EDIÇÃO BLOQUEADA e isolamento
+NÃO CONCLUÍDO. Obter referência oficial suficiente para a edição offline ou
+nova orientação sobre procedimento alternativo; nenhuma abertura está autorizada.
+Uma futura homologação precisa verificar retenção dos endpoints pelo aplicativo,
+identidade dos listeners, permissões e isolamento; testes offline não provam
+funcionamento do servidor. Não realizar essa homologação nesta fase.
+Não iniciar MT5/MetaEditor, modificar Rico, ativar clientes, conectar MCP,
+autenticar, consultar mercado/histórico, executar Tester/ordens ou restaurar
+atalhos. Aguardar nova orientação humana; não avançar H5C/H6/H7 automaticamente.
