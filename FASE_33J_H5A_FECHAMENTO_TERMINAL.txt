@@ -1,0 +1,92 @@
+﻿MT5 STRATEGY FACTORY — FASE 3.3J-H5A
+Fechamento normal supervisionado — CONCLUÍDO
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 2d840a586373d6ecff01ce657e927d343a9a7e2f; Git inicialmente limpo.
+
+1. Identidade anterior ao fechamento
+Relatório H4 lido integralmente. Confirmado um único processo dedicado:
+C:\estrategia\infra\mt5-factory\terminal64.exe, PID 8216,
+início em 24/11/2026 às 17:20:24.333-03:00.
+Janela associada por caminho absoluto e handle, não somente por título:
+MetaTrader 5 - Netting - EURUSD,H1; assistente Abrir uma Conta presente.
+Terminal e MetaEditor Rico identificados separadamente por caminho/PID/início.
+MetaEditor dedicado já estava ausente e não foi iniciado para esta verificação.
+Dados completos de processos e janelas mantidos no inventário privado.
+
+2. Procedimento e confirmação humana
+O agente orientou cancelar o assistente sem escolher empresa/servidor/conta e
+fechar normalmente a janela dedicada pelo X ou Arquivo > Sair. Orientou parar
+caso aparecesse prompt inesperado e não tocar nas janelas Rico.
+Nenhum clique de fechamento, kill por nome, taskkill, encerramento forçado ou
+reinício foi executado pelo agente.
+O usuário confirmou: "Fechei manualmente a janela do MT5 dedicado" e informou
+que o MetaEditor e o MT5 Rico continuavam abertos. Nenhum prompt inesperado foi
+relatado. Não se afirmou ter observado o gesto final de fechamento ou todos
+os cliques intermediários feitos pelo usuário.
+Nenhuma conta foi configurada, criada ou autenticada pelo agente; não foi
+consultada uma API de conta para tentar comprovar o estado interno do terminal.
+
+3. Estado posterior dos processos
+Conferência CIM às 17:38:23-03:00:
+- PID 8216 ausente, inclusive na busca geral pelo identificador.
+- Zero terminal64.exe com caminho C:\estrategia\infra\mt5-factory.
+- Zero MetaEditor64.exe no caminho dedicado.
+- Rico terminal e MetaEditor presentes, com mesmos PID, EXE e horário de
+  criação da captura anterior; mesmas janelas principais associadas.
+- Ambos os processos Rico respondem ao Windows (Responding=True).
+Isso comprova continuidade sem reinicialização observada, não conectividade
+com broker ou sucesso de qualquer função de mercado, que não foram testados.
+Identidades completas guardadas em before_processes_private.json e
+ after_processes_private.json, dentro de runs/phase33j_h5a_20261124.
+Nenhum terminal, editor, instalador ou serviço foi iniciado nesta fase.
+
+4. Alterações observadas após o fechamento
+Baseline privado de 4778 arquivos com SHA256, tamanho e mtime; zero falhas.
+Comparação posterior dos mesmos arquivos: zero falhas e zero remoções.
+Diferenças de conteúdo limitadas à área de dados dedicada:
+  Config\dnsperf.dat
+  Config\settings.ini
+  Config\terminal.ini
+  logs\20261124.log
+Adição nessa área: Config\agents.dat.
+Nenhum desses arquivos foi escrito/restaurado pelo agente. Alterações são
+compatíveis com persistência de estado e logs durante uso/fechamento normal,
+mas não houve rastreamento de escrita para atribuir cada modificação a uma
+operação interna específica. Conteúdos privados de conta/configuração não
+foram publicados ou usados para extrair credenciais.
+
+Log local dedicado, sem solicitar novas operações ao terminal:
+  17:37:14.641 — exit with code 0
+  17:37:14.672 — stopped with 0
+  17:37:14.675 — shutdown with 0
+Esses registros e a ausência de PID/caminho corroboram o fechamento informado.
+Registros anteriores no mesmo log não foram confundidos com este encerramento.
+
+Demais arquivos do baseline, incluindo executáveis existentes, MQL5 protegido,
+arquivos/resultados anteriores da Factory, atalhos e configurações MCP
+inspecionadas, mantêm seus hashes. Arquivos 3.3G preservados; marcador
+ACQUISITION_BLOCKED continua presente. Nenhum bloqueio ou contador foi alterado.
+Captura parcial, não atômica, do host; não equivale a monitoramento completo
+de todos os processos, discos, logs ou tráfego. Não restaurados arquivos de
+aplicações abertas nem modificadas configurações de outras instalações.
+
+5. Testes e publicação
+470 testes offline aprovados em Python -B, com guarda explícita que recusa
+import MetaTrader5 e conferência de sys.modules antes/depois: pacote ausente.
+Código e testes do produto intactos. Não executados MCP, API, dados de mercado,
+histórico/ticks, compilação, backtest, ordens ou autenticação.
+Publicação apenas deste relatório, README e allowlist .gitignore. Capturas,
+inventários privados, logs brutos, configurações, binários e credenciais não
+publicados. Commit/push, SHA remoto e árvore limpa confirmados na entrega.
+
+6. Pendências preservadas e encerramento
+O conflito MCP identificado na H4 e a restauração dos dois atalhos públicos
+continuam pendentes. Nenhuma porta, configuração MCP, atalho ou ACL foi alterado
+na H5A. A restauração anterior continuava bloqueada por permissão Windows.
+O terminal dedicado está fechado e seu MetaEditor permanece fechado; Rico
+continua aberta, sem reinicialização observada. Não relançar para verificar
+outros campos, autenticar conta ou completar identidade via API.
+
+PARADA OBRIGATÓRIA
+H5A concluída. Aguardar nova autorização humana. Não iniciar terminais,
+alterar MCP/atalhos, conectar contas/APIs ou avançar automaticamente de fase.

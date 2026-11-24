@@ -393,3 +393,13 @@ atalhos públicos foi bloqueada pela permissão Windows, sem alteração parcial
 Terminal dedicado segue aberto; nenhum processo encerrado ou MCP modificado.
 **470 testes offline aprovados**. Aguardar orientação humana.
 Consulte [FASE_33J_H4_DIAGNOSTICO_E_ATALHOS.txt](FASE_33J_H4_DIAGNOSTICO_E_ATALHOS.txt).
+
+### Fase 3.3J-H5A — fechamento manual confirmado
+
+Terminal dedicado fechado manualmente pelo responsável; PID e caminho ausentes
+na conferência posterior. MetaEditor dedicado permanece fechado. Terminal e
+MetaEditor Rico mantêm as identidades e respondem ao Windows, sem reinicialização
+observada. Alterações de configuração/log dedicados registradas sem restauração.
+**470 testes offline aprovados**. MCP e atalhos permanecem pendentes; aguardar
+nova autorização.
+Consulte [FASE_33J_H5A_FECHAMENTO_TERMINAL.txt](FASE_33J_H5A_FECHAMENTO_TERMINAL.txt).
