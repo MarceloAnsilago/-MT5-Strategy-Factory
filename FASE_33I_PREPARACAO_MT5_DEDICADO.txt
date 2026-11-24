@@ -1,0 +1,275 @@
+MT5 STRATEGY FACTORY — FASE 3.3I
+Preparação do MT5 dedicado, SEM instalação ou conexão
+24/11/2026 — C:\estrategia
+Base: c4e227f3acfe29012fa4ea5c629461a48f5b79d1, main.
+
+DECISÃO E ESTADO
+Existe uma cópia antiga da POC da Factory, mas ela possui acervo e configurações
+prévios. Nenhuma instalação foi comprovada livre para dedicação exclusiva sem
+afetar seus usos anteriores. Recomendo instalação nova em diretório vazio,
+mantendo Rico principal, POC e instalações de outros projetos intactas.
+Destino proposto: C:\estrategia\infra\mt5-factory. Não existe no momento;
+não foi criado, reservado, instalado ou iniciado nesta fase.
+Estado: PROCEDIMENTO PREPARADO — AGUARDANDO AUTORIZAÇÃO HUMANA.
+
+1. Inspeção realizada exclusivamente de forma local
+Lidos integralmente FASE_33H_ANALISE_ISOLAMENTO_MT5.txt, preparação da ponte,
+revisão do adaptador e relatórios pertinentes de avaliação/POC. Inspecionados
+contratos, propostas e referências de identidade do adaptador/ponte existentes.
+Consultados registro de desinstalação HKLM/HKCU (incluindo visão WOW6432Node),
+metadados de arquivos, processos via CIM, origin.txt e alvos de atalhos.
+Pesquisa de executáveis nos diretórios usuais Program Files, LocalAppData,
+Desktop, Downloads e projeto, complementada pelos caminhos encontrados em origin.
+Não utilizado Win32_Product (evita possível reparação de instalações).
+Atalhos lidos com WScript.Shell.CreateShortcut; não usados Save, Run ou Exec.
+Nenhuma inspeção abriu janela, executou EXE, leu senha ou conectou ao broker.
+
+Escopo não equivale a varredura exaustiva de todos os discos/perfis de usuários:
+uma cópia arbitrária fora dos caminhos encontrados pode não estar inventariada.
+origin.txt indica associação registrada, não processo vivo, conta atual ou
+garantia de modo de execução. Versões abaixo são FileVersion do PE em disco,
+não leitura de build via API. Nenhuma conta foi consultada nesta fase.
+
+2. Instalações/diretórios encontrados
+Quatro entradas registradas de desinstalação e oito caminhos com terminal64.exe:
+
+Instalação / localização resumida                         FileVersion
+Rico - MetaTrader 5, Program Files                        5.0.0.6230
+MetaTrader 5, Program Files                               5.0.0.6296
+MetaTrader 5 Terminal, Program Files                      5.0.0.6230
+Infinox MetaTrader 5 Terminal, Program Files              5.0.0.5833
+MT5StrategyFactoryPOC\terminal, dentro do projeto          5.0.0.6296
+Runtime do MT5OptionsLab, outro projeto                   5.0.0.6296
+Runtime de GeraSet, outro projeto                         5.0.0.6274
+Runtime de teste Uni, dentro de outra árvore MQL5          5.0.0.6191
+
+Caminhos completos e hashes ficam no inventário privado, sem publicar dados
+de outras aplicações. Nenhuma instalação de outro projeto foi reconfigurada.
+Há oito associações origin.txt na área MetaQuotes do usuário inspecionado.
+A Rico principal corresponde a:
+  EXE: C:\Program Files\Rico - MetaTrader 5\terminal64.exe
+  data_path registrado: ...\MetaQuotes\Terminal\38FF261A42172F3478E54D3A1A8FE02B
+No instante da inspeção havia somente terminal64.exe e MetaEditor64.exe da
+Rico principal entre os processos MT5/MetaEditor/MetaTester consultados.
+PIDs/início/caminhos foram guardados privadamente; nenhum processo foi iniciado
+ou encerrado. Não estar em execução não significa estar disponível para cessão.
+
+Foram encontrados 14 atalhos de terminal/MetaEditor. O da POC dentro do projeto
+usa /portable; os demais atalhos encontrados não continham esse argumento.
+UAC está habilitado (EnableLUA=1), apenas observado, sem alteração da política.
+Disco C: aproximadamente 320 GiB livres no momento da leitura; verificar de
+novo antes da instalação. Isso não prova suficiência de recursos para backtests.
+
+3. Possibilidade de reaproveitar instalação existente
+Rico principal: excluída, é o ambiente a preservar.
+POC: candidata apenas em sentido de propriedade do projeto, NÃO pronta para
+reutilização. CONTINUACAO.md/RESULTADO.md documentam uso portátil anterior,
+configurações copiadas e testes antigos. A pasta contém Config/Bases/MQL5/Tester,
+e existe também uma associação AppData origin para esse caminho de instalação.
+Não assumir que mudar portable=False dará um ambiente novo ou limpo.
+Apagar Config/Bases, copiar conta Rico ou alternar o modo apagaria fronteiras
+de proveniência e pode alterar acervo protegido; nada disso está autorizado.
+POC preservada como evidência histórica, sem reset, atualização ou inicialização.
+MetaTrader genéricos/Infinox: têm estado próprio desconhecido, sem declaração
+de cessão, conta demo/servidor atual ou disponibilidade PETR4 comprovados.
+GeraSet, Uni e OptionsLab: vinculados a outros projetos, não usar como fallback.
+
+Conclusão limitada à evidência: nenhuma alternativa existente pode ser declarada
+livre/exclusiva agora. O humano pode futuramente ceder uma instalação após
+revisão de propriedade, dados e identidade; isso seria um plano novo, não
+uma reutilização automática. O caminho novo reduz conflito com esses acervos.
+
+4. Instalador oficial — procedimento a executar SOMENTE após autorização
+Foram encontrados em Downloads, sem execução:
+  rico5setup.exe — versão de arquivo 5.0.0.5431, cerca de 5,96 MB;
+  xpmt5setup.exe — versão 5.0.0.5501, cerca de 5,82 MB;
+  mt5setup.exe — versão 5.0.0.5431, cerca de 23,38 MB.
+Seus hashes foram registrados. Não havia HostUrl/ReferrerUrl aproveitável no
+Zone.Identifier consultado. Nome, versão ou hash local não provam autenticidade
+nem procedência oficial; não reutilizá-los como instaladores já aprovados.
+Assinatura/cadeia de certificado não foram homologadas nesta inspeção local.
+
+Preferência proposta: obter o instalador pela página oficial da Rico para MT5,
+com navegação humana e origem comprovada. Se for usado o instalador MetaQuotes
+da página oficial https://www.metatrader5.com/en/download, confirmar antes com
+a corretora o suporte ao servidor Rico-DEMO; pacote genérico não garante isso.
+Não usar espelhos, links encurtados, anúncios ou copiar terminal de outro projeto.
+Guardar o novo download em destino privado exclusivo do projeto, nunca sobre
+o EXE/instalador existente; registrar URL efetiva, captura UTC, tamanho, SHA256,
+assinatura e cadeia válida compatíveis com o publicador oficial. Não executar
+para descobrir sua identidade. Divergência de assinatura/origem: interromper.
+Não foi feito download, resolução web de instalador ou validação online aqui.
+
+Fonte técnica já estudada na Fase 3.3H:
+https://www.metatrader5.com/en/terminal/help/start_advanced/installation
+O instalador web pode baixar componentes e instalar versão diferente da sua
+própria FileVersion. Não prometer build 6230 em uma instalação nova; inventariar
+o build entregue e revisar compatibilidade/identidade antes de aprová-lo.
+
+5. Modo padrão, diretório de dados e identidade futura
+Executável proposto: C:\estrategia\infra\mt5-factory\terminal64.exe.
+Exigir diretório novo/vazio, sem junção/symlink/hardlink para a Rico, POC ou
+outro projeto. A pasta só poderá ser criada após a confirmação humana pertinente.
+Manter UAC; não usar /portable, atalhos da POC, /config ou parâmetros de login.
+Modo padrão tem dados próprios na área do usuário; o data_path final deverá ser
+observado após uma primeira abertura separadamente autorizada, não inventado
+agora a partir de um hash ou de outro terminal.
+Fonte: https://www.metatrader5.com/en/terminal/help/start_advanced/start
+
+Identidade composta a registrar antes de homologar a API:
+  installation_id novo, EXE e data_path canônicos, volume/file_id, hashes de EXE
+  e componentes, publicador/versão/build efetivos, modo padrão, origem instalada;
+  origin.txt correspondente, MQL5 próprio e diferença explícita para os dados
+  de TODAS as instalações preservadas; PID e horário de início do processo;
+  Python/ambiente/pacote aprovados, servidor demo e binding privado da conta.
+Há binários com o mesmo SHA256 em caminhos distintos (POC, MetaTrader genérico
+e OptionsLab). Portanto hash do EXE sozinho não identifica a instalação e
+igualdade de hashes não prova nem descarta hardlink; file_id/caminho/dados importam.
+PID sozinho também não basta, pois pode ser reutilizado.
+
+Conta demo: somente escolher/autenticar após autorização explícita de abertura
+e de acesso ao broker. Confirmar servidor exato e modo demo por mecanismo
+autorizado; nome da pasta/atalho ou conta anterior não comprovam a conta de B.
+Preferir conta demo dedicada se a corretora permitir. Não presumir múltiplas
+sessões, reutilização da mesma conta, credenciais salvas ou histórico PETR4.
+Nunca copiar accounts.dat, servers.dat, Config, perfis, caches, certificados,
+senhas ou tokens da principal/POC para B. Não persistir números de conta no Git.
+
+6. Inventário prévio preparado
+Pasta privada: runs/phase33i_preparation_20261124, ignorada pelo Git.
+  preinstallation_private.json: captura ISO com offset, quatro entradas de
+    desinstalação, oito origin/instalações, processos e 84 arquivos estáticos
+    (binários, origin e configurações), com SHA256/tamanho/mtime/versão.
+  mql5_preservation_private.json: hashes de 3668 fontes, includes, EX5 e
+    parâmetros/configurações MQL5 dos diretórios de dados associados; zero
+    falhas de hash na captura. Não contém código ou arquivos copiados.
+  shortcuts_private.json: 14 atalhos, seus hashes, alvos, diretórios de trabalho
+    e presença de /portable, sem publicar argumentos livres com dados privados.
+  cache_common_metadata_private.json: 19505 arquivos com caminho/tamanho/mtime
+    nos escopos Bases/POC e Common; NÃO são hashes completos do conteúdo do cache.
+  installer_metadata_private.json: somente metadados/hashes e origem disponível
+    dos instaladores locais; não contém ou copia seus binários.
+  project_preservation.json: SHA256 de 1008 arquivos existentes do projeto,
+    incluindo código, testes, EAs/EX5, planos, resultados e sessão bloqueada.
+Os conjuntos se sobrepõem; não somá-los como total de arquivos distintos.
+Hashes de Config não são cópias de credenciais; os arquivos não foram analisados
+para extrair contas ou senhas. Inventários privados não serão publicados.
+
+Este baseline deve ser renovado imediatamente antes da instalação autorizada.
+Rico já está em execução: logs e algumas configurações podem mudar legitimamente
+por atividade própria. Diferença observada exige análise, não atribuição automática
+ao instalador nem restauração automática sobre uma aplicação aberta.
+Comparação futura: added/removed/changed em EXE/config/MQL5/atalhos/registro,
+novos diretórios origin, processos e raízes de dados. Alterações aceitas devem
+ficar restritas ao destino B e às entradas explicitamente aprovadas. Sobrescrever
+registro/atalho da Rico ou tocar em outros dados implica parada e revisão.
+Metadados de cache detectam muitas diferenças, mas não alterações de conteúdo
+que preservem tamanho/mtime: ampliar hashes seletivos em futura autorização se
+essa garantia for exigida. O inventário não afirma cobrir todo o Windows.
+
+7. Identidade recebida pelo adaptador Python — desenho, sem mudança de código
+O adaptador e a ponte atualmente fixam INSTALLATION, MQL5_SHA256, build e plano
+da instalação principal. Esses valores e propostas existentes permanecem intactos.
+Não substituir constantes por C:\estrategia\infra\mt5-factory ou por hash fictício.
+Novo trabalho offline deverá introduzir um perfil de identidade imutável e
+versionado recebido explicitamente pelos validadores/worker, contendo os campos
+da seção 5 e o hash do plano humano. Manter perfil legado A e histórico de hashes.
+Perfil B só será preenchido com observações reais da preparação autorizada,
+sem autodescoberta/ fallback para A; campos pendentes permanecem desconhecidos.
+Comparar perfil solicitado, processo pré-observado e identidade pós-conexão.
+Reutilizar PythonHistoryPort, verify_identity, validate_process_attestation,
+helpers UTC/last_error, ledger e CrossBackendAttemptIndex; não criar controlador
+duplicado. Adaptar assinaturas/fixtures com testes A/B, caminhos cruzados,
+mesmo EXE/hash em outra pasta, build divergente e contas não vinculadas.
+O índice deve continuar global entre instalações/backends; B não apaga uma
+tentativa MCP anterior. Nenhuma consulta à janela já falha é autorizada.
+PreparedPythonBridge continua recusando toda operação real; alteração de flag,
+perfil ou aprovação JSON não ativará esse backend. Não se importou MetaTrader5.
+
+8. Procedimento supervisionado e confirmações humanas obrigatórias
+Os itens abaixo são apenas instruções futuras. Nesta fase, nenhum foi executado.
+Não existe script de instalação, lançador ou tarefa agendada criado por esta entrega.
+
+PONTO H0 — decidir destino e escopo
+Apresentar o inventário, aceitar instalação NOVA no caminho proposto ou outro
+exclusivo e aprovar modo padrão. Se desejar ceder instalação existente, interromper
+este fluxo e elaborar plano de cessão/backup próprio; não limpar nenhuma pasta.
+Confirmar privadamente fonte oficial e relação demo/servidor com a corretora.
+
+PONTO H1 — autorizar aquisição do instalador e preparação de destino
+Antes de download, criar pastas, mover arquivo ou mudar ACL: pedir autorização
+específica indicando fonte, destino e efeitos. Baixar apenas o pacote aprovado,
+verificar assinatura/origem/hash, renovar inventário e mostrar resultado.
+Falha de identidade, assinatura ou destino ocupado: parar, sem substituição.
+
+PONTO H2 — autorizar a abertura do instalador
+Executar o instalador já pode escrever temporários, acessar rede, pedir UAC ou
+alterar estado antes da tela final; isso precisa constar do aceite ANTES de
+abri-lo. Sem /auto, /portable, /beta ou execução silenciosa. Elevação somente
+se demonstrada necessária e autorizada; não desabilitar UAC nem trocar usuário
+sem revisar o data_path/conta Windows previstos.
+
+PONTO H3 — confirmar parâmetros antes de instalar
+Na interface, verificar destino exclusivo exato, grupo de programas/atalho
+Factory distinto, licença e componentes; não instalar por cima de Rico/POC.
+Antes do botão que inicia download/cópia/instalação, apresentar as escolhas e
+obter confirmação. Se o instalador não permitir separar essas ações, o aceite
+H2 precisa cobrir esse comportamento conhecido, ou não executá-lo.
+
+PONTO H4 — impedir primeira abertura não consentida
+Antes de concluir, desmarcar qualquer opção de executar/abrir MT5, MetaEditor
+ou serviços adicionais, se disponível. Não clicar em Finish supondo que apenas
+fecha a janela. O fluxo exato deste instalador ainda NÃO foi homologado.
+Se ele puder abrir o terminal sem opção de impedir, não concluir sob um aceite
+de instalação sem abertura. Parar e solicitar aprovação específica do possível
+primeiro start, ou outro procedimento oficial que o impeça. Não prometer que
+um instalador é incapaz de iniciar terminal; evitar scripts de kill/rollback.
+
+PONTO H5 — validar resultado sem iniciar terminal
+Após instalação autorizada, conferir hashes/assinaturas/versões/caminhos,
+registro, atalhos, novos processos e diferenças contra o baseline renovado.
+Confirmar que A e demais instalações continuam sem alterações indesejadas.
+Se aparecer processo inesperado ou alteração protegida, preservar evidência e
+pedir orientação; não encerrar processos por nome nem restaurar arquivos abertos.
+Pode ainda não existir data_path de B: registrar pendente, não criar/copiar uma
+árvore AppData artificial para satisfazer um validador.
+
+PONTO H6 — primeira abertura MANUAL, em autorização separada
+Só depois de novo aceite explícito abrir o EXE B exato, uma vez, modo padrão,
+sem EA/Tester e sem reutilizar atalhos/configurações antigos. A abertura pode
+conectar ou gerar tráfego de fundo; esse efeito deve ser aceito antes da ação.
+Não criar conta demo, selecionar servidor ou autenticar automaticamente.
+O humano fornece credenciais em canal privado e aprova essas ações. Coletar
+data_path/origin/processo efetivos, provar separação e atualizar o perfil B.
+Não consultar histórico, ticks ou iniciar diagnóstico Python nessa abertura.
+
+PONTO H7 — futura homologação de conexão Python
+Novo plano/hash/conta/janela e revisão da ponte/supervisor. Somente conexão e
+metadados, com risco de initialize resolvido conforme Fase 3.3H. Autorização de
+instalação/abertura manual não se transfere à API, à aquisição ou ao Tester.
+A sessão 3.3G permanece bloqueada. Parar em qualquer divergência e aguardar
+orientação, sem repetir chamadas ou lançar outra instalação como fallback.
+
+9. Testes e integridade desta fase
+470 testes offline aprovados, com guarda explícita que proíbe importação de
+MetaTrader5 e conferência de sys.modules antes/depois: pacote não importado.
+Código e testes existentes não precisaram mudar nesta preparação documental.
+1008 arquivos protegidos do projeto conferidos antes/depois, sem alteração.
+Conferência final dos inventários externos: 84 binários/configurações/origin,
+3668 arquivos MQL5 e 14 atalhos, todos sem alteração de SHA256. Esses conjuntos
+não cobrem integralmente todos os arquivos do host. Logs/cache de aplicações
+abertas não foram declarados imutáveis por esse inventário parcial.
+Não foram alterados EAs, EX5, GeraSet, Uni, configurações, perfis, contas, senhas,
+recibos, resultados ou contadores da sessão 3.3G. Não importado MetaTrader5,
+não consultado MCP/terminal, não instalado/atualizado/iniciado qualquer terminal.
+Nenhuma ordem, sincronização solicitada, histórico, compilação ou backtest.
+
+10. Entrega e próximos passos
+Criados este relatório e inventários privados; README e allowlist Git atualizados.
+Publicação restrita à documentação sanitizada, sem inventários privados,
+instaladores, brutos, SQLite, credenciais ou novos executáveis.
+As fontes técnicas são as oficiais já registradas na Fase 3.3H; nesta fase
+a investigação de instalações e artefatos foi exclusivamente local.
+Procedimento pronto para revisão humana; instalação, download, criação do
+destino e início de terminal aguardam autorização específica. Nenhuma etapa
+de modificação do computador ou fase seguinte foi iniciada automaticamente.

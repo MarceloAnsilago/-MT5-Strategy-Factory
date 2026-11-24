@@ -334,3 +334,12 @@ e a sessão 3.3G permanecem intactas; nenhuma instalação ou conexão foi reali
 **470 testes offline aprovados**. Leia
 [FASE_33H_ANALISE_ISOLAMENTO_MT5.txt](FASE_33H_ANALISE_ISOLAMENTO_MT5.txt)
 para evidências, limitações e o primeiro diagnóstico proposto, somente de metadados.
+
+### Fase 3.3I — preparação local do MT5 dedicado
+
+Inspeção local identificou oito diretórios de terminal e uma cópia antiga da POC,
+sem comprovar uma instalação já disponível para dedicação exclusiva. Recomendado
+destino novo e vazio, com confirmações humanas separadas para instalar e iniciar.
+Inventários privados preparados; **470 testes offline aprovados**.
+Nenhum instalador ou terminal foi iniciado. Consulte
+[FASE_33I_PREPARACAO_MT5_DEDICADO.txt](FASE_33I_PREPARACAO_MT5_DEDICADO.txt).
