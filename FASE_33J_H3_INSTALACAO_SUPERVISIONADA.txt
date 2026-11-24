@@ -1,0 +1,177 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H3
+Instalação supervisionada — INSTALADA COM OCORRÊNCIAS, PARADA PARA REVISÃO
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base Git: 9ad734e62331e97038e0c62e333f45ce29e9fef4; árvore inicialmente limpa.
+
+1. Autorizações e limites
+A solicitação H3 autorizou instalar no destino exclusivo, condicionada à
+conferência humana antes de Avançar e inicialmente proibindo o primeiro start.
+Após apresentar os valores corretos na captura, o usuário declarou "esta
+autorizado oque for preciso". Para esclarecer a restrição específica, foi
+perguntado se incluía o primeiro start automático. O usuário confirmou:
+"autorizo a primeira abertura do MT5 dedicado caso o instalador o inicie
+automaticamente ao concluir". Essa confirmação posterior removeu o bloqueio
+específico do primeiro start automático; os valores já apresentados foram
+novamente observados antes da tentativa de Avançar.
+Não houve autorização de autenticação, Rico-DEMO, API, histórico/ticks,
+backtest, ordens, MCP de terminal ou avanço H6/H7. Esses limites foram mantidos.
+
+2. Verificações anteriores
+Lidos integralmente relatórios 3.3I, H1, H2 e H2B. Instalador original:
+C:\estrategia\runs\phase33j_h1_20261124\mt5setup.exe
+SHA256 esperado e observado:
+20AFD50F66231F664556161795CAB50A4694083DAC83D1A7FE2E8EF7D9221FE3
+Assinatura Authenticode Valid; MetaQuotes Ltd.; thumbprint do certificado:
+5A64A7AED24C33DED342D01D01FA5286F06DA6DC.
+Cadeia X509 válida, revogação Online/EntireChain, NoFlag e sem erros, às
+17:08:54-03:00. Hash e Authenticode novamente conferidos antes de prosseguir.
+Origem revalidada por HTTPS:
+https://www.metatrader5.com/en/download
+O HTML continua vinculando o mesmo CDN oficial registrado em H1. Evidência
+privada preservada, sem novo download do binário ou uso dos antigos Downloads.
+Destino C:\estrategia\infra\mt5-factory vazio inclusive ocultos; destino e
+ancestrais sem ReparsePoint. Nenhum instalador preexistente antes da abertura.
+Inventário renovado: 84 arquivos estáticos, 3668 MQL5, 1012 arquivos do projeto,
+zero falhas de hash; oito raízes, quatro entradas de registro e 14 atalhos.
+Comparação prévia com pós-H2B sem mudança em binários/configurações/MQL5.
+O relatório H2B foi legitimamente concluído após seu snapshot, diferença
+exclusivamente documental. Git limpo confirmou a publicação anterior.
+Diferença conhecida de terminal.ini da Rico mantida: mesmo hash de pós-H2B,
+sem restauração, atribuição causal ou alteração de configuração pelo agente.
+
+3. Configurações efetivamente observadas e instalação
+Uma abertura normal do instalador por caminho absoluto, sem parâmetros.
+Nenhum UAC observado ou elevação concedida pelo agente.
+A interface de automação expôs somente janela/barra de título; os cliques
+em Configuração não produziram transição observável. O usuário fez a edição
+manual e forneceu capturas. A configuração final também foi observada ao vivo:
+  Pasta: C:\estrategia\infra\mt5-factory
+  Grupo: MT5 Strategy Factory
+  Abrir website MQL5.community: desmarcado.
+Os padrões C:\Program Files\MetaTrader 5 e grupo MetaTrader 5 não foram aceitos.
+Botão Proxy visível; nenhuma lista seletiva de componentes disponível na tela.
+A ausência de uma opção visível para impedir o primeiro start não foi tratada
+como prova de inexistência; por isso houve a autorização adicional acima.
+
+A documentação oficial consultada descreve instalador web e início do download
+após Next/Avançar; componentes/build entregues não foram presumidos:
+https://www.metatrader5.com/en/terminal/help/start_advanced/installation
+Após a autorização adicional, um clique automatizado em Avançar não produziu
+mudança visível em duas observações. O usuário foi orientado a clicar
+manualmente e enviar a tela seguinte, sem preencher contas/servidores.
+A captura seguinte mostrou o terminal aberto e assistente Abrir uma Conta.
+A instalação efetiva foi confirmada por arquivos, registro, atalhos e processo
+no destino aprovado. Não observadas as telas intermediárias de progresso ou
+conclusão; não se afirma qual controle manual final foi acionado.
+Nenhum segundo lançamento manual do terminal foi feito pelo agente.
+
+4. Identidade efetivamente instalada
+Pasta: C:\estrategia\infra\mt5-factory, diretório normal sem redirecionamento.
+Assinaturas dos quatro executáveis: Valid; publicador MetaQuotes Ltd.
+
+terminal64.exe — FileVersion 5.0.0.6328 — 122876896 bytes
+SHA256 AD4BB889A848105BF03399F6A7A1022D9324B44BC797AC0459CF647738266318
+MetaEditor64.exe — FileVersion 5.0.0.6328 — 70150296 bytes
+SHA256 2FAFC20ED04CCF537FB4FDE6952D055C82E08DAE72D7FCF32822650A7CA8861C
+metatester64.exe — FileVersion 5.0.0.6328 — 24100648 bytes
+SHA256 78A9D84EEB23E4302C0057FC16E694AD7E6BC000FCB5C18BF6386BCB44054FC9
+uninstall.exe — FileVersion 5.0.0.6327 — 23455320 bytes
+SHA256 20AFD50F66231F664556161795CAB50A4694083DAC83D1A7FE2E8EF7D9221FE3
+O build entregue 6328 difere do instalador 6327, conforme esperado de um web
+installer. Nenhuma homologação de compatibilidade Python/Rico foi inferida.
+
+Há um novo origin.txt na área MetaQuotes do usuário associando a instalação
+a um diretório novo, distinto dos anteriores. A captura do journal mostra
+o mesmo diretório associado. Caminho completo guardado privadamente.
+Isso é observação real de disco/tela após o start autorizado; não foi fabricado
+um data_path nem copiado de outro terminal. O data_path não foi consultado
+pela API e sua identidade operacional completa ainda requer homologação.
+
+5. Comportamento e ocorrências inesperadas
+Terminal dedicado em execução após a instalação: primeiro start automático
+coberto pela autorização adicional. Assistente de conta visível; o agente não
+selecionou empresa/servidor nem criou ou autenticou conta. Gráficos/painéis
+padrão visíveis não comprovam autenticação, cobertura ou histórico utilizável.
+Nenhum dado de mercado foi solicitado pelo agente.
+
+OCORRÊNCIA A — MetaEditor e compilação automática:
+Também foi encontrado MetaEditor64.exe executando a partir do destino dedicado,
+além dos processos da Rico já existentes. Esse start adicional não foi
+solicitado pelo agente nem contemplado especificamente na autorização do
+primeiro start do terminal. Na captura, o journal informa que iniciou uma
+recompilação completa e atualização de arquivos. A causa/fluxo exato que lançou
+o editor não foi comprovada; pode haver atividade automática de inicialização.
+Não foi emitido comando de compilação, não se modificaram EAs/EX5 existentes,
+não se encerrou o editor ou terminal e não se tratou isso como homologação.
+
+OCORRÊNCIA B — conflito MCP:
+A captura informa erro bind na porta local 122346, código 10048, endereço em uso.
+Registrado somente o diagnóstico já visível; não foi chamado MCP de terminal,
+inspecionado endpoint, alterada porta/configuração ou encerrado serviço.
+Não foi presumido isolamento MCP nem aceito esse conflito como resolvido.
+
+OCORRÊNCIA C — atalhos existentes sobrescritos:
+Dois atalhos da área de trabalho pública passaram a apontar ao dedicado:
+- MetaTrader 5.lnk: antes MetaTrader genérico em Program Files; agora terminal
+  de C:\estrategia\infra\mt5-factory.
+- MetaEditor 5.lnk: antes MetaEditor Infinox; agora MetaEditor dedicado.
+O grupo MT5 Strategy Factory foi criado, mas não evitou as substituições no
+Desktop público. Não se declara preservação integral dos atalhos existentes.
+Hashes/alvos anteriores e posteriores guardados privadamente. Não restaurados,
+removidos ou renomeados automaticamente; revisão humana obrigatória.
+
+6. Integridade antes/depois
+Inventários privados em runs/phase33j_h3_20261124, sem publicação:
+before/after_system.json, before/after_hashes.json, comparison_private.json,
+validações de instalador/origem, processos e identidade dos novos executáveis.
+Conjunto                                   Antes   Depois   Resultado
+Binários/configurações/origin com SHA256       84       89   5 adições, 0 mudanças
+Arquivos MQL5 anteriores com SHA256          3668     3668   todos iguais
+Arquivos anteriores do projeto com SHA256   1012     1012   todos iguais
+Relatório H3 novo                               0        1   adição documental
+Raízes conhecidas de instalação                 8        9   dedicado adicionado
+Associações origin.txt                         8        9   dedicado adicionado
+Entradas relevantes de desinstalação            4        5   dedicado adicionado
+Atalhos MT5/MetaEditor                         14       16   2 novos, 2 substituídos
+Processos MT5/MetaEditor/MetaTester              2        4   terminal e editor B
+Diretórios imediatos MetaQuotes\Terminal        10       11   associação nova
+Zero falhas de hash. As cinco adições estáticas são quatro EXEs e um origin.
+Nenhuma remoção/mudança de hash nos 84 arquivos estáticos anteriores, incluindo
+todos os executáveis/configurações inventariados de Rico, POC, GeraSet, Uni,
+OptionsLab, Infinox e genéricos. Mesmos PID/início/caminho dos processos Rico.
+Nenhum novo processo MetaTester observado. mt5setup.exe não consta dos processos
+posteriores capturados. Terminal e editor dedicados permanecem em execução;
+não se afirmou que o MT5 dedicado esteja fechado.
+Registro anterior preservado no conjunto de campos capturados; nova entrada
+MetaTrader 5 aponta ao destino exclusivo. O grupo Start Menu possui dois
+atalhos novos para os EXEs dedicados. A comparação de linhas de atalhos mostra
+quatro adições e duas remoções porque duas são substituições de alvos/hashes,
+não quatro novos caminhos. A substituição não foi omitida do resultado.
+
+O conjunto MQL5 protegido cobre as instalações anteriores, não o novo acervo
+padrão criado automaticamente. Não se copiaram contas, perfis ou históricos.
+Resultados, recibos, propostas e sessão 3.3G continuam sem alteração de hash;
+nenhum bloqueio foi removido ou tentativa histórica repetida.
+Limitações: inventário parcial dos discos/perfis; três negações de acesso
+conhecidas em outros produtos; logs/cache/tráfego fora dos conjuntos não foram
+considerados imutáveis. A captura de sistema e hashes não é atômica.
+
+7. Testes, publicação e pendências
+470 testes offline aprovados após instalação em Python -B, com importação
+MetaTrader5 recusada por guarda explícita e conferência de sys.modules antes/
+depois: pacote ausente. Código/testes de produto não foram modificados.
+Publicar apenas este relatório, README e allowlist .gitignore. Não publicar
+instalador, inventários, captura privada, credenciais ou dados de outras apps.
+SHA remoto e árvore limpa confirmados na mensagem de entrega.
+
+H3: instalação confirmada, com ocorrências que impedem aprovação irrestrita.
+Aguardar revisão humana dos dois atalhos substituídos, MetaEditor iniciado,
+recompilação automática e conflito MCP. Não executar correção automática.
+Compatibilidade Rico-DEMO, conta demo, acesso ao broker, perfil completo de
+identidade, Python/MCP/Tester e histórico seguem não homologados e não autorizados.
+Não autenticar nem avançar H6/H7 para completar esta entrega.
+
+PARADA OBRIGATÓRIA
+Encerrar somente o trabalho da H3 e aguardar orientação humana. Nenhum processo
+foi encerrado ou configuração restaurada. Não usar contas, API, histórico,
+backtests ou ordens. Não iniciar automaticamente nenhuma fase seguinte.

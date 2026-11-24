@@ -373,3 +373,13 @@ revisão humana, sem restauração ou atribuição de causa.
 **470 testes offline aprovados**. H3 não autorizada; controle da primeira
 abertura do terminal permanece pendente.
 Consulte [FASE_33J_H2B_INSPECAO_MANUAL.txt](FASE_33J_H2B_INSPECAO_MANUAL.txt).
+
+### Fase 3.3J-H3 — instalação dedicada com ocorrências
+
+MT5 build 6328 instalado na pasta exclusiva. A primeira abertura automática
+recebeu autorização humana adicional; nenhuma conta foi configurada pelo agente.
+Binários e MQL5 anteriores preservados. Dois atalhos públicos foram substituídos,
+o MetaEditor dedicado também iniciou e houve conflito de porta MCP: ocorrências
+registradas para revisão humana, sem correção automática.
+**470 testes offline aprovados**. Não avançar para conta, API ou histórico.
+Consulte [FASE_33J_H3_INSTALACAO_SUPERVISIONADA.txt](FASE_33J_H3_INSTALACAO_SUPERVISIONADA.txt).
