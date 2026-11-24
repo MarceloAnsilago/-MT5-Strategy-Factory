@@ -362,3 +362,14 @@ manual; processo posteriormente ausente e destino dedicado vazio.
 Inventários protegidos sem diferenças; **470 testes offline aprovados**.
 H3 permanece bloqueada, aguardando autorização e resolução dessas pendências.
 Consulte [FASE_33J_H2_INSPECAO_INSTALADOR.txt](FASE_33J_H2_INSPECAO_INSTALADOR.txt).
+
+### Fase 3.3J-H2B — inspeção manual e cancelamento confirmados
+
+Campos de pasta e grupo observados; o destino padrão corresponde a uma
+instalação existente e deve ser evitado. Instalador cancelado manualmente,
+processo ausente e destino Factory vazio. Binários, MQL5 e arquivos anteriores
+da Factory preservados; diferença em `terminal.ini` da Rico registrada para
+revisão humana, sem restauração ou atribuição de causa.
+**470 testes offline aprovados**. H3 não autorizada; controle da primeira
+abertura do terminal permanece pendente.
+Consulte [FASE_33J_H2B_INSPECAO_MANUAL.txt](FASE_33J_H2B_INSPECAO_MANUAL.txt).
