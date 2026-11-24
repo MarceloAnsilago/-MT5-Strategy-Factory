@@ -1,0 +1,152 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H1
+Preparação autorizada do instalador, SEM execução
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 6be7626 (main), árvore Git inicialmente limpa.
+
+ESTADO
+H1 CONCLUÍDA. Instalador obtido e autenticidade validada, destino futuro vazio.
+H2 NÃO AUTORIZADA e NÃO EXECUTADA. Aguardar nova autorização humana.
+Compatibilidade do pacote genérico com Rico-DEMO NÃO COMPROVADA.
+
+1. Autorização, fonte e procedência
+Executada exclusivamente H1 conforme solicitação humana desta sessão, que
+autoriza download oficial e preparação de diretórios, sem iniciar programas.
+Lidos integralmente os relatórios 3.3H e 3.3I. A sessão histórica 3.3G, planos,
+contadores e bloqueios foram preservados; nenhum backend foi habilitado.
+
+Prioridade Rico: consultadas as fontes oficiais:
+https://www.rico.com.vc/plataformas/metatrader/
+https://atendimento.rico.com.vc/categoria/plataformas/metatrader
+O conteúdo público obtido não comprovou vínculo com um instalador específico.
+A requisição direta PowerShell à página Rico recebeu bloqueio do CDN.
+Não se conclui que a Rico não ofereça instalador; apenas não se comprovou a
+origem de um pacote Rico nesta execução. Nenhum link de terceiros foi utilizado.
+Os instaladores antigos de Downloads não foram usados nem executados.
+
+Alternativa expressamente permitida: página oficial MetaQuotes:
+https://www.metatrader5.com/en/download
+O HTML desta página foi obtido por HTTPS e preservado privadamente. Seu link
+para Windows aponta ao CDN abaixo, comprovando a relação da fonte com o pacote.
+URL solicitada e efetiva (sem redirecionamento observado):
+https://download.terminal.free/cdn/web/metaquotes.ltd/mt5/mt5setup.exe?utm_source=www.metatrader5.com&utm_campaign=download
+Download com validação TLS padrão do Windows; nenhuma exceção de certificado.
+Captura: 2026-11-24T16:47:16.7055658-03:00 (19:47:16 UTC).
+Tamanho exato: 23.455.320 bytes.
+FileVersion do instalador em disco: 5.0.0.6327.
+Não é promessa de build do futuro terminal; o instalador é um bootstrap web.
+
+2. Hash, assinatura e cadeia
+SHA256:
+20AFD50F66231F664556161795CAB50A4694083DAC83D1A7FE2E8EF7D9221FE3
+Get-AuthenticodeSignature: Valid; mensagem: Assinatura verificada.
+Publicador: CN=MetaQuotes Ltd., O=MetaQuotes Ltd., S=Lemesos, C=CY.
+Thumbprint do certificado assinante:
+5A64A7AED24C33DED342D01D01FA5286F06DA6DC
+Emissor: Sectigo Public Code Signing CA E36.
+Cadeia: MetaQuotes Ltd. -> Sectigo Public Code Signing CA E36 ->
+Sectigo Public Code Signing Root E46.
+X509Chain.Build: True; ChainStatus vazio (sem erros).
+Política: RevocationMode=Online, RevocationFlag=EntireChain,
+VerificationFlags=NoFlag, timeout de recuperação 20 segundos.
+Carimbo identificado pelo Authenticode: Certum Timestamp 2026,
+Asseco Data Systems S.A. A validade é a observada nesta captura, sujeita a
+expiração/revogação futura; repetir hash e verificação antes de eventual H2.
+Nenhuma execução foi usada para inspecionar identidade ou versão.
+
+3. Diretórios e artefatos privados
+Preparação: C:\estrategia\runs\phase33j_h1_20261124
+Instalador: nessa pasta, mt5setup.exe; separado do destino de instalação.
+Pasta ignorada pelo Git, com herança de ACL desabilitada e acesso concedido
+somente ao usuário atual, SYSTEM e Administradores. ACLs das instalações
+existentes não foram alteradas. Evidências, scripts locais de inspeção,
+validação JSON, HTML de origem e saída dos testes permanecem privados.
+Uma primeira tentativa de montar a ACL falhou na resolução de identidade;
+nenhuma ACL foi aplicada nessa tentativa. A aplicação com SIDs foi bem-sucedida.
+
+Destino futuro aprovado: C:\estrategia\infra\mt5-factory
+Antes: inexistente, sem link pendente observado. Ancestrais existentes
+C:\ e C:\estrategia conferidos sem ReparsePoint. Criados apenas infra e
+mt5-factory como diretórios novos, além da pasta privada de preparação.
+Depois: infra e mt5-factory são diretórios comuns, sem junction/symlink ou
+outro ReparsePoint; destino contém zero itens, inclusive ocultos.
+Nenhum programa instalado ali. Nenhum data_path artificial, origin.txt,
+MQL5, configuração, conta ou credencial criado para o terminal futuro.
+Não foram copiados arquivos de nenhuma instalação existente.
+
+4. Inventário de integridade antes/depois
+Método: leitura de disco, SHA256, CIM de processos, registro de desinstalação
+HKLM/HKCU nas visões usuais e WOW6432Node, origin.txt e atalhos via WScript.Shell
+CreateShortcut somente leitura, sem Save/Run/Exec. Sem Win32_Product.
+Inventários privados: before_system.json, before_hashes.json,
+after_system.json, after_hashes.json e comparison_private.json.
+
+Conjunto                                      Antes   Depois   Diferenças
+Binários/configurações/origin com SHA256          84       84          0
+Arquivos MQL5 protegidos com SHA256             3668     3668          0
+Arquivos protegidos do projeto com SHA256      1009     1009          0
+Atalhos MT5/MetaEditor, hashes e alvos             14       14          0
+Entradas de desinstalação relevantes               4        4          0
+Associações origin.txt                            8        8          0
+Raízes de instalação conhecidas                   8        8          0
+Diretórios imediatos MetaQuotes\Terminal          10       10          0
+Processos MT5/MetaEditor/MetaTester                 2        2          0
+
+Zero falhas de hash nos dois inventários. Os 84 arquivos incluem os oito
+terminal64.exe das instalações conhecidas. Uma varredura renovada de Program
+Files, LocalAppData, Desktop, Downloads e projeto encontrou cinco terminais;
+complementada pelos origin.txt e inventário anterior, confirmou oito raízes:
+Rico, dois MetaTrader genéricos, Infinox, POC, GeraSet, Uni e OptionsLab.
+Nenhuma dessas instalações foi alterada por esta tarefa.
+Três subpastas de produtos não MT5 em Program Files negaram acesso à varredura;
+erros preservados privadamente. Não contornadas permissões nem alteradas ACLs.
+Não é inventário exaustivo de todos os discos e usuários.
+
+O baseline 3.3I do projeto também foi confrontado: seus 1008 arquivos continuam
+com os mesmos hashes. A renovação inclui mais um relatório existente (3.3I).
+Os conjuntos se sobrepõem; os totais não devem ser somados.
+Processos observados: terminal64.exe e MetaEditor64.exe da Rico principal,
+com mesmos PID, início e caminho antes/depois. Nenhum processo iniciado,
+encerrado ou restaurado por esta tarefa. Nenhum processo dedicado surgiu.
+Não houve diferença nos conjuntos comparados que precisasse ser atribuída a
+aplicações em execução. Logs/caches fora desses conjuntos podem variar por
+atividade própria: não foram declarados imutáveis nem restaurados.
+O inventário de caches 3.3I não foi usado como prova de conteúdo atual.
+
+Alterações legítimas desta entrega: diretórios novos vazios, download privado,
+evidências privadas e documentação sanitizada. README e allowlist .gitignore
+foram atualizados após a comparação protegida; são as únicas edições previstas
+em arquivos rastreados anteriores. Não houve mudança em código, EAs/EX5,
+GeraSet, Uni, OptionsLab, POC, propostas de identidade ou sessão 3.3G.
+
+5. Testes offline e publicação
+470 testes unittest aprovados em Python -B, com MetaPathFinder que recusa
+qualquer import de MetaTrader5 e conferência de sys.modules antes/depois.
+Uma primeira execução do harness privado falhou por não incluir a raiz do
+projeto em sys.path; corrigido apenas o harness, sem editar código/testes.
+Execução completa posterior: Ran 470 tests; OK; MetaTrader5 ausente.
+Não iniciado/importado MetaTrader5, não usado MCP de terminal/MetaEditor,
+não autenticado usuário, não consultado histórico, não executado backtest,
+ordem, compilação, instalador ou terminal dedicado.
+Publicação limitada a este relatório, README e .gitignore. Binário, scripts
+locais, inventários, HTML e detalhes privados permanecem fora do Git.
+O SHA final remoto e o estado da árvore são confirmados na mensagem de entrega,
+evitando autorreferência do commit neste próprio relatório.
+
+6. Pendências, riscos e prontidão exata para H2
+H1 concluída tecnicamente: pacote oficial autenticado e destino vazio preparado.
+H2 permanece bloqueada por falta de nova autorização humana.
+Antes de H2: revalidar pacote, hash, assinatura, diretório vazio e inventário;
+confirmar com a corretora a compatibilidade do genérico com Rico-DEMO. Essa
+compatibilidade e a disponibilidade de demo/PETR4 não foram testadas ou aceitas.
+O fluxo exato do instalador não foi homologado. Abri-lo pode escrever
+temporários, acessar rede ou solicitar UAC antes da tela de instalação.
+A autorização futura precisa delimitar esses efeitos e a eventual dificuldade
+de impedir abertura automática ao concluir, conforme H2–H4 da fase 3.3I.
+H3 (instalar), H4/H5 (conclusão/verificação), H6 (primeira abertura manual),
+H7 (API) e aquisição histórica exigem seus próprios controles e autorizações.
+Identidade de EXE/build/data_path/processo/conta do futuro MT5 segue desconhecida.
+Nenhum perfil foi preenchido com valores inferidos; nenhum fallback foi ativado.
+
+ENCERRAMENTO OBRIGATÓRIO
+H1 encerrada. Aguardar autorização humana para H2. Não abrir o instalador,
+não instalar, não iniciar MT5, não conectar API e não avançar automaticamente.

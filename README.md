@@ -343,3 +343,12 @@ destino novo e vazio, com confirmações humanas separadas para instalar e inici
 Inventários privados preparados; **470 testes offline aprovados**.
 Nenhum instalador ou terminal foi iniciado. Consulte
 [FASE_33I_PREPARACAO_MT5_DEDICADO.txt](FASE_33I_PREPARACAO_MT5_DEDICADO.txt).
+
+### Fase 3.3J-H1 — instalador preparado, sem execução
+
+Instalador oficial MetaQuotes baixado em pasta privada, com SHA256 registrado,
+assinatura Authenticode válida e cadeia de certificados validada online.
+Destino futuro criado vazio: `C:\estrategia\infra\mt5-factory`.
+Integridade dos conjuntos protegidos preservada; **470 testes offline aprovados**.
+Compatibilidade com Rico-DEMO pendente. H2 aguarda nova autorização humana.
+Consulte [FASE_33J_H1_PREPARACAO_INSTALADOR.txt](FASE_33J_H1_PREPARACAO_INSTALADOR.txt).
