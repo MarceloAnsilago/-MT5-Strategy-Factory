@@ -1,0 +1,393 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5J-D
+Descoberta recebida; consulta workspace BLOQUEADA pela política
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Referência Git: d3f9d3e2708294669cd746a3750967447b88edd8.
+
+RESULTADO
+Catálogo completo de 23 ferramentas em uma página; MCP 2025-06-18.
+Exatamente 3 POSTs: initialize HTTP 200, notifications/initialized HTTP 202
+vazio, tools/list HTTP 200. Nenhum tools/call. Teto da tentativa: 6 POSTs.
+Parada: workspace_definition_diverges_from_prepared_policy.
+Transporte encerrado sem RPC extra; sessão descartada, sem retomada automática.
+Três POSTs restantes não autorizam repetição ou outra inicialização.
+
+1. Estado inicial e preparação
+Git local e remoto na referência, árvore limpa antes da execução. Relatórios
+H5J-B/H5J-C lidos integralmente; H5J-A/H5I-B consultados. Núcleo, adaptador e
+chamador atualizados inspecionados, sem alteração nesta fase.
+Baseline de 4797 registros comparado com final H5J-C: zero diferenças/erros.
+Factory inicialmente encerrada, clientes factory_metaeditor/factory_terminal
+enabled=false. Guardas H5F/H5I-B/H5J-B presentes e hashes preservados.
+Guarda H5J-D inexistente inicialmente. Sem cofre ou conexão MCP na preparação.
+81 testes simulados e 470 testes offline aprovados; guarda contra import
+MetaTrader5 ativa, pacote ausente antes/depois. Nenhuma conexão nos testes.
+Autorização humana explícita recebida após apresentação da preparação:
+abertura exclusiva e descoberta, teto 6, sem tools/call nesta autorização.
+
+2. Identidade do processo e listeners
+Aberto uma única vez C:\estrategia\infra\mt5-factory\MetaEditor64.exe.
+PID 12672; criação UTC 2026-11-25T21:42:33.4800530Z (18:42:33 em São Paulo).
+Janela identificada pelo caminho, sem documento/diálogo inesperado observado.
+Build dedicado 6328 preservado; assinatura Valid e hash igual ao baseline.
+127.0.0.1:22355 associado ao PID 12672; Terminal Factory ausente.
+Rico MetaEditor PID 19712, C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe,
+criação UTC 2026-11-25T19:31:40.9853200Z; listener 127.0.0.1:22345.
+Rico Terminal PID 26240, C:\Program Files\Rico - MetaTrader 5\terminal64.exe,
+criação UTC 2026-11-25T19:31:34.2542130Z; listener 127.0.0.1:22346.
+Núcleo validou PID/caminho/início/listeners antes de cada POST.
+Nenhuma interação/conexão Rico ou uso de atalhos públicos.
+
+3. Autenticação, protocolo, guarda e orçamento
+Helper H5I-B recuperou exclusivamente credencial Factory por pipe privado.
+Nenhuma credencial INI usada, importada, regenerada ou modificada. Nenhum token,
+Authorization, identificador de sessão, cursor ou corpo bruto publicado.
+Initialize solicitou e negociou 2025-06-18; JSON-RPC e serverInfo válidos,
+capability tools anunciada. Sessão recebida, mantida somente em memória e
+reenviada com cabeçalho de versão após initialize. Nenhuma segunda inicialização.
+Guarda criada exclusivamente antes de carregar credencial/primeiro envio:
+runs/phase33j_h5j_d_20261125/H5JD_attempt_consumed.flag.
+Guarda permanece consumida; não removida ou reutilizada. Sem retry, redirect,
+proxy de ambiente, fallback, GET/DELETE ou reconexão. Clientes não ativados.
+Consumo exato: initialize 1; notifications/initialized 1; tools/list 1;
+tools/call 0; TOTAL 3/6. Catálogo completo, sem cursor de continuação.
+Wrapper privado de apresentação acrescentou somente nomes/classificações ao
+console, delegando decisões ao classificador original. Não alterou políticas,
+transporte, autenticação, núcleo/adaptador/chamador protegidos.
+
+4. Catálogo e classificações efetivas
+Informação autorizável: 0; consulta arquivos: 1; modificação: 7;
+compilação: 1; execução/testes: 0; desconhecidas: 14.
+Classificação lexical conservadora, não auditoria semântica de comportamento.
+Por exemplo, list_open_documents caiu em modificação por palavras da descrição.
+Unknown não significa seguro. Nenhuma categoria autoriza execução.
+Descrições/annotations foram dados; nenhuma instrução recebida foi seguida.
+get_workspace_info: unknown
+get_time_information: unknown
+list_directory: file_query
+find_files_by_glob: unknown
+find_files_by_name_keyword: unknown
+read_file: unknown
+read_binary_file: unknown
+read_file_by_lines: unknown
+create_new_folder: file_modification
+create_new_file: file_modification
+write_file: file_modification
+write_binary_file: file_modification
+delete_file: file_modification
+replace_text_in_file: unknown
+search_text: unknown
+search_regex: unknown
+send_web_request: unknown
+compile_file: compilation
+build_project: unknown
+syntax_check: unknown
+format_source_code: file_modification
+open_file_in_editor: unknown
+list_open_documents: file_modification
+
+5. Candidata encontrada, esquemas e causa da parada
+get_workspace_info existe, mas não passou pela política preparada.
+Descrição real: Return workspace metadata, configured folders, compiler
+availability, permissions and community account.
+InputSchema permite objeto vazio sem propriedades extras. OutputSchema inclui
+descriptions fora do subconjunto suportado e estrutura aninhada ampla.
+A descrição difere da expressão documental estrita e inclui community account.
+community_login é NOME DE CAMPO do schema, não login real recuperado.
+Nenhum valor de conta ou workspace foi consultado.
+Validador de identidade preparado espera campos de caminho de primeiro nível;
+schema real anuncia workspace.mql5_folder e outros campos aninhados.
+Não há base para aprovar leitura com o verificador atual. Não ampliada a política
+nem removida validação para contornar a parada. ReadOnlyHint/nome não bastam.
+Aprovação humana para tools/call: NÃO solicitada/recebida nesta tentativa.
+Consulta workspace: NÃO EXECUTADA. Workspace permanece não homologado.
+Definição sanitizada recebida, contendo schema sem valores de resultado:
+{
+  "name": "get_workspace_info",
+  "description": "Return workspace metadata, configured folders, compiler availability, permissions and community account.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Workspace metadata returned by get_workspace_info.",
+    "properties": {
+      "schema_version": {
+        "type": "string",
+        "description": "Version of this tool result schema."
+      },
+      "workspace": {
+        "type": "object",
+        "description": "Workspace folders and text conventions.",
+        "properties": {
+          "mql5_folder": {
+            "type": "string",
+            "description": "Main MQL5 sources folder."
+          },
+          "include_folder": {
+            "type": "string",
+            "description": "Main MQL5 include/search folder used to resolve source and include files."
+          },
+          "current_folder": {
+            "type": "string",
+            "description": "Current workspace folder for relative paths and default file operations."
+          },
+          "shared_projects_folder": {
+            "type": "string",
+            "description": "MetaEditor Shared Projects folder connected to Algo Forge storage."
+          },
+          "temp_folder": {
+            "type": "string",
+            "description": "Temporary files folder."
+          },
+          "backup_folder": {
+            "type": "string",
+            "description": "Backup files folder."
+          },
+          "common_folder": {
+            "type": "string",
+            "description": "Common data folder shared by MetaTrader 5 installations."
+          }
+        },
+        "additionalProperties": false
+      },
+      "permissions": {
+        "type": "object",
+        "description": "Filesystem permissions exposed by MCP tools.",
+        "properties": {
+          "read_roots": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Directories that MCP tools are allowed to read."
+          },
+          "write_roots": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Directories that MCP tools are allowed to modify or create files in."
+          },
+          "execute_roots": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Directories that MCP tools are allowed to execute files in."
+          },
+          "can_create_files": {
+            "type": "boolean",
+            "description": "Whether file creation tools may create new files under write_roots."
+          },
+          "can_modify_files": {
+            "type": "boolean",
+            "description": "Whether write and patch tools may modify existing files under write_roots."
+          },
+          "can_delete_files": {
+            "type": "boolean",
+            "description": "Whether tools may delete files."
+          }
+        },
+        "additionalProperties": false
+      },
+      "compiler": {
+        "type": "object",
+        "description": "Configured compiler and helper toolchain availability.",
+        "properties": {
+          "compiler_mql5": {
+            "type": "boolean",
+            "description": "Whether the native MQL5 compiler is available."
+          },
+          "compiler_mql5_build": {
+            "type": "integer",
+            "description": "MetaEditor/MQL5 compiler build number."
+          },
+          "compiler_mql5_target": {
+            "type": "string",
+            "description": "Default MQL5 compiler target architecture or instruction set."
+          },
+          "compiler_python": {
+            "type": "boolean",
+            "description": "Whether a Python runtime is configured for helper scripts or analysis tools."
+          },
+          "compiler_python_folder": {
+            "type": "string",
+            "description": "Folder that contains the configured Python runtime, when compiler_python is true."
+          },
+          "compiler_visual_studio": {
+            "type": "boolean",
+            "description": "Whether Microsoft Visual C++ tools are configured for native helper builds."
+          },
+          "compiler_visual_studio_folder": {
+            "type": "string",
+            "description": "Folder that contains the configured Visual Studio toolchain, when compiler_visual_studio is true."
+          },
+          "compiler_visual_studio_msbuild": {
+            "type": "string",
+            "description": "Configured MSBuild executable path, when available."
+          },
+          "compiler_windows_sdk_folder": {
+            "type": "string",
+            "description": "Windows SDK folder paired with the configured MSVC toolchain."
+          }
+        },
+        "additionalProperties": false
+      },
+      "community": {
+        "type": "object",
+        "description": "MQL5.community metadata.",
+        "properties": {
+          "community_website": {
+            "type": "string",
+            "description": "MQL5.community website."
+          },
+          "community_login": {
+            "type": "string",
+            "description": "MQL5.community login of active user, if available."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ide": {
+        "type": "object",
+        "description": "MetaEditor user interface and editor settings.",
+        "properties": {
+          "gui_language": {
+            "type": "string",
+            "description": "Current MetaEditor user interface language."
+          },
+          "dark_theme": {
+            "type": "boolean",
+            "description": "Whether the dark user interface theme is active."
+          },
+          "default_encoding": {
+            "type": "string",
+            "description": "Default encoding used for generated text files."
+          },
+          "path_separator": {
+            "type": "string",
+            "description": "Native filesystem path separator."
+          },
+          "newline": {
+            "type": "string",
+            "description": "Preferred newline sequence."
+          },
+          "tab_size": {
+            "type": "integer",
+            "description": "Configured editor tab size."
+          },
+          "insert_spaces": {
+            "type": "boolean",
+            "description": "Whether the editor inserts spaces."
+          },
+          "spaces_per_indentation": {
+            "type": "integer",
+            "description": "Configured indentation width."
+          },
+          "convert_tabs_to_spaces": {
+            "type": "boolean",
+            "description": "Whether tabs are converted to spaces."
+          },
+          "code_style": {
+            "type": "string",
+            "description": "Configured source code style."
+          }
+        },
+        "additionalProperties": false
+      },
+      "capabilities": {
+        "type": "object",
+        "description": "Available MCP server capabilities.",
+        "properties": {
+          "can_compile_file": {
+            "type": "boolean",
+            "description": "Whether compile_file can compile one MQL5 source file."
+          },
+          "can_compile_project": {
+            "type": "boolean",
+            "description": "Whether compile_project can compile an existing MetaEditor project."
+          },
+          "can_run_backtest": {
+            "type": "boolean",
+            "description": "Whether strategy tester tools can run backtests in this environment."
+          },
+          "can_read_terminal_journal": {
+            "type": "boolean",
+            "description": "Whether terminal journal logs can be read through MCP tools."
+          },
+          "can_read_expert_journal": {
+            "type": "boolean",
+            "description": "Whether expert journal logs can be read through MCP tools."
+          }
+        },
+        "additionalProperties": false
+      },
+      "limits": {
+        "type": "object",
+        "description": "Default operational limits for MCP tools.",
+        "properties": {
+          "max_read_file_bytes": {
+            "type": "integer",
+            "description": "Default maximum bytes returned by read_file in one call."
+          },
+          "max_search_results": {
+            "type": "integer",
+            "description": "Default maximum number of results returned by search tools."
+          },
+          "max_directory_tree_depth": {
+            "type": "integer",
+            "description": "Default maximum traversal depth for list_directory_tree."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "schema_version",
+      "workspace",
+      "permissions",
+      "compiler",
+      "community",
+      "ide",
+      "capabilities",
+      "limits"
+    ],
+    "additionalProperties": false
+  }
+}
+
+6. Encerramento e integridade final
+Usuário confirmou fechamento normal do MetaEditor Factory. Captura CIM final:
+MetaEditor/Terminal Factory ausentes. Rico mantém exatamente PID, caminho,
+horário de início e listeners do baseline. Portas Factory 22355/22356 sem listener.
+Nenhum processo encerrado à força ou aplicativo reaberto.
+4797 registros conferidos: zero erros. Duas diferenças, na área Factory:
+config/dnsperf.dat e logs/metaeditor.log. São arquivos de estado/log; sem
+rastreamento individual de escrita para atribuir cada mudança internamente.
+Demais hashes iguais: configurações Rico, INIs MCP Factory/Rico, Codex
+global/projeto, helpers, núcleo/adaptador/chamador, executáveis/MQL5,
+resultados/bloqueios históricos 3.3G, atalhos e guardas históricas.
+Clientes factory_metaeditor/factory_terminal continuam enabled=false.
+Guarda H5J-D consumida presente, preservada sem remoção/reutilização;
+hash final registrado privadamente para futuras comparações.
+81 testes simulados e 470 testes offline aprovados na preparação desta fase.
+Sem mudança posterior de código que justificasse repetição dos testes.
+Nenhuma conexão MCP adicional no encerramento, nenhum tools/call, compilação,
+consulta histórica, backtest ou operação financeira nesta fase.
+
+7. Pendências, limites e publicação
+Recomenda-se revisão OFFLINE explicitamente autorizada da descrição/schema
+reais, privacidade do campo Community e validação de identidade em workspace
+aninhado, com testes fictícios antes de nova fase real. Não continuar esta
+sessão encerrada, não reutilizar guarda. Nova tentativa real exige autorização
+e controle de guarda próprios. Sem avanço automático para H5K/H6/H7.
+Não ativar clientes, abrir Terminal, alterar Rico ou executar operações MQL5,
+histórico, backtest ou mercado. Inventários parciais/não atômicos, não
+monitoramento completo do host. Sem promessa de zeragem física de memória.
+Publicação somente deste relatório sanitizado, README e allowlist .gitignore.
+Código, inventários e evidências privados permanecem ignorados pelo Git.
+Commit/push documental, SHA remoto e árvore limpa conferidos na entrega.
+PARADA OBRIGATÓRIA: aguardar nova autorização humana.

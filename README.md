@@ -519,3 +519,13 @@ validação da versão negociada, headers, sessão e saída estruturada limitada
 cofre ou mudança de clientes. Guarda futura H5J-D preparada sem consumo;
 guardas anteriores, Rico e arquivos protegidos não envolvidos preservados.
 Consulte [FASE_33J_H5J_C_COMPATIBILIDADE_MCP_2025_06_18.txt](FASE_33J_H5J_C_COMPATIBILIDADE_MCP_2025_06_18.txt).
+### Fase 3.3J-H5J-D — catálogo recebido, workspace bloqueado
+
+Descoberta real de **23 ferramentas em uma página**, MCP `2025-06-18`, com
+**3 POSTs** (200/202/200) e nenhum `tools/call`. A definição real de
+`get_workspace_info` diverge da política preparada, incluindo esquema aninhado
+e metadados Community; tentativa encerrada sem relaxar validações ou repetir.
+Factory fechada, Rico preservada, clientes desativados e guarda consumida mantida.
+**81 testes simulados e 470 testes offline aprovados**. Revisão offline futura
+exige nova autorização; workspace não homologado.
+Consulte [FASE_33J_H5J_D_DESCOBERTA_MCP.txt](FASE_33J_H5J_D_DESCOBERTA_MCP.txt).
