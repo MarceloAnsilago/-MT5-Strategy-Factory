@@ -1,0 +1,158 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5E
+Homologação MCP supervisionada — RESULTADO PARCIAL / TESTES INTERROMPIDOS
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base Git: f82efc4552d1bd4e17350da4bdc18841e3b0c837.
+
+RESULTADO
+Chave MCP do MetaEditor Factory regenerada e salva pelo humano, mudança
+confirmada sem exposição de valores. Chave Terminal Factory preservada.
+Quatro listeners identificados corretamente por PID/caminho/início.
+Clientes Factory preparados no Codex, mas DESATIVADOS ao final: primeira
+requisição de inicialização MCP do MetaEditor recebeu erro HTTP.
+Nenhuma repetição, correção automática de autenticação ou teste Terminal.
+Nenhuma ferramenta de workspace efetivamente executada; homologação NÃO aprovada.
+Aplicativos dedicados fechados normalmente pelo humano; Rico preservada.
+
+1. Estado inicial e preparação
+Git limpo na base informada, fetch executado; nenhum commit posterior nas
+referências consultadas antes da publicação desta fase.
+H4/H5A/H5B/H5C/H5D e retomada H5C recuperados no contexto desta sequência.
+Baseline H5E: 4781 registros / 4780 caminhos únicos, sem diferenças em relação
+ao final H5D e sem falhas de leitura. Inventários privados em
+runs/phase33j_h5e_20261125; não publicados.
+Factory terminal/editor inicialmente fechados. Rico terminal PID 26240 e
+MetaEditor PID 19712 ativos, identificados por caminho absoluto.
+Executáveis dedicados com assinatura Valid, MetaQuotes Ltd., build 6328:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe
+SHA256 2FAFC20ED04CCF537FB4FDE6952D055C82E08DAE72D7FCF32822650A7CA8861C
+C:\estrategia\infra\mt5-factory\terminal64.exe
+SHA256 AD4BB889A848105BF03399F6A7A1022D9324B44BC797AC0459CF647738266318
+Portas 22355/22356 sem listeners na preparação, fora das exclusões TCP
+IPv4/IPv6 consultadas (27339 e 50000–50059). Não reservadas por teste de bind.
+
+2. Configuração e regeneração humana
+Associação de dados confirmada por origin.txt exclusivo da instalação Factory.
+Arquivo específico somente lido pelo agente:
+C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671\Config\assistant.ini
+Endpoints iniciais e finais Factory: MetaEditor http://127.0.0.1:22355/mcp;
+Terminal http://127.0.0.1:22356/mcp.
+INI antes SHA256:
+44BE37A6E50A93067D5050679DD324AF2B73A75B467B4AABE99CAD09BEA83818
+INI final SHA256:
+BD62B7F7F55D1F379435D625EC11C1A087404A834038AAF1C168AF946F4375D5
+
+Aberto somente MetaEditor pelo EXE absoluto: PID 30956, janela identificada
+pelo caminho do processo e handle 135338. Usuário abriu Opções/MCP.
+A interface enviada mostrou servidor interno em 22355 e botão Gerar associado
+à sua chave; não foi reproduzida/publicada a captura com o valor sensível.
+Orientado a clicar somente Gerar e aguardar antes de OK; informou "chave gerada".
+Só então recebeu orientação explícita para salvar; confirmou "salvo".
+O agente não clicou em Gerar ou OK, não copiou a chave para Rico ou mensagens.
+Comparação segura com baseline comprovou mudança de MCP.MetaEditor/ApiKey e
+preservação de MCP.MetaTrader/ApiKey. Apenas nomes de campos e booleanos
+registrados; valores secretos não registrados nos novos logs/evidências.
+Comparação de todas as chaves com backup H5B: diferenças somente nos dois
+Endpoints históricos H5C/H5D e na ApiKey MetaEditor desta H5E; demais iguais.
+
+3. Abertura Terminal, assistente e autorização adicional
+Antes de abrir: versão/hash Terminal conferidos; histórico conhecido de
+assistente de conta e recompilação na primeira instalação foi registrado.
+Terminal aberto uma vez pelo caminho absoluto, sem instância duplicada.
+PID 2840, janela identificada por caminho e handle 70144.
+Reapareceu Abrir uma Conta. Novas ações interrompidas; nenhuma empresa,
+servidor ou credencial selecionados/preenchidos pelo agente.
+Perguntado se autorizava cancelar somente o assistente e continuar preparação;
+usuário respondeu "sim, autorizado".
+Tentativa por elemento recebeu erro de geometria; após atualização, clique
+não dispensou visivelmente o diálogo. Escape o cancelou, confirmado pela
+ausência do diálogo na árvore de interface. Não acionado Avançar.
+
+4. Identidade dos listeners antes de qualquer conexão
+Correlacionados sockets locais, CIM, EXEs e CreationDate, guardados privadamente:
+127.0.0.1:22355 -> PID 30956, MetaEditor Factory no caminho dedicado.
+127.0.0.1:22356 -> PID 2840, terminal Factory no caminho dedicado.
+127.0.0.1:22345 -> PID 19712,
+C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+127.0.0.1:22346 -> PID 26240,
+C:\Program Files\Rico - MetaTrader 5\terminal64.exe.
+Mesmos listeners reconferidos antes da ativação temporária dos clientes.
+Nenhuma conexão feita aos endpoints Rico pelo agente nesta H5E.
+
+5. Clientes Codex e proteção de credenciais
+Codex CLI 0.170.0; mecanismo http_headers_helper documentado oficialmente e
+reconhecido por codex mcp get --json, que omite seu conteúdo na exibição.
+Preparados no .codex/config.toml local, ignorado/não versionado:
+factory_metaeditor -> http://127.0.0.1:22355/mcp
+factory_terminal -> http://127.0.0.1:22356/mcp
+Allowlist de ferramentas em ambos: somente get_workspace_info.
+Cliente helper local, sem chave embutida, em runs/.../factory_headers.py:
+lê apenas a configuração da Factory, valida origin/endpoint e entrega cabeçalho
+por pipe em memória ao consumidor. Não foi executado com saída visível em log.
+Nenhuma chave inserida em TOML, variável persistente, relatório ou arquivo Git.
+ACL do INI existente consultada sem alteração: usuário, SYSTEM, Administradores
+e grupo CodexSandboxUsers com leitura. Não adicionada permissão de acesso.
+Não se trata de migração para cofre nem garantia contra processos já autorizados
+a ler o INI original. Autenticação desse mecanismo NÃO validada com sucesso.
+Definições Rico preservadas por comparação estruturada antes/depois; cliente
+global Codex não editado. Backup anterior privado preservado.
+Clientes foram preparados desativados, reconhecidos pelo CLI, ativados após
+conferir listeners, e DESATIVADOS após a falha para impedir novas tentativas.
+Nenhum token Rico reutilizado. Endpoints/credenciais servidores não corrigidos.
+
+6. Sondagem efetivamente executada e limite do resultado
+As ferramentas nativas disponíveis nesta sessão pertenciam ao namespace Rico.
+Não foram usadas como se fossem Factory. Para sondagem limitada foi usado um
+cliente local de protocolo MCP com as definições Factory preparadas no TOML,
+mesmo helper, URL fixa loopback, proxy desativado e redirecionamentos recusados.
+Não foi iniciado outro agente Codex ou religada uma sessão para carregar tools.
+Única requisição MCP: initialize para factory_metaeditor/22355, com timeout 20s.
+Resultado: HTTPError; o código/status e corpo HTTP não foram capturados no
+tratamento sanitizado. Não inferir 401/403 nem atribuir causa à credencial,
+formato, servidor ou protocolo sem diagnóstico adicional autorizado.
+A execução parou nessa primeira resposta: notifications/initialized, tools/list
+e tools/call/get_workspace_info NÃO executados. Terminal NÃO sondado.
+Não repetida requisição, não alterado protocolo/token para tentar corrigir.
+O script continha etapas posteriores condicionais, mas elas não foram alcançadas.
+Identidade de processos/listeners comprovada localmente; identidade por resposta
+de workspace, autenticação e integração operacional Codex permanecem pendentes.
+
+7. Encerramento, integridade e testes
+Solicitado fechamento normal somente dos aplicativos dedicados; humano confirmou
+"feito". CIM final: Factory terminal/editor ausentes; Rico mantém PID, EXE e
+CreationDate do baseline. Não realizado kill, reinício ou reabertura.
+Listeners finais relevantes somente Rico 22345/22346; 22355/22356 ausentes.
+Persistência final Factory em 22355/22356 e INI no hash pós-regeneração confirmado.
+Rico assistant.ini inalterado, endpoints 22345/22346 e SHA256:
+5584733CFCA66282E9746CB2D7564213FE3C54867867CEE31687F5C9D59AD5E3.
+Comparação final 4781 registros: zero erros; seis arquivos únicos mudaram:
+Factory Config/assistant.ini, dnsperf.dat, terminal.ini, settings.ini,
+logs/metaeditor.log, e cliente local C:\estrategia\.codex\config.toml.
+Duplicidade Config/config no baseline corresponde ao mesmo INI físico.
+Mudanças de estado/log observadas, sem rastreamento individual de escrita.
+Novo logs/20261125.log dedicado: resumo sem linhas Compiler/LiveUpdate e com
+três registros de encerramento; não integrava o baseline anterior de arquivos.
+Demais hashes protegidos preservados: EXEs, MQL5 anterior, arquivos/resultados/
+bloqueios históricos 3.3G, Rico, cliente global e atalhos públicos/exclusivos.
+470 testes offline aprovados em Python -B; guarda recusando import MetaTrader5,
+pacote ausente antes/depois. Código/testes do produto não alterados.
+Não solicitados compilação, histórico, Tester, autenticação de conta ou ordens.
+Capturas/inventário parciais e não atômicos; não são monitoramento completo de
+todos os processos, arquivos ou tráfego do host. Configurações antigas não
+restauradas para ocultar alterações legítimas ou pendências anteriores.
+
+8. Publicação, pendências e PARADA OBRIGATÓRIA
+Publicar somente este relatório, README e allowlist .gitignore. Helper,
+sondagem, configurações e inventários privados permanecem ignorados no Git.
+Commit/push, SHA remoto e árvore limpa conferidos na entrega.
+Regeneração concluída; homologação interrompida na inicialização HTTP.
+Clientes Factory preparados, DESATIVADOS. Não declarar conexão MCP aprovada.
+Próxima etapa exige autorização específica para diagnosticar o erro HTTP e
+revalidar autenticação/protocolo antes de repetir qualquer conexão.
+Não reabrir aplicações, ativar clientes, avançar H5F/H6/H7, configurar contas
+ou executar mercado automaticamente. Aguardar orientação humana.
+
+Fontes oficiais consultadas nesta sequência:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+https://www.metatrader5.com/en/terminal/help/mcp_and_ai/capabilities
+https://learn.chatgpt.com/docs/extend/mcp
+https://learn.chatgpt.com/docs/config-file/config-reference
