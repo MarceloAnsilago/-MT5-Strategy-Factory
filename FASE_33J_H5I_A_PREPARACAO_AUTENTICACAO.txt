@@ -1,0 +1,205 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5I-A
+Preparação OFFLINE de autenticação MCP — PROTÓTIPO VALIDADO COM DADOS FICTÍCIOS
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 394b18755f9101b1b0057ed0778a1c22e0babba7.
+
+RESULTADO
+Protótipo privado separado do helper H5E: Gerenciador de Credenciais Windows,
+credencial genérica de sessão e helper que recupera o valor no momento do uso.
+32 verificações fictícias aprovadas, incluindo operações reais de armazenamento,
+recuperação por outro processo, substituição e remoção das entradas de teste.
+470 testes offline do produto aprovados. Nenhum token real usado no protótipo,
+nenhum aplicativo aberto, nenhum cliente/configuração existente modificado.
+Não foi testada aceitação MCP, integração de conexão Codex ou credencial oficial.
+
+1. Estado inicial e evidências
+Git inicialmente limpo, HEAD na referência informada; fetch executado e nenhum
+commit posterior nas referências consultadas antes desta publicação.
+Relatórios H5E/H5F/H5G/H5H recuperados e lidos nesta sequência; helper H5E,
+cliente H5F e comparador H5H inspecionados. H5H confirmou DIFERENTES entre
+credencial oficial e campo persistido usado pelo helper. H5F registrou 401.
+Esses fatos não comprovam que usar a credencial oficial resolverá toda a conexão.
+Factory terminal/editor encerrados antes/depois; clientes Factory desativados.
+Rico ativa, preservada por PID, caminho absoluto e CreationDate:
+PID 26240: C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+PID 19712: C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Baseline de 4784 registros / 4783 caminhos únicos, sem diferenças versus H5H.
+Configurações existentes incluídas por hash de arquivo, sem uso de suas chaves
+como entradas de teste. Não lido clipboard nem obtido token real nesta fase.
+
+2. Alternativas avaliadas
+A. Gerenciador de Credenciais Windows, CRED_TYPE_GENERIC — ESCOLHIDO.
+APIs oficiais CredWriteW/CredReadW/CredDeleteW, conjunto de credenciais do
+usuário/logon; não exige arquivo com segredo no projeto nem elevação.
+Permite alvo nomeado específico e substituição/remoção por esse alvo, sem
+enumerar outras credenciais. Apropriado para helper de execução local.
+
+B. DPAPI por usuário, com arquivo cifrado fora do repositório — VIÁVEL.
+CryptProtectData/CryptUnprotectData protegem dados vinculados ao usuário e
+normalmente ao computador. Exigiria gerenciar arquivo, ACL, atualização atômica,
+backups e remoção. Não implementado nesta fase, para evitar dois mecanismos.
+Não usar a opção DPAPI CRYPTPROTECT_LOCAL_MACHINE, que amplia o escopo a
+outros usuários da máquina, como substituto da proteção por usuário.
+
+C. Credencial somente em memória/entrada manual a cada conexão — VIÁVEL COM LIMITES.
+Reduz persistência, mas exige intervenção para cada execução e integração com
+processos filhos. Clipboard pode ser entrada transitória sob supervisão, nunca
+armazenamento permanente. Não foi acessado nem usado pelo protótipo H5I-A.
+
+D. Token em TOML, arquivo texto do projeto, argumento ou variável persistente —
+não recomendado para esta solução. Segredo poderia atingir logs, histórico,
+Git ou processos. Não utilizado. O helper carrega segredo do armazenamento
+Windows apenas durante a execução e o entrega por pipe ao cliente autorizado.
+
+3. Escopo e arquitetura do protótipo
+Arquivos privados, não versionados:
+runs/phase33j_h5i_a_20261125/credential_prototype.py
+runs/phase33j_h5i_a_20261125/test_credential_prototype.py
+Evidências sanitizadas de testes/baselines na mesma pasta, ignorada pelo Git.
+Não substituem runs/phase33j_h5e_20261125/factory_headers.py.
+
+SessionVault usa somente alvo de teste com prefixo MT5StrategyFactory/H5IA-Fictitious,
+UUID gerado por execução e sufixo exclusivo FactoryMetaEditor/22355.
+Não aceita nome arbitrário de credencial ou nome Rico. Não enumera o cofre.
+Entradas fictícias criadas após verificação de ausência no namespace novo.
+Tipo GENERIC, persistência CRED_PERSIST_SESSION: escopo da sessão de logon,
+sem persistir após novo logon. Remoção explícita em finally, confirmada por
+nova leitura sem entrada ao final. Não criadas credenciais reais/produtivas.
+
+Blob definido pelo aplicativo contém schema, marca fictícia, identidade Factory
+(cliente, EXE, área de dados e endpoint) e token fictício. Gerido pelo Windows;
+nenhum blob de segredo escrito pelo protótipo em arquivo do projeto.
+Valores de teste gerados somente em memória; não presentes como tokens fixos
+em arquivos de fixture ou argumentos. TOML temporário de teste contém apenas
+URL e enabled=false, sem credencial, e é removido ao final.
+
+Leitura exige identidade do envelope e configuração factory_metaeditor em
+http://127.0.0.1:22355/mcp. Recusa Rico/endpoint divergente antes de ler o cofre
+e recusa fonte explícita de autenticação concorrente no config de teste.
+Identidades configuradas no protótipo:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe;
+área AEF1E6F57078EAB3775179FCBD94D671 do usuário local.
+Isso valida metadados estáticos, não PID/listener ou processo servidor em runtime.
+Origem real e listener deverão ser reconferidos na H5I-B autorizada.
+
+Token validado sem normalização: não vazio, limite local explícito, caracteres
+compatíveis com b64token do RFC 6750; rejeita espaço, CR/LF, aspas, caracteres
+invisíveis/Unicode incompatível ou prefixo Bearer já embutido. Não tenta corrigir
+entradas inválidas. O limite local do protótipo não é especificação MetaQuotes.
+Monta um único esquema Bearer e objeto JSON de cabeçalhos no contrato do Codex.
+Comando headers aceita apenas UUID e caminho do TOML não secreto em argumentos.
+Não há argumento de token nem função CLI para cadastrar credencial real.
+Modo headers exige stdout do tipo pipe; recusa terminal ou arquivo em disco
+antes de recuperar o segredo. Erros têm mensagem genérica, sem valor/traceback.
+O JSON de autenticação é saída de protocolo somente para pipe privado, nunca
+saída de diagnóstico. O consumidor pode ler o segredo; não se deve logar o pipe.
+
+4. Testes fictícios executados — 32 aprovados
+Validados: credencial inexistente; alvo Rico/arbitrário rejeitado; roundtrip real
+no Windows; prefixo único; preservação exata de caracteres e caixa; formato JSON;
+recusa de envelope com EXE/dados diferentes; isolamento entre dois namespaces;
+rejeição de token vazio, espaço, newline, prefixo duplicado, Unicode invisível,
+aspas e tamanho excedido; preservação da entrada após substituição inválida;
+recusa de endpoint/nome Rico antes de consultar cofre; rejeição de autenticação
+concorrente; erro contendo valor fictício sanitizado; rotação para novo valor;
+ausência de segredo nos argumentos; recuperação por processo filho com stdout
+capturado somente em pipe; bloqueio de stdout direcionado a arquivo vazio;
+remoção/revogação local e falha segura posterior inclusive em processo filho;
+ausência de saída incidental e confirmação de remoção das duas entradas.
+Nenhum valor de token, mesmo fictício, foi impresso nos resultados publicados.
+Testes usaram APIs Windows de fato, sob usuário atual, sem privilégio elevado.
+Sem HTTP/MCP, socket/servidor de teste ou execução MetaTrader. Chamadas socket
+do processo de teste bloqueadas; helper não contém implementação de rede.
+Não foram testados logon diferente, reinício do Windows ou acesso por outro SID.
+
+5. Segurança, rotação e limites
+Escolha do Windows protege o armazenamento sob seu modelo de usuário/logon;
+não isola contra malware, administrador ou outro processo autorizado do mesmo
+usuário. Prefixo/UUID e envelope separam aplicações logicamente, não são ACL
+por processo. Não consultar nem copiar credenciais Rico continua obrigatório.
+Parte dos buffers nativos é zerada antes de liberação; strings/bytes Python
+não permitem garantir apagamento físico de todas as cópias de memória.
+Segredo necessariamente fica legível em memória no helper e no cliente.
+Código/helper/config precisam permanecer íntegros; a pasta runs é de evidência,
+não foi aprovada como local de implantação permanente ou política de produção.
+
+Substituição fictícia mostrou recuperação do novo valor no mesmo alvo.
+CredDelete mostrou falha segura quando a entrada deixa de existir. Remover
+do cofre NÃO revoga a chave no servidor nem purga cache de conexão existente.
+Revogação efetiva exige procedimento oficial próprio e autorização humana.
+O protótipo não aceita namespace de produção nem realiza provisionamento real.
+
+6. Compatibilidade Codex e limite de requisições
+Documentação oficial confirma http_headers_helper para conexões HTTP locais:
+comando local devolve JSON de nomes/valores de cabeçalhos. O formato foi validado
+por processo filho, não por ativação ou conexão do Codex nesta H5I-A.
+Nenhuma alteração em .codex/config.toml ou no cliente global.
+Codex pode manter cabeçalhos em cache e, após 401/403 de mesma origem, chamar
+o helper novamente e repetir se houver mudança de cabeçalhos. Fontes explícitas
+de Bearer/OAuth podem ter precedência. Não assumir que ativar um servidor Codex
+produz somente initialize: pode haver outras etapas automáticas de descoberta.
+Para uma autorização futura de UM POST, usar verificador limitado auditado,
+sem retries/notifications/tools, mantendo cliente desativado durante a sondagem.
+Uso operacional Codex e descoberta de ferramentas exigem escopo próprio.
+
+7. Integridade e testes do produto
+470 testes offline aprovados em Python -B; guarda recusando import MetaTrader5,
+pacote ausente antes/depois. Nenhum código/teste versionado do produto alterado.
+Comparação final do conjunto protegido: 4784 registros / 4783 caminhos únicos,
+zero diferenças e zero erros em relação ao início. Rico e seus processos,
+configurações MCP/cliente, EXEs, MQL5, resultados/bloqueios 3.3G e atalhos
+preservados. Nenhuma credencial existente enumerada, substituída ou removida.
+Somente entradas fictícias exclusivas do teste foram criadas/rotacionadas/removidas.
+Factory continua fechada e clientes desativados. Inventário parcial e não
+atômico, sem alegação de monitoramento completo de todas as atividades do host.
+
+8. Procedimento proposto para H5I-B — NÃO EXECUTADO
+1) Obter autorização específica para uso da credencial real, armazenamento,
+   mudança de helper/cliente e eventual requisição única; revisar código final
+   de produção. Escolher alvo estável exclusivo Factory, separado do namespace
+   fictício, com política de persistência explícita.
+2) Para persistência entre logons no mesmo computador, avaliar
+   CRED_PERSIST_LOCAL_MACHINE do Credential Manager para o MESMO USUÁRIO,
+   sem roaming. Não confundir esse nome com a flag DPAPI de escopo de máquina.
+   Não utilizar PERSIST_ENTERPRISE por padrão. A opção persistente não foi
+   exercitada nos testes de sessão desta fase.
+3) Confirmar integridade, Factory fechada, Rico preservada e cliente desativado.
+   Abrir exclusivamente o MetaEditor Factory pelo EXE absoluto; identificar
+   PID/caminho e área de dados. Parar diante de atividade inesperada.
+4) Na interface oficial MCP, conferir 22355 sem gerar/salvar mudanças; verificar
+   conteúdo de Copiar pela documentação e interface. Revalidar clipboard sem
+   histórico/sincronização, ou parar para alternativa aprovada, sem alterar
+   configurações de segurança automaticamente.
+5) Obter Copiar sob supervisão, selecionar somente entrada Factory/22355 e
+   armazenar via API no alvo protegido aprovado, sem argumento, arquivo texto,
+   log ou chat. Limpar somente esse conteúdo transitório do clipboard.
+   Não usar o ApiKey do INI como substituto. Não alterar a chave do servidor.
+6) Preparar mudança revisável somente de factory_metaeditor para o novo helper;
+   preservar integralmente clientes Rico, Factory Terminal e cliente global.
+   Não ativar para testar implicitamente. Verificar ausência de fontes de auth
+   concorrentes e compatibilidade da credencial oficial com validação local.
+7) Revalidar listener 22355 por PID, EXE e início do MetaEditor Factory, e Rico
+   em 22345/22346; Terminal Factory permanece fechado.
+8) Somente sob autorização de sondagem própria, emitir UM initialize limitado,
+   com nova guarda própria. Não remover/reusar a guarda da H5F. Registrar apenas
+   status/metadados sanitizados; sem retry ou outras RPCs. Não presumir sucesso.
+9) Solicitar fechamento normal, conferir processos/arquivos e decidir em etapa
+   própria sobre cliente operacional, persistência, rotação e homologação.
+
+9. Publicação e PARADA OBRIGATÓRIA
+Protótipo e testes privados preservados localmente, fora do commit.
+Publicação apenas deste relatório, README e allowlist .gitignore; sem tokens,
+inventários privados, binários ou configurações. SHA remoto e árvore limpa
+conferidos após commit/push na entrega.
+H5I-A concluída apenas offline. Não usar chave real, alterar helper ativo ou
+clientes, abrir aplicativos, executar MCP/HTTP, compilar, consultar histórico,
+backtests ou mercado. Não avançar H5I-B/H6/H7. Aguardar autorização humana.
+
+Fontes oficiais consultadas em 25/11/2026:
+https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credwritew
+https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credreadw
+https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-creddeletew
+https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw
+https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata
+https://learn.chatgpt.com/docs/extend/mcp
+https://www.rfc-editor.org/rfc/rfc6750

@@ -475,3 +475,12 @@ Sem correção ou conexão MCP; a causa definitiva do HTTP 401 não foi demonstr
 Factory fechada, Rico preservada e clientes Factory desativados. **9 verificações
 fictícias e 470 testes offline aprovados**.
 Consulte [FASE_33J_H5H_COMPARACAO_CREDENCIAIS.txt](FASE_33J_H5H_COMPARACAO_CREDENCIAIS.txt).
+
+### Fase 3.3J-H5I-A — protótipo privado de credencial protegida
+
+Protótipo isolado com Gerenciador de Credenciais Windows e helper via pipe,
+validado somente com dados fictícios: **32 verificações e 470 testes offline
+aprovados**. Entradas de teste removidas; configurações e helper H5E intactos.
+Factory fechada, clientes desativados e Rico preservada. Aplicação real e
+sondagem única ficam propostas para H5I-B, sob nova autorização.
+Consulte [FASE_33J_H5I_A_PREPARACAO_AUTENTICACAO.txt](FASE_33J_H5I_A_PREPARACAO_AUTENTICACAO.txt).
