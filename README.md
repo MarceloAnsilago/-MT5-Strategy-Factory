@@ -484,3 +484,12 @@ aprovados**. Entradas de teste removidas; configurações e helper H5E intactos.
 Factory fechada, clientes desativados e Rico preservada. Aplicação real e
 sondagem única ficam propostas para H5I-B, sob nova autorização.
 Consulte [FASE_33J_H5I_A_PREPARACAO_AUTENTICACAO.txt](FASE_33J_H5I_A_PREPARACAO_AUTENTICACAO.txt).
+
+### Fase 3.3J-H5I-B — initialize HTTP 200 com credencial oficial
+
+Credencial oficial do MetaEditor Factory armazenada no cofre Windows da sessão;
+novo helper configurado somente em `factory_metaeditor`, mantido **desativado**.
+Único POST `initialize`: **HTTP 200 e resposta válida**, sem outras chamadas MCP.
+Integração operacional ainda não homologada. Factory fechada; Rico preservada.
+Testes fictícios aprovados e **470 testes offline do produto aprovados**.
+Consulte [FASE_33J_H5I_B_AUTENTICACAO_MCP.txt](FASE_33J_H5I_B_AUTENTICACAO_MCP.txt).

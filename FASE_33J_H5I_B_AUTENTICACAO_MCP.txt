@@ -1,0 +1,196 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5I-B
+Aplicação supervisionada de autenticação MCP — INITIALIZE HTTP 200
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 800fe40e047c425014df01d8d972c070529f0036.
+
+RESULTADO
+Credencial oficial MetaEditor Factory obtida por Copiar, armazenada no
+Gerenciador de Credenciais Windows com persistência restrita à sessão de logon.
+Novo helper configurado exclusivamente em factory_metaeditor, DESATIVADO.
+Uma única requisição POST initialize retornou HTTP 200 e resposta válida.
+Nenhuma outra requisição MCP, notificação, descoberta ou chamada de ferramenta.
+Autenticação/inicialização dessa sondagem bem-sucedida; integração operacional
+Codex, workspace, tools e Terminal Factory NÃO homologados.
+Factory fechada normalmente pelo usuário; Rico preservada.
+
+1. Preparação e integridade inicial
+Git inicialmente limpo na base informada após fetch; nenhum commit posterior
+nas referências consultadas antes da publicação desta fase.
+Relatórios H5E/H5F/H5G/H5H/H5I-A recuperados e lidos na sequência; protótipo,
+testes privados, comparador e helper originais inspecionados.
+H5H havia comprovado DIFERENTES entre origem oficial e valor do INI; H5F 401.
+4784 registros / 4783 caminhos únicos sem diferenças em relação ao baseline
+anterior. Factory terminal/editor encerrados, clientes Factory desativados.
+Rico identificada por CIM, caminho e horário de início:
+PID 26240 — C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+PID 19712 — C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Nenhum aplicativo iniciado durante a preparação offline.
+
+2. Helper preparado e armazenamento
+Novo helper privado e estável, separado do H5E:
+C:\estrategia\.codex\factory-auth\factory_vault.py.
+Baseado no protótipo H5I-A, usando CredReadW/CredWriteW/CredDeleteW, tipo GENERIC
+e CRED_PERSIST_SESSION. Alvo estável e exclusivo:
+MT5StrategyFactory/Factory/MetaEditor/AEF1E6F57078EAB3775179FCBD94D671/22355.
+Sem persistência entre logons, roaming, modo enterprise ou compartilhado.
+Nenhuma ACL ou configuração de segurança alterada; sem elevação administrativa.
+Alvo ausente antes da importação, novamente conferido antes de gravar;
+nenhuma entrada preexistente foi substituída.
+
+Envelope do cofre vincula schema, finalidade, nome factory_metaeditor, EXE,
+área de dados Factory e endpoint exato http://127.0.0.1:22355/mcp.
+Helper valida origin.txt/instalação dedicada e campo Endpoint do INI;
+NÃO usa ApiKey persistido como substituto do token oficial.
+Configuração com destino Rico ou fonte de autenticação concorrente é recusada.
+Token validado sem normalização; monta um único esquema Bearer e JSON de
+cabeçalhos. Saída de autenticação aceita somente em pipe, recusando console
+ou arquivo antes de recuperar o segredo. Erros genéricos não contêm valores.
+Não há acesso/enumeração de credenciais Rico. Namespace fictício separado
+permite testar o mesmo código sem gravar dados fictícios no alvo real.
+Helper H5E, protótipo H5I-A e cliente global não foram editados.
+
+3. Testes fictícios antes de credencial real
+32 verificações do protótipo H5I-A repetidas com sucesso.
+32 verificações do novo helper com sucesso, em alvos fictícios de sessão:
+roundtrip Windows, processo filho/pipe, prefixo único, preservação de caracteres,
+rejeição de destino/nome Rico e metadados divergentes, entrada ausente/inválida,
+erros sanitizados, stdout em arquivo bloqueado, substituição e revogação local.
+Nove testes do parser oficial JSON/TOML aprovados com valores fictícios.
+Quatro testes da rotina de importação aprovados: alvo ausente; seleção exata
+de token MetaEditor/22355 e roundtrip; recusa de sobrescrita; remoção fictícia.
+Entradas fictícias removidas e ausência confirmada. Nenhuma credencial real
+usada nesses testes, nenhum segredo impresso, nenhuma conexão realizada.
+Verificador de sondagem inspecionado: uma única emissão HTTP e nova guarda
+exclusiva H5I-B, sem métodos MCP posteriores. Guarda antiga H5F preservada.
+
+4. Confirmação humana e abertura
+Após testes, solicitada confirmação antes da abertura. Usuário autorizou
+expressamente EXE dedicado, identificação, Copiar supervisionado, cofre de
+sessão e no máximo um initialize, vedando outras chamadas/alterações na Rico.
+Executável aberto uma única vez pelo caminho absoluto:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe.
+Hash preservado e identidade de build 6328/assinatura confirmada na sequência.
+Processo desta fase PID 16460; caminho e CreationDate capturados privadamente.
+Janela retornada com caminho Factory e handle 200218, destacada para o usuário;
+Responding=True. Terminal Factory ausente em todas as capturas desta fase.
+Não usados atalhos públicos ou janelas Rico. Nenhum comportamento inesperado
+relatado/observado nas verificações, sem alegação de monitoramento contínuo.
+
+5. Obtenção e importação segura da credencial real
+Usuário orientado a abrir Ferramentas > Opções > MCP na janela identificada,
+conferir 22355 e botão Copiar sem gerar/salvar mudanças. Confirmou "ok".
+Antes de Copiar, rotina já preparada e alvo exclusivo ausente. Histórico e
+sincronização do clipboard consultados via API Windows: ambos desativados,
+sem alterar configurações. Registrado só contador de sequência, não conteúdo.
+Orientado a clicar somente Copiar e não colar em lugar algum. Confirmou "copiado".
+Rotina local revalidou proteção do clipboard, nova sequência e proprietário
+PID 16460; recebeu texto apenas em memória e selecionou a configuração
+oficial correspondente exclusivamente a 22355. Não armazenou o texto completo
+ou tokens Terminal/marketdata. Nenhuma captura da aba com a chave foi criada.
+Token validado e armazenado somente no alvo Windows de sessão. Recuperação
+comparada em memória com resultado de igualdade, sem hashes/valores publicados.
+Conteúdo transitório copiado limpo sob bloqueio do clipboard, sem consultar ou
+apagar outros itens de histórico. API de importação retornou somente booleanos
+de armazenamento, recuperação e limpeza bem-sucedidos, mais a política de sessão.
+Não fornecida chave em argumentos, TOML, script, variável persistente, relatório,
+log ou mensagem. Nenhuma chave do servidor gerada, substituída ou salva via OK.
+
+6. Configuração exclusiva do cliente Factory
+Após importar, alterado SOMENTE http_headers_helper de factory_metaeditor
+em C:\estrategia\.codex\config.toml para o novo helper do cofre, com caminho
+do config em argumento e sem segredo. Cliente permanece enabled=false.
+URL 22355, allowlist existente e demais campos preservados; Codex mcp get --json
+reconheceu helper e ausência de fontes concorrentes sem conectar ao servidor.
+Comparação estruturada com cópia privada anterior: factory_terminal,
+rico_metaeditor e rico_terminal integralmente iguais. Cliente global intacto.
+Os dois clientes Factory continuam desativados antes/depois da sondagem.
+Não iniciada sessão operacional Codex que pudesse descobrir ferramentas ou
+gerar requisições adicionais automaticamente.
+
+7. Identidade do listener antes da requisição
+Sockets correlacionados a PID, EXE e CreationDate por CIM/Get-NetTCPConnection:
+127.0.0.1:22355 -> PID 16460, MetaEditor64.exe no caminho Factory;
+127.0.0.1:22345 -> PID 19712, MetaEditor Rico;
+127.0.0.1:22346 -> PID 26240, Terminal Rico.
+22356 sem listener e Terminal Factory ausente. Identidades revalidadas também
+dentro do verificador imediatamente antes de construir a requisição.
+Não presumida identidade por porta isoladamente. Nenhuma conexão com Rico.
+
+8. Única requisição e resultado
+Verificador limitado privado: runs/phase33j_h5i_b_20261125/initialize_once.py.
+Usou o comando do novo helper configurado, recuperando a credencial do cofre
+em processo filho via pipe; sem ativar o cliente Codex operacional.
+POST initialize para 22355, payload de negociação mantido, sem retries,
+proxy de ambiente ou redirects. Guarda criada por abertura exclusiva antes
+do envio; impede repetição automática e é distinta da guarda H5F.
+
+Código HTTP: 200
+Content-Type: application/json
+Content-Length: 1673
+Categoria: initialize_success
+Duração registrada: 0.016 segundo
+initialize respondeu adequadamente: SIM
+
+Resposta analisada somente em memória para validar envelope/result da
+inicialização. Não registrados corpo, cabeçalhos sensíveis, cookies, tokens
+ou conteúdo da credencial. Não emitidos notifications/initialized, tools/list,
+tools/call, GET ou qualquer outra requisição MCP. Nenhuma segunda tentativa.
+Resultado confirma autenticação/inicialização bem-sucedida neste cenário;
+reforça a necessidade de usar a origem oficial em vez do campo persistido,
+sem provar todo o funcionamento operacional ou todas as causas históricas.
+
+9. Encerramento, integridade e testes offline
+Após sondagem, solicitado fechamento normal somente do MetaEditor Factory.
+Usuário confirmou "feito"; nenhum aviso inesperado relatado. CIM posterior:
+Factory terminal/editor ausentes; Rico mantém os mesmos PID, EXEs e horários
+de início do baseline. Nenhum kill, reinício ou reabertura realizado.
+Listeners finais relevantes somente Rico 22345/22346; Factory 22355/22356 ausentes.
+
+4784 registros / 4783 caminhos únicos conferidos: zero erros. Três mudanças
+desde o baseline, todas previstas ou de estado observado:
+  dados Factory Config/dnsperf.dat;
+  dados Factory logs/metaeditor.log;
+  C:\estrategia\.codex\config.toml, somente helper de factory_metaeditor.
+Arquivos de estado/log não tiveram rastreamento individual de escrita; não
+se atribui cada diferença a uma função interna específica.
+Demais hashes iguais: configurações Rico, INIs MCP Factory/Rico, helper H5E,
+cliente global, EXEs/MQL5 protegidos, resultados/bloqueios 3.3G e atalhos.
+Endpoints persistidos mantidos: Factory editor 22355/terminal 22356;
+Rico editor 22345/terminal 22346. Nenhuma permissão ou conta alterada.
+470 testes offline do produto aprovados em Python -B na preparação H5I-B;
+guarda recusando import MetaTrader5, pacote ausente antes/depois. Nenhum
+código/teste versionado do produto modificado. Suíte não repetida sem motivo.
+Capturas e inventários parciais/não atômicos; não são monitoramento global.
+
+10. Estado do cofre, publicação e pendências
+A entrada real criada nesta fase permanece restrita à sessão atual de logon;
+fechar o MetaEditor não a remove. Não persistirá após novo logon, segundo
+a política Windows escolhida. Nenhuma persistência entre logons autorizada
+ou utilizada. Remoção no cofre não equivaleria a revogar a chave no servidor.
+Windows protege o conjunto do usuário/logon, não contra todo processo do mesmo
+usuário ou administrador; cabeçalhos são legíveis em memória no consumidor.
+Não há garantia de zeragem física de todas as cópias Python de memória.
+Não registrar o pipe do helper nem trocar para arquivo/terminal para inspecioná-lo.
+
+Código/helper/configurações e evidências privadas não publicados. Estão em
+.codex/factory-auth e runs/phase33j_h5i_b_20261125, ignorados pelo Git.
+Publicação somente deste relatório, README e allowlist .gitignore.
+Commit/push, SHA remoto e árvore limpa conferidos na entrega.
+
+Pendente: homologação operacional Codex, identificação de workspace por MCP,
+catálogo e uso de ferramentas, além de qualquer trabalho no Terminal Factory.
+Nada disso foi testado ou autorizado por este initialize. Nova sessão de
+logon exigirá provisionamento supervisionado se o uso voltar a ser autorizado.
+Recomendação: manter clientes desativados e planejar etapa posterior com
+escopo explícito de descoberta/leitura e controle de chamadas automáticas.
+
+PARADA OBRIGATÓRIA
+Uma inicialização HTTP 200 concluída; Factory fechada e clientes desativados.
+Não executar segunda requisição, ativar clientes, abrir Terminal, configurar
+contas, compilar, consultar histórico, backtest ou mercado. Não avançar H5J,
+H6/H7 automaticamente. Aguardar nova autorização humana.
+
+Fontes oficiais consultadas na preparação:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw
+https://learn.chatgpt.com/docs/extend/mcp
