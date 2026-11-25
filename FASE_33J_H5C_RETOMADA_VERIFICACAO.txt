@@ -1,0 +1,87 @@
+MT5 STRATEGY FACTORY — H5C RETOMADA / VERIFICAÇÃO
+25/11/2026 — America/Sao_Paulo
+
+1. Git e evidências
+HEAD e origin/main após fetch: 5694ee25c3c28d01c62bcc9b654548efa1d5e07e.
+Nenhum commit posterior nas referências consultadas. Árvore inicial suja:
+README.md e .gitignore modificados; relatório H5C de interface não rastreado.
+H4, H5A, H5B e H5C lidos integralmente. Evidências privadas H5B/H5C
+recuperadas em runs, inclusive hashes finais, endpoints e processos.
+A publicação da sessão anterior não havia sido concluída. O relatório H5C
+anterior é histórico; alegação de publicação confirmada nele é prematura.
+
+2. Processos
+Factory terminal e MetaEditor ausentes. Rico atual:
+PID 26240: C:\Program Files\Rico - MetaTrader 5\terminal64.exe
+PID 19712: C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe
+PIDs diferem dos finais de ontem (18352/20764); não afirmar continuidade
+entre sessões nem atribuir causa. Nenhum processo iniciado, parado ou
+reiniciado pelo agente nesta retomada. Capturas privadas atuais em
+runs/phase33j_h5c_20261125.
+
+3. Persistência — CASO A
+Associação conferida por origin.txt da instalação C:\estrategia\infra\mt5-factory.
+Arquivo somente lido:
+C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671\Config\assistant.ini
+MCP.MetaTrader/Endpoint=http://127.0.0.1:22356/mcp
+MCP.MetaEditor/Endpoint=http://127.0.0.1:22345/mcp
+SHA256: 5C542C0BC35E9C8CF1509151AB2D3D3FBC90FB12493076B1A26797B0D7A0C741.
+Igual ao final após fechamento anterior. Alteração Terminal persistiu;
+não repetida. Persistência não comprova runtime ou retenção após novo start.
+Nenhum segredo exibido, publicado ou transferido.
+
+4. Integridade
+4781 registros / 4780 caminhos únicos comparados ao baseline final H5C,
+zero erros de leitura. Sete diferenças históricas: na área Rico
+38FF261A42172F3478E54D3A1A8FE02B, Config/terminal.ini, common.ini,
+accounts.dat, agents.dat, servers.dat e settings.ini; também configuração
+global C:\Users\User\.codex\config.toml. Conteúdos não publicados,
+causa não atribuída, nenhuma restauração ou edição realizada.
+Rico Config/assistant.ini idêntico ao baseline; endpoints 22346/22345.
+SHA256: 5584733CFCA66282E9746CB2D7564213FE3C54867867CEE31687F5C9D59AD5E3.
+Cliente Codex do projeto idêntico. Não declarar toda configuração global
+ou estado Rico intactos desde ontem. Nenhum cliente alterado pelo agente.
+Demais arquivos do conjunto iguais: EXEs, MQL5 protegido anterior, arquivos
+anteriores Factory, sessão/resultados/bloqueios 3.3G, atalhos e dados dedicados.
+Nova comparação antes/depois da verificação: zero diferenças nos 4781 registros.
+Inventário parcial, não atômico; não cobre toda atividade do host.
+EXEs dedicados terminal64.exe e metaeditor64.exe: versão 5.0.0.6328,
+hashes preservados. Atalhos públicos não usados; restauração ainda pendente.
+
+5. Portas
+127.0.0.1:22346 em escuta pelo PID Rico 26240; 22345 pelo PID Rico 19712.
+22356 e 22355 sem listeners atuais e fora das exclusões TCP IPv4/IPv6
+consultadas (27339 e 50000–50059). Nenhum bind ou conexão de teste.
+Consulta não reserva porta nem garante disponibilidade futura.
+
+6. Preparação MetaEditor — NÃO EXECUTADA
+Fonte oficial MetaQuotes consultada em 25/11/2026:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+Documenta Tools > Options > MCP > Address e OK para salvar. Endereço
+específico por aplicativo; demais opções compartilhadas com seu terminal.
+O controle de servidor interno do editor não controla terminal/marketdata.
+Plano futuro sob autorização humana: abrir exclusivamente
+C:\estrategia\infra\mt5-factory\metaeditor64.exe, revalidar identidade/dados
+e Rico/portas, alterar somente Endereço para http://127.0.0.1:22355/mcp.
+Não gerar/copiar chave, alterar habilitação/permissões, ativar Assistente
+ou usar atalhos públicos. Atenção à opção de abertura automática do terminal:
+não ativá-la. Parar diante de interface divergente ou abertura inesperada.
+Separação viável em princípio pelos dados distintos e endereço específico;
+não validada por abertura. Ajuda atual não garante aparência no build 6328.
+Referência complementar:
+https://www.metatrader5.com/en/terminal/help/mcp_and_ai/configuration
+
+7. Testes e publicação
+470 testes offline aprovados em Python -B, guarda recusando import MetaTrader5,
+pacote ausente antes/depois. Código e testes do produto intactos.
+Nenhum aplicativo iniciado, MCP conectado, compilação, histórico, backtest,
+conta ou ordem executados. INIs e configurações cliente não alterados.
+Publicar somente relatórios H5C, README e allowlist .gitignore; inventários,
+logs brutos, configurações, credenciais e binários permanecem privados.
+SHA remoto e árvore limpa serão conferidos após commit/push na entrega.
+
+8. Próxima ação / PARADA OBRIGATÓRIA
+Terminal persistido em 22356; nenhuma repetição necessária.
+Editor ainda em 22345. Aguardar autorização humana para abertura dedicada
+e configuração supervisionada pela interface para 22355. Homologação MCP
+é etapa separada. Não abrir, configurar, ativar ou homologar automaticamente.

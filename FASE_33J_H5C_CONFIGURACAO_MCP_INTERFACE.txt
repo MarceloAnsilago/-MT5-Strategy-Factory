@@ -1,0 +1,157 @@
+﻿MT5 STRATEGY FACTORY — FASE 3.3J-H5C
+Configuração MCP pela interface oficial — ENCERRADA, RESULTADO PARCIAL
+24/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 5694ee25c3c28d01c62bcc9b654548efa1d5e07e; Git inicialmente limpo.
+
+RESULTADO
+Terminal Factory: endpoint alterado pela interface e persistido em 22356/mcp.
+MetaEditor Factory: endpoint continua 22345/mcp; alteração NÃO executada.
+Terminal dedicado fechado normalmente pelo usuário, PID/caminho ausentes.
+MetaEditor dedicado ausente. Rico preservada no conjunto comparado.
+Nenhum teste de conexão MCP/HTTP, cliente Codex, conta ou operação executado.
+Isolamento integral NÃO homologado; aguardar autorização separada para editor
+se sua configuração exigir abertura e para eventual homologação de runtime.
+
+1. Verificações anteriores e identidade do terminal
+Relatórios H4, H5A e H5B lidos integralmente. Base/Git esperados confirmados.
+Terminal e MetaEditor dedicados ausentes antes da abertura; processos Rico
+identificados separadamente por caminho/PID/início e preservados privadamente.
+EXE: C:\estrategia\infra\mt5-factory\terminal64.exe
+FileVersion: 5.0.0.6328; Authenticode Valid, publicador MetaQuotes Ltd.
+SHA256 esperado e observado:
+AD4BB889A848105BF03399F6A7A1022D9324B44BC797AC0459CF647738266318
+Área de dados associada comprovada novamente por origin.txt único, distinto
+do diretório de instalação; Config\assistant.ini correspondente identificado
+por leitura. Não inferido caminho de dados a partir da pasta do EXE.
+
+Endpoints persistidos antes da abertura:
+Factory Terminal 127.0.0.1:22346/mcp; Factory MetaEditor 127.0.0.1:22345/mcp.
+Rico Terminal 127.0.0.1:22346/mcp; Rico MetaEditor 127.0.0.1:22345/mcp.
+Candidatas 22356/22355 sem listeners e fora das exclusões TCP IPv4/IPv6
+consultadas; nenhum bind, chamada HTTP ou conexão MCP para essa conferência.
+
+2. Abertura e atividades observadas
+Executado uma única vez somente o EXE dedicado pelo caminho absoluto.
+Não utilizados atalhos públicos nem API; MetaEditor não iniciado manualmente.
+Processo dedicado desta fase: PID 18988, identidade/início capturados em
+runs/phase33j_h5c_20261124/after_open_processes_private.json.
+Janela identificada pelo processo/caminho e handle, não apenas pelo título.
+Log de abertura: build 6328 às 17:50:36.385; conflito conhecido de bind
+127.0.0.1:22346, código 10048, às 17:50:36.386. Registrado sem chamada MCP.
+Não observados novos registros de atualização/recompilação nas evidências
+consultadas; MetaEditor dedicado não surgiu nos processos capturados.
+Isso não equivale a monitoramento contínuo de cada processo/atividade do host.
+
+O assistente Abrir uma Conta apareceu. A tentativa inicial de Cancelar pela
+API de controle recebeu erro de geometria; após nova observação, um clique
+não o dispensou visivelmente. Não selecionada empresa/servidor/conta pelo
+agente, não preenchida credencial e não acionado Avançar.
+O usuário realizou o cancelamento e navegação manual assistida até Opções/MCP.
+Nenhuma conta foi configurada ou autenticada pelo agente nesta fase.
+
+3. Configurações observadas e aplicação supervisionada
+Captura da interface oficial Ferramentas > Opções > MCP apresentou:
+- Ativar servidor interno: marcado, mantido sem alteração.
+- Campo Endereço: http://127.0.0.1:22346/mcp.
+- Campo chave de API e botão Gerar: não alterados, copiados ou acionados.
+- Área de endpoints adicionais: nenhuma entrada criada.
+
+O usuário editou SOMENTE Endereço para http://127.0.0.1:22356/mcp e enviou
+captura. Conferido o valor, foi orientado a clicar OK. Confirmou: "ok so fechou
+a janela", referindo-se ao diálogo Opções. Não houve aviso inesperado ou
+pedido de reinício relatado. Nenhum comando do agente editou o INI diretamente.
+A captura recebida continha uma chave em claro; não foi reproduzida no relatório,
+publicada no Git, reutilizada ou alterada. Arquivos/capturas privados não publicados.
+
+A interface observada controla o servidor do TERMINAL. Não foi identificado
+nela um controle para alterar o endpoint MetaEditor. Não se presumiu que o
+terminal configurasse ambos, não se abriu o editor e não se alteraram servidores
+adicionais para contornar essa limitação. MetaEditor permanece pendente de
+inspeção/autorização separada se exigir abertura.
+
+4. Persistência, limites e atividade automática MCP
+Leitura de Config\assistant.ini específico da Factory, após OK e novamente
+após fechamento:
+  [MCP.MetaTrader] Endpoint=http://127.0.0.1:22356/mcp, Enable=1.
+  [MCP.MetaEditor] Endpoint=http://127.0.0.1:22345/mcp, Enable=1.
+Comparação de TODAS as seções/chaves contra backup privado validado pelo
+hash pré-abertura: apenas MCP.MetaTrader/Endpoint mudou. Demais campos,
+incluindo Enable, credenciais e permissões, permanecem iguais sem exposição
+dos seus valores. Nenhum arquivo Rico/cliente Codex foi editado pelo agente.
+
+SHA256 INI Factory antes:
+3CA01C5C935D29C3CF1CD1F30119332FD5067BA25F7083424DE077BE4F864771
+SHA256 INI Factory após aplicação e encerramento:
+5C542C0BC35E9C8CF1509151AB2D3D3FBC90FB12493076B1A26797B0D7A0C741
+
+Listeners locais consultados depois do OK: somente os Rico em 22346 e 22345
+entre as quatro portas relevantes; nenhum listener 22356 observado.
+Não se afirmou que o servidor dedicado passou a usar a nova porta em runtime.
+Não foi executada conexão para testá-lo nem reinicialização para aplicá-lo.
+Persistência de arquivo NÃO é homologação do servidor. Também não se conclui
+que reinicialização seja obrigatória apenas por ausência de listener; requer
+observação autorizada futura. Não ativados clientes factory_* no Codex.
+Nenhuma alteração adicional de segurança, habilitação ou token foi necessária.
+
+5. Fechamento manual e processos finais
+Após conferência, o usuário foi orientado a fechar somente o dedicado pelo
+X ou Arquivo > Sair e parar se aparecesse aviso inesperado.
+Confirmou: "fechou normal". Nenhum prompt inesperado foi relatado.
+Não executados kill, taskkill, finalização por nome, reinício ou novo lançamento.
+
+Conferência posterior:
+- PID 18988 não aparece no conjunto de processos MT5/MetaEditor.
+- Nenhum terminal64.exe ou MetaEditor64.exe no caminho dedicado.
+- Terminal e MetaEditor Rico mantêm PID, caminho e horário de início idênticos
+  aos registrados antes da abertura H5C. Não encerrados/reiniciados pelo agente.
+- Listeners Rico 22346/22345 continuam associados aos mesmos PIDs capturados.
+Log dedicado registra o fechamento:
+  18:42:54.743 — exit with code 0
+  18:42:54.770 — stopped with 0
+  18:42:54.773 — shutdown with 0
+Não relançado o terminal para completar nenhuma conferência.
+
+6. Integridade e alterações observadas
+Baseline: 4781 registros de caminho com SHA256, zero falhas; 4780 caminhos
+únicos ao normalizar maiúsculas/minúsculas do Windows. assistant.ini apareceu
+com duas grafias de Config/config, que apontam ao MESMO arquivo físico.
+A comparação final não contou essa duplicidade como duas configurações alteradas.
+Seis arquivos únicos mudaram, todos na área de dados dedicada:
+  Config\assistant.ini — endpoint Terminal aplicado pela interface.
+  Config\common.ini
+  Config\dnsperf.dat
+  Config\settings.ini
+  Config\terminal.ini
+  logs\20261124.log
+Os demais arquivos são persistência observada durante uso/fechamento; não
+houve rastreamento de escrita para atribuir cada diferença a operação interna
+específica. Nenhum foi restaurado automaticamente ou editado por comando do agente.
+
+Nenhuma mudança de hash fora da área de dados dedicada: executáveis existentes,
+MQL5 anterior, arquivos/resultados anteriores da Factory, configuração Rico,
+clientes Codex e atalhos protegidos preservados no escopo do baseline.
+Sessão histórica 3.3G, bloqueios, recibos e contadores sem alteração.
+Atalhos públicos não restaurados nesta H5C; pendência H4 mantida.
+Inventário parcial, não atômico, do host; logs/cache e atividades fora desse
+escopo não foram declarados imutáveis. Nenhum dado de mercado foi solicitado.
+
+7. Testes, publicação e próximos limites
+470 testes offline aprovados em Python -B, com import MetaTrader5 recusado
+por guarda explícita e conferência de sys.modules antes/depois: pacote ausente.
+Não modificados código ou testes do produto. Nenhuma compilação, consulta
+histórica/ticks, backtest, ordem, autenticação ou teste MCP/HTTP executado.
+Publicação apenas deste relatório, README e allowlist .gitignore; não publicar
+configurações, tokens, capturas, binários ou inventários privados. Evidências
+locais em runs/phase33j_h5c_20261124. Publicação não concluída na sessão anterior;
+ver relatório de retomada de 25/11/2026 para verificação atual e publicação.
+
+Pendências: endpoint MetaEditor 22355 ainda não aplicado; verificação futura
+por interface poderá exigir abertura separadamente autorizada. Persistência
+Terminal confirmada, mas retenção após novo start e identidade do listener
+não homologadas. Não iniciar terminal/editor para resolver aqui.
+Clientes Codex Factory continuam inexistentes/inativos; Rico não foi substituída.
+Não conectar corretora, configurar conta, usar API ou avançar H6/H7.
+
+PARADA OBRIGATÓRIA
+H5C encerrada com alteração parcial persistida e processos dedicados fechados.
+Aguardar nova orientação; não avançar automaticamente para H5D, H6 ou H7.

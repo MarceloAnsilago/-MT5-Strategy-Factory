@@ -413,3 +413,18 @@ do INI para build 6328, condição de parada exigida nesta fase.
 **470 testes offline aprovados**; Rico, clientes, atalhos e arquivos protegidos
 sem diferenças observadas. Isolamento ainda pendente; aguardar nova orientação.
 Consulte [FASE_33J_H5B_ISOLAMENTO_MCP.txt](FASE_33J_H5B_ISOLAMENTO_MCP.txt).
+
+### Fase 3.3J-H5C — endpoint Terminal persistido pela interface
+
+Terminal Factory salvo em `http://127.0.0.1:22356/mcp`, sem alterar outros
+campos MCP. Endpoint MetaEditor continua em 22345, pendente de inspeção separada.
+Terminal fechado manualmente e processos dedicados ausentes; Rico e arquivos
+protegidos anteriores preservados. **470 testes offline aprovados**.
+Nenhuma conexão MCP realizada; funcionamento do novo endpoint não homologado.
+Consulte [FASE_33J_H5C_CONFIGURACAO_MCP_INTERFACE.txt](FASE_33J_H5C_CONFIGURACAO_MCP_INTERFACE.txt).
+
+Retomada em 25/11/2026: persistência Terminal em 22356 confirmada; editor
+permanece em 22345. Processos dedicados ausentes; 470 testes offline aprovados.
+MCP Rico intacto; diferenças históricas em outros arquivos discriminadas no
+[relatório de retomada](FASE_33J_H5C_RETOMADA_VERIFICACAO.txt).
+Aguardar autorização humana para configurar o editor pela interface oficial.
