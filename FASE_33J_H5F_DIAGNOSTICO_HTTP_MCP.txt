@@ -1,0 +1,159 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5F
+Diagnóstico controlado HTTP MCP — HTTP 401 IDENTIFICADO
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base Git: d8056b19fb9ed49c559d4299e9cb4f92784dd1d9.
+
+RESULTADO DA SONDAGEM
+Uma única requisição POST initialize ao MetaEditor Factory retornou HTTP 401.
+Categoria: rejeição de autenticação HTTP. Não houve retry ou chamada posterior.
+Isso não comprova a causa específica da recusa nem homologa a conexão MCP.
+Chaves, endpoints, permissões, helpers e clientes não modificados nesta H5F.
+Clientes Factory permanecem desativados. Terminal Factory não iniciado.
+
+1. Estado inicial e evidências recuperadas
+Git inicialmente limpo; fetch e referências consultadas na base informada,
+sem commits posteriores antes desta publicação. H5E lido integralmente;
+histórico H4/H5A/H5B/H5C/H5D recuperado no contexto da sequência.
+Lidos integralmente probe_factory.py e factory_headers.py privados da H5E.
+Evidências H5E registravam HTTPError sem status, corpo ou cabeçalhos.
+Não foi possível reconstruir retrospectivamente o código HTTP anterior.
+Não afirmar que a resposta desta H5F prova o status ocorrido na H5E.
+Busca sanitizada nos logs dedicados existentes não encontrou os indicadores
+fixos pesquisados de 400/401/403 ou rejeição de autenticação. Isso não é busca
+exaustiva em todo o host nem prova de ausência de falha registrada em outra fonte.
+
+Factory terminal/editor ausentes antes da abertura autorizada. Rico ativa:
+PID 26240, C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+PID 19712, C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Factory endpoints persistidos: MetaEditor http://127.0.0.1:22355/mcp e
+Terminal http://127.0.0.1:22356/mcp. Rico: MetaEditor 22345, Terminal 22346.
+Factory assistant.ini SHA256 antes e após sondagem:
+BD62B7F7F55D1F379435D625EC11C1A087404A834038AAF1C168AF946F4375D5.
+Rico assistant.ini SHA256:
+5584733CFCA66282E9746CB2D7564213FE3C54867867CEE31687F5C9D59AD5E3.
+Identidade dos dados Factory conferida em preparação pelo origin.txt exclusivo
+da instalação C:\estrategia\infra\mt5-factory, área de dados
+AEF1E6F57078EAB3775179FCBD94D671, Config/assistant.ini.
+
+2. Diagnóstico offline do cliente e transporte
+H5E enviava POST em URL fixa http://127.0.0.1:22355/mcp, JSON-RPC 2.0,
+id=1, method=initialize, params contendo protocolVersion=2025-03-26,
+capabilities={} e clientInfo com nome/versão do verificador H5E.
+Content-Type application/json; Accept application/json e text/event-stream.
+Formato e método compatíveis com a especificação MCP 2025-03-26 consultada.
+Versão solicitada é negociável; não foi comprovada aceitação pelo build local.
+ProxyHandler({}) exclui proxies de ambiente; NoRedirect recusa redirecionamento.
+Um redirecionamento não foi demonstrado como causa da falha anterior.
+Cliente H5E previa parsing JSON/SSE e cabeçalho de versão após inicialização;
+não chegou às etapas posteriores. Suporte completo a streams, reconexão ou
+paginação não foi homologado e não era necessário para este diagnóstico.
+Tratamento genérico de exceções na H5E ocultou o status HTTP: limitação
+diagnóstica comprovada no código, mas não causa da rejeição do servidor.
+
+3. Autenticação e helper — leitura sem mudanças
+Helper privado H5E usa somente área de dados Factory fixada no código,
+valida origin.txt e Endpoint por aplicativo. Na invocação MetaEditor, seleciona
+MCP.MetaEditor/ApiKey e exige endpoint 22355. Não consulta a área Rico.
+Monta em memória o cabeçalho Bearer documentado pela MetaQuotes e entrega
+por pipe ao consumidor; não há segredo embutido no código ou argumentos.
+Nenhuma saída do helper foi exibida diretamente ou registrada em logs nesta H5F.
+Não gerada/trocada chave nem experimentado outro formato de autenticação.
+O formato do cabeçalho confere com a documentação oficial; a equivalência
+entre o valor persistido lido e a credencial efetivamente aceita pelo servidor
+não é comprovada só por esse formato ou pela validação de origin/endpoint.
+Não foi encontrada evidência offline suficiente para atribuir a recusa a uma
+causa específica, como chave incorreta, representação armazenada ou estado do
+servidor. Essas possibilidades permanecem hipóteses, sem experimentação.
+
+4. Confirmação humana, abertura e listener
+Após análise offline inconclusiva, solicitada confirmação antes de abrir.
+Usuário autorizou expressamente abertura exclusiva, identificação e um único
+POST initialize com cliente/Bearer preparados, vedando repetição e outras RPCs.
+EXE aberto pelo caminho absoluto, sem atalhos públicos:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe.
+Assinatura Valid, MetaQuotes Ltd., build 6328 preservado; SHA256:
+2FAFC20ED04CCF537FB4FDE6952D055C82E08DAE72D7FCF32822650A7CA8861C.
+Terminal EXE preservado, SHA256:
+AD4BB889A848105BF03399F6A7A1022D9324B44BC797AC0459CF647738266318.
+MetaEditor aberto PID 31192, caminho confirmado por CIM; janela identificada
+pelo caminho retornado e handle 1707862, sem documento aberto na observação.
+Responding=True; nenhum terminal Factory nas capturas, nenhum assistente de
+conta/travamento/compilação/atualização inesperados observados.
+Listener 127.0.0.1:22355 associado ao PID 31192; 22345/PID 19712 e
+22346/PID 26240 permanecem Rico. PID, caminho e CreationDate capturados
+privadamente e revalidados imediatamente antes da requisição pelo verificador.
+Endpoint/INI Factory reconferidos sem modificação antes da sondagem.
+
+5. Requisição única e metadados sanitizados
+Usado verificador privado H5F initialize_once.py, sem modificar o cliente ou
+helper H5E: mesmo payload initialize e mecanismo de obtenção do Bearer.
+Clientes continuam desativados; nenhuma ativação de sessão Codex realizada.
+O verificador contém uma única emissão HTTP, sem retries, com guarda de
+arquivo exclusivo criada antes de enviar para impedir reexecução acidental.
+Não executar novamente este script ou remover a guarda como parte desta fase.
+
+Método: POST
+Endpoint: http://127.0.0.1:22355/mcp
+Protocolo solicitado: 2025-03-26
+Código HTTP: 401
+Content-Type: text/plain
+Content-Length: 0
+Timeout configurado: 20 segundos
+Duração registrada: 0.000 segundo, arredondada a milissegundos; não significa
+latência física zero. A resposta ocorreu sem timeout observado.
+Categoria: http_authentication_rejected
+
+Corpo HTTP de erro não lido/registrado. Não registrados cabeçalhos de
+autorização, desafios, cookies, sessões ou tokens. A allowlist de metadados
+retém somente status, tipo de conteúdo e Content-Length numérico.
+Após HTTP 401, encerrada a sondagem; nenhum tools/list, tools/call,
+notifications/initialized, GET ou outra requisição MCP executados.
+Nenhuma conexão a Rico ou ao Terminal Factory nesta H5F.
+
+6. Integridade, testes e encerramento
+Baseline H5F: 4784 registros (conjunto H5E mais scripts privados e log Terminal
+25/11). Uma diferença já existia antes desta fase versus final H5E:
+Rico Config/terminal.ini. Causa não atribuída, conteúdo não exposto e arquivo
+não restaurado; não declarar seu hash intacto desde a H5E.
+Comparação após sondagem: zero erros; somente logs/metaeditor.log dedicado
+alterado em relação ao início H5F. Demais arquivos protegidos, EXEs, MQL5,
+resultados/bloqueios 3.3G, configurações Rico, cliente global/projeto, endpoints,
+helper H5E e script H5E mantêm hashes nesse ponto.
+470 testes offline aprovados em Python -B na preparação H5F, guarda recusando
+import MetaTrader5 e pacote ausente antes/depois. Nenhum código/teste do produto
+foi alterado; não repetida a suíte sem novo motivo.
+Solicitado fechamento normal somente do MetaEditor Factory após a sondagem.
+Usuário confirmou "fechei". Conferência CIM posterior: MetaEditor dedicado
+PID 31192 e terminal Factory ausentes; Rico terminal/editor com mesmos PID,
+caminho e CreationDate do baseline. Listeners finais somente Rico 22345/22346.
+Conferência final de 4784 registros / 4783 caminhos únicos: zero erros; duas
+mudanças únicas desde o início H5F, ambas em dados Factory: Config/dnsperf.dat
+e logs/metaeditor.log. Alterações de estado/log observadas após uso/fechamento,
+sem rastreamento de escrita para atribuir cada diferença a uma operação interna.
+Demais arquivos inventariados preservados, incluindo configurações Rico,
+executáveis, MQL5 protegido, resultados/bloqueios 3.3G, atalhos, cliente global,
+cliente local e scripts H5E. INIs finais permanecem nos hashes e endpoints
+descritos acima; clientes Factory continuam desativados.
+Não encerrado processo automaticamente nem reaberto aplicativo.
+Inventário parcial, não atômico; não equivale a monitoramento completo do host.
+
+7. Diagnóstico, recomendação e parada
+Identificado HTTP 401 na única sondagem H5F; categoria de autenticação rejeitada.
+Não identificado o motivo interno específico, nem comprovado status histórico
+H5E. Não testar variações de chave/cabeçalho/protocolo automaticamente.
+Recomendação para futura etapa autorizada: esclarecer, por documentação/exportação
+oficial e comparação segura sem divulgar valores, a origem/representação da
+credencial fornecida pelo helper e a esperada pelo servidor; só depois avaliar
+correção e eventual nova homologação com autorização própria.
+Nesta fase não corrigidos endpoints, chaves, permissões, portas ou clientes.
+Clientes Factory desativados; Rico não modificada pelo agente.
+Publicação limitada ao relatório sanitizado, README e allowlist .gitignore.
+Evidências privadas permanecem em runs/phase33j_h5f_20261125, ignoradas pelo Git.
+SHA remoto e árvore limpa serão conferidos após commit/push na entrega.
+Não avançar H5G/H6/H7, não abrir Terminal, autenticar contas, consultar histórico,
+compilar, executar backtests ou ordens. Parar e aguardar orientação humana.
+
+Fontes oficiais:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+https://modelcontextprotocol.io/specification/2025-03-26/basic/transports
+https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle

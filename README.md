@@ -447,3 +447,13 @@ do MetaEditor. Nenhuma ferramenta de workspace executada; Terminal não sondado.
 Aplicativos dedicados fechados; Rico preservada; **470 testes offline aprovados**.
 Homologação pendente de diagnóstico autorizado, sem nova tentativa automática.
 Consulte [FASE_33J_H5E_HOMOLOGACAO_MCP.txt](FASE_33J_H5E_HOMOLOGACAO_MCP.txt).
+
+### Fase 3.3J-H5F — diagnóstico HTTP 401
+
+Uma única requisição `initialize` autorizada ao MetaEditor Factory retornou
+**HTTP 401**, sem repetição ou outras chamadas MCP. A categoria de rejeição
+de autenticação foi identificada; o motivo específico permanece pendente.
+MetaEditor fechado manualmente; Terminal Factory não iniciado. Rico preservada
+no baseline H5F; clientes Factory permanecem desativados. **470 testes offline
+aprovados**. Nenhuma configuração ou credencial alterada nesta fase.
+Consulte [FASE_33J_H5F_DIAGNOSTICO_HTTP_MCP.txt](FASE_33J_H5F_DIAGNOSTICO_HTTP_MCP.txt).
