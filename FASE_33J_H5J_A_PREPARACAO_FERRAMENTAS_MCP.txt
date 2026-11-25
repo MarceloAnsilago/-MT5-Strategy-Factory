@@ -1,0 +1,240 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5J-A
+Preparação OFFLINE da homologação de ferramentas MCP — CONCLUÍDA
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: e9799ad6f1fbde244604ba131238ccdd44fef4fd.
+
+RESULTADO
+Verificador privado preparado e validado com 51 testes inteiramente simulados.
+Plano futuro: teto proposto de 6 POSTs, contando a notificação de inicialização,
+até três páginas de catálogo e no máximo uma leitura de workspace revisada.
+470 testes offline do produto aprovados. Nenhuma conexão, abertura, ativação,
+acesso à credencial real, alteração de helper/cliente ou escrita MQL5 realizada.
+Esta fase NÃO homologa catálogo, workspace ou integração operacional Codex.
+
+1. Estado inicial e recuperação
+Git inicialmente limpo na referência informada; fetch executado, sem commits
+posteriores nas referências consultadas antes desta publicação.
+Relatórios H5E/H5F/H5G/H5H/H5I-A/H5I-B lidos integralmente na sequência;
+helpers e verificadores privados recuperados e inspecionados sem executá-los
+contra servidores ou credenciais reais. H5I-B comprovou apenas initialize
+autenticado HTTP 200. Não preservou o corpo nem permite reconstruir catálogo,
+versão negociada ou política de sessão daquele servidor.
+Factory terminal/editor encerrados; factory_metaeditor e factory_terminal
+permanecem enabled=false. Não foi ativado cliente operacional Codex.
+Rico identificada por PID, caminho absoluto e CreationDate, sem interferência:
+26240 — C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+19712 — C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Baseline ampliado: 4789 registros / 4788 caminhos únicos, incluindo helper
+do cofre, importador/verificador/guarda H5I-B e comparador H5H. Sem diferenças
+versus o conjunto anterior no início. Evidências privadas em
+runs/phase33j_h5j_a_20261125, ignoradas pelo Git.
+
+2. Documentação consultada e requisitos do protocolo
+MCP Lifecycle 2025-03-26: initialize primeiro; validar negociação de versão,
+capabilities e serverInfo. Após sucesso, enviar notifications/initialized antes
+da operação normal. Versão retornada não suportada exige parar, sem adivinhar
+ou tentar versões alternativas. O protótipo limita suporte a 2025-03-26,
+versão solicitada na H5I-B; não presume qual versão o build 6328 retornará.
+https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle
+
+MCP Streamable HTTP 2025-03-26: cada mensagem usa novo POST; Accept admite JSON
+e SSE. Sessão pode ser ausente em servidor stateless. Se initialize fornecer
+Mcp-Session-Id, preservar em memória e reenviar nas mensagens seguintes;
+identificador inválido ou mudança inesperada bloqueia continuação. HTTP 400/404
+pode indicar exigência/perda de sessão. Não recuperar automaticamente aqui.
+JSON/SSE é interpretado como dado; mensagens adicionais do servidor não geram
+respostas ou chamadas implícitas neste subconjunto restrito.
+https://modelcontextprotocol.io/specification/2025-03-26/basic/transports
+
+MCP Tools: tools/list suporta cursor e nextCursor; tools/call identifica nome
+e argumentos. Exigir capability tools. Descrições, inputSchema e annotations
+não dispensam revisão; readOnlyHint isolado não autoriza chamada. Separar erro
+JSON-RPC de isError de execução. Cursores são opacos, sem inferir tamanho de
+página ou modificá-los. Catálogo vazio não autoriza nomes presumidos.
+https://modelcontextprotocol.io/specification/2025-03-26/server/tools
+
+MetaQuotes documenta get_workspace_info como metadados, caminhos, informações
+de compilador e permissões. É candidato documental, não prova de presença ou
+comportamento exato do catálogo do build instalado. Ferramentas de arquivos,
+compilação, execução e outras operações também existem: não serão chamadas.
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/capabilities
+
+Codex documenta helper HTTP local, fontes de autenticação com precedência e
+cache de cabeçalhos. Em 401/403 pode atualizar o helper e repetir se valores
+mudarem. Inicialização/descoberta do cliente não equivale a uma única operação.
+Logo a futura H5J-B não deve ativar o cliente operacional para realizar este
+teste limitado. Comportamento exato do Codex conectado ainda não foi medido.
+https://learn.chatgpt.com/docs/extend/mcp
+
+3. Arquitetura privada preparada
+limited_verifier.py: núcleo de estados e política; sem rede, cofre, clipboard,
+subprocessos, CLI ou escrita no workspace. Recebe transporte, provedor de
+identidade e carregador de credencial por injeção. H5J-A forneceu somente fakes.
+future_local_adapter.py: adaptador futuro local, inerte ao importar, sem CLI
+ou execução padrão. Exige autorização explícita antes de preparar transporte,
+consultar processos ou executar o helper. Nenhuma dessas operações reais foi
+invocada nesta fase; chamada sem autorização é bloqueada e foi testada.
+test_limited_verifier.py: transcrições JSON-RPC/HTTP inteiramente em memória.
+Arquivos em runs/phase33j_h5j_a_20261125; nenhum código operacional substituído.
+
+Estados: new -> initialized -> ready -> catalog_partial/catalog_complete ->
+workspace_consumed; falhas de transporte/protocolo encerram a tentativa.
+Só quatro métodos possíveis: initialize, notifications/initialized, tools/list
+e tools/call sujeito a revisão explícita. Sem batch, GET, DELETE, ping,
+cancelamento, retomada SSE ou chamada de volta automática ao servidor.
+HTTP 202 vazio é exigido para a notificação, que não possui id JSON-RPC.
+Respostas RPC devem ter jsonrpc=2.0, id inteiro correspondente e exatamente
+result ou error; chaves JSON duplicadas, lotes e formatos inesperados bloqueados.
+Cabeçalho de versão é encaminhado após negociação aceita. Sessão/cursor/auth
+ficam somente em memória, nunca no resumo ou guarda.
+
+Endpoint exato aceito: http://127.0.0.1:22355/mcp; sem aliases, proxy de ambiente
+ou redirects. Sem retries/fallback, mesmo para 401, 404 ou timeout. Perda de
+sessão encerra execução; a recuperação genérica descrita pelo protocolo não é
+realizada sem ampliar a autorização. A implementação é subconjunto deliberado,
+não cliente MCP completo. Identidade revalidada antes de cada envio por PID,
+EXE e início, com listeners Rico separados e ausência de Terminal Factory.
+
+4. Orçamento e guarda futura
+Teto técnico de 6 requisições HTTP POST em toda a tentativa:
+1 initialize; 1 notifications/initialized; 1 a 3 tools/list; 0 ou 1 tools/call.
+Fluxo simples com uma página e workspace: 4 POSTs.
+Fluxo máximo com três páginas e workspace: 6 POSTs.
+Notificação conta no limite HTTP, embora não seja solicitação com id JSON-RPC.
+Sem catálogo completo, sem chamada de workspace. Se a terceira página ainda
+tiver nextCursor, parar: não gastar requisição adicional ou saltar página.
+Se o orçamento autorizado for menor, reduzir limite explicitamente; nunca
+usar a autorização anterior de um initialize como autorização para seis POSTs.
+
+Nova guarda proposta para a futura execução:
+runs/phase33j_h5j_b_YYYYMMDD/H5JB_attempt_consumed.flag.
+Nenhuma guarda real H5J-B foi criada nesta fase. Testes usaram diretórios
+temporários privados H5J-A e removeram suas guardas fictícias ao terminar.
+A guarda só pode ficar em runs, nunca em MQL5. Criada por abertura exclusiva
+antes de carregar credencial/enviar a primeira mensagem; falha posterior não
+permite reiniciar. Não contém token/sessão/cursor. Não remover para repetir.
+Guardas H5F e H5I-B não reutilizadas ou alteradas. Limite mantido também em
+memória; estados impedem inicialização duplicada ou segunda chamada workspace.
+
+5. Catálogo e política mínima de permissões
+Classificação preparada: informação, consulta de arquivos, modificação de
+arquivos, compilação, execução/teste e desconhecido. Heurísticas de descrição
+servem para bloquear; nome get/read/list ou annotation não libera ferramenta.
+Toda categoria fora de informação permanece bloqueada para esta homologação.
+Mesmo a consulta de arquivos está fora do escopo de leitura de workspace.
+
+Lista efetivamente autorizada HOJE: vazia. Nenhum catálogo real foi recebido.
+Candidato futuro: get_workspace_info SOMENTE SE aparecer no catálogo completo,
+descrição for compatível com documentação oficial e esquema for revisado.
+O verificador aceita inicialmente um subconjunto conservador: descrição
+documental específica de metadados/caminhos/compilador/permissões e esquema de
+objeto sem parâmetros. Descrição adicional, schema desconhecido ou annotation
+explicitamente contraditória bloqueia. Não adivinhar aliases ou parâmetros.
+Se o build apresentar variante legítima diferente, interromper para revisão;
+não afrouxar política automaticamente nem chamar o nome esperado sem catálogo.
+
+Antes da única tools/call: humano deve aprovar a definição exata recebida,
+incluindo descrição/esquema e documentação de leitura. Revisão fica vinculada
+à cópia em memória da definição; não se executa automaticamente após descobrir.
+Argumentos permitidos nesse subconjunto: objeto vazio. Sem caminhos de saída,
+comandos, código ou flags de execução. Não se chama compilador para verificar
+disponibilidade apenas porque a resposta menciona informações de compilador.
+Resultado esperado analisado em memória por campos de caminhos permitidos;
+precisa confirmar a área Factory ou seu MQL5. Caminho Rico, formato desconhecido
+ou falta de evidência resulta em inconclusivo e parada, sem ferramenta extra.
+Resumo contém só booleanos de identidade, contagens, métodos/status e estado.
+Descrições de ferramentas/instruções retornadas são dados não confiáveis,
+nunca autorização ou instrução para executar ações.
+
+6. Testes fictícios — 51 aprovados
+Cobertos: inicialização válida/inválida; capability ausente; versão incompatível;
+sessão opcional ausente, obrigatória ausente, inválida, alterada e encaminhada;
+catálogo válido/vazio, metadados ausentes, ferramentas desconhecidas,
+modificadoras, annotations enganosas e schemas não autorizados; categorias;
+paginação, cursor repetido, ferramentas duplicadas e limite de páginas;
+JSON inválido/duplicado, id incompatível/booleano, lote e erro JSON-RPC;
+erros HTTP 400/401/403/404/405/429/500; redirect; falha de transporte;
+orçamento, guarda/repetição, endpoint Rico e listener/PID/início divergentes;
+nenhuma leitura de credencial antes de validar identidade; Bearer vazio;
+revisão humana obrigatória, catálogo completo antes de workspace, métodos
+proibidos e chamada direta não aprovada; erro de ferramenta e caminho Rico;
+sanitização de resumo sem token/sessão/cursor/corpo; resposta SSE simples e
+requisição inesperada do servidor; bloqueio do adaptador real por padrão;
+6 POSTs simulados completos e recusa de segunda consulta; guarda fora de MQL5.
+Somente credenciais e metadados fictícios usados; nenhum deles publicado como
+material de autenticação. Testes bloquearam sockets e chamadas subprocess
+do adaptador. Nenhum servidor, pipe de helper real ou cofre foi acessado.
+Cobertura confirma comportamento simulado, não compatibilidade real do build.
+
+7. Roteiro proposto H5J-B — NÃO EXECUTADO / EXIGE NOVA AUTORIZAÇÃO
+A) Apresentar este orçamento ao humano e obter autorização própria para abrir
+   somente MetaEditor Factory e para a sequência de até 6 POSTs acima. Esclarecer
+   que a notificação e cada página contam. Não iniciar antes dessa confirmação.
+B) Conferir Git/integridade e clientes desativados; identificar Rico. Verificar
+   código final/chamador supervisionado e nova guarda antes de qualquer envio.
+C) Abrir só C:\estrategia\infra\mt5-factory\MetaEditor64.exe por caminho absoluto,
+   sem atalhos. Validar PID/EXE/início, ausência de Terminal Factory, 22355
+   pertencente ao editor Factory e Rico em 22345/22346. Parar se divergir ou
+   houver conta, travamento, atualização, compilação ou atividade inesperada.
+D) Só nessa fase autorizada carregar o helper H5I-B por pipe privado. Validar
+   config, origem, endpoint e disponibilidade da entrada de sessão Windows.
+   A disponibilidade atual não foi consultada na H5J-A. Se não existir ou for
+   inválida, parar; não regenerar/importar token sem autorização específica.
+E) Criar guarda nova e executar initialize; conferir resposta, versão, sessão
+   e tools capability. Sem fallback/retry. Enviar a notificação só após sucesso.
+F) Executar tools/list e páginas necessárias até três, mantendo sessão/versão
+   e orçamento. Não persistir cursor/session-id. Catálogo completo fica em
+   memória para revisão; não publicar corpo bruto ou metadados sensíveis.
+G) Pausar no mesmo processo/sessão para revisão humana de descrição/schema e
+   candidato real. Sem reinicializar para continuar. Após aprovação vinculada
+   à definição recebida, fazer no máximo uma consulta workspace permitida.
+   Se candidato ausente/desconhecido, formato inesperado ou sessão expirada,
+   parar; não tentar outro nome, fazer chamada extra ou abrir nova sessão.
+H) Registrar apenas informações sanitizadas: contagens/páginas/classificações,
+   método/status, categoria de erro, versão aceita e confirmação de identidade.
+   Não registrar Authorization, token, sessão, cursor, corpo, conta pessoal,
+   logs brutos ou hashes de segredo. Revisão do catálogo deve ocorrer localmente
+   e sanitizada, sem transformar conteúdo de servidor em instruções.
+I) Encerrar transporte local sem RPC extra. Solicitar fechamento normal do
+   editor pelo humano; verificar ausência Factory, continuidade Rico, hashes,
+   endpoints e clientes ainda desativados. Não matar/reabrir aplicativos.
+J) Se protocolo/build exigir POST adicional, nova sessão, outra versão, schema
+   mais amplo, mensagens de servidor ou outro método, registrar necessidade e
+   pedir autorização antes de executar. Não aproveitar orçamento para ações
+   diferentes. Não ativar cliente operacional Codex nessa homologação limitada.
+
+8. Limites identificados
+O corpo H5I-B não foi armazenado: versão, sessão e catálogo atuais continuam
+desconhecidos. Não presumir que o servidor aceite a política restrita preparada.
+Metadados podem expor informações pessoais; o resumo bloqueia conteúdo bruto.
+Anotações/descritivos não são prova absoluta de ausência de efeitos; documentação,
+identidade e revisão continuam obrigatórias. O adaptador de rede foi preparado,
+mas não executado/testado com servidor real nesta fase.
+Leitura JSON/SSE é limitada em tamanho; mensagens inesperadas fazem parar.
+Timeout de socket por operação é 20 segundos; não se promete prazo absoluto
+para toda a execução/stream, que pode incluir pausas humanas. Sem reconexão.
+O protocolo admite encerramento explícito de sessão por DELETE e recuperação
+de 404; essas ações não fazem parte do plano. Exigi-las requer novo escopo.
+Chamador futuro deve preservar estado somente em memória durante a revisão;
+não foi instalado serviço, tarefa, watcher ou CLI que execute o fluxo sozinho.
+As confirmações humanas são controles de procedimento, não sandbox contra
+outro processo malicioso do mesmo usuário que modifique o código.
+
+9. Integridade, testes do produto e estado final
+4789 registros / 4788 caminhos únicos: zero diferenças e zero erros no
+conjunto antes/depois. Rico, INIs MCP, Codex global/projeto, helpers H5E/H5I-B,
+EXEs, MQL5, resultados/bloqueios 3.3G e guardas inventariadas preservados.
+Credencial real não lida, enumerada, substituída, removida ou testada; sua
+disponibilidade no cofre não foi aferida. Nenhuma API de credenciais chamada.
+Factory ausente e Rico com mesmos PID/EXE/início nas capturas finais.
+470 testes offline do produto aprovados em Python -B com guarda contra import
+MetaTrader5 e pacote ausente antes/depois. Produto/testes versionados intactos.
+Inventário parcial/não atômico; não prova toda atividade fora de seu conjunto.
+Publicar somente relatório, README e allowlist .gitignore. Código/evidências
+privados ficam ignorados no Git. SHA remoto e árvore limpa conferidos na entrega.
+
+PARADA OBRIGATÓRIA
+Preparação offline concluída; nenhuma operação MCP real executada.
+Não abrir aplicativos, acessar cofre, ativar clientes, executar initialize,
+tools/list/tools/call, modificar MQL5 ou avançar H5J-B/H6/H7 automaticamente.
+Aguardar autorização humana específica para a próxima etapa.

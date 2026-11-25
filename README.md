@@ -493,3 +493,11 @@ novo helper configurado somente em `factory_metaeditor`, mantido **desativado**.
 Integração operacional ainda não homologada. Factory fechada; Rico preservada.
 Testes fictícios aprovados e **470 testes offline do produto aprovados**.
 Consulte [FASE_33J_H5I_B_AUTENTICACAO_MCP.txt](FASE_33J_H5I_B_AUTENTICACAO_MCP.txt).
+
+### Fase 3.3J-H5J-A — ferramentas MCP: preparação offline
+
+Verificador privado com sessão/versão, catálogo paginado, revisão humana e teto
+proposto de 6 POSTs para futura H5J-B. **51 testes simulados e 470 testes offline
+aprovados**. Nenhuma conexão, abertura, acesso ao cofre ou mudança de clientes.
+Rico e arquivos protegidos preservados; catálogo/workspace reais não homologados.
+Consulte [FASE_33J_H5J_A_PREPARACAO_FERRAMENTAS_MCP.txt](FASE_33J_H5J_A_PREPARACAO_FERRAMENTAS_MCP.txt).
