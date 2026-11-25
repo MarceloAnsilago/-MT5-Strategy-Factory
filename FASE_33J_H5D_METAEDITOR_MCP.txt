@@ -1,0 +1,113 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5D
+Configuração supervisionada do MCP do MetaEditor dedicado — CONCLUÍDA
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base Git: 461c77a64486841059398463f95ec63ee7411c14.
+
+RESULTADO
+MetaEditor Factory persistido em http://127.0.0.1:22355/mcp.
+Terminal Factory mantido em http://127.0.0.1:22356/mcp.
+Configuração realizada manualmente pelo usuário na interface oficial.
+Processos dedicados fechados; Rico preservada no conjunto comparado.
+Persistência confirmada por leitura; funcionamento MCP NÃO homologado.
+
+1. Preparação e identidade
+Git inicialmente limpo, HEAD/origin/main na base acima após fetch; nenhum
+commit posterior encontrado nas referências consultadas antes desta entrega.
+Relatórios H4, H5A, H5B, H5C e retomada H5C recuperados e consultados.
+Executável aberto uma única vez pelo caminho absoluto, sem atalhos públicos:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe
+Build preservado 6328; assinatura Authenticode Valid, MetaQuotes Ltd.
+SHA256 esperado/observado:
+2FAFC20ED04CCF537FB4FDE6952D055C82E08DAE72D7FCF32822650A7CA8861C.
+Processo dedicado aberto: PID 30640, caminho confirmado por CIM; janela
+identificada por caminho retornado pela ferramenta de controle, handle 69428.
+Rico terminal PID 26240 e editor PID 19712 identificados por caminho absoluto
+em C:\Program Files\Rico - MetaTrader 5; não receberam interação.
+Factory terminal e editor ausentes antes da abertura; 22355 sem listener e
+fora das exclusões TCP IPv4/IPv6 consultadas. Nenhum bind/conexão de teste.
+Baseline privado de hashes registrado antes da abertura, sem copiar credenciais.
+
+2. Configuração anterior e associação dos dados
+origin.txt conferido para C:\estrategia\infra\mt5-factory.
+Arquivo específico, somente lido pelo agente:
+C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671\Config\assistant.ini
+Antes: Terminal 22356/mcp; MetaEditor 22345/mcp, ambos em 127.0.0.1.
+SHA256 anterior:
+5C542C0BC35E9C8CF1509151AB2D3D3FBC90FB12493076B1A26797B0D7A0C741.
+Rico antes/depois: Terminal http://127.0.0.1:22346/mcp;
+MetaEditor http://127.0.0.1:22345/mcp.
+
+3. Interrupção e retomada manual
+A abertura mostrou editor sem documento aberto. O agente abriu Ferramentas
+e acionou Options. O Windows então listou MetaEditor (Não está respondendo).
+Interação interrompida imediatamente; nenhum endpoint editado ou OK acionado
+pelo agente, nenhum processo encerrado ou reiniciado automaticamente.
+Na conferência dessa interrupção, somente metaeditor.log havia mudado no
+baseline; endpoints ainda 22356/22345. Não presumida recuperação automática.
+
+Na retomada, o usuário informou ter configurado manualmente o endereço do
+MetaEditor para http://127.0.0.1:22355/mcp, clicado em OK e reaberto as opções,
+que mantiveram o endereço. Trata-se de relato humano explícito da aplicação
+e conferência pela interface, não de clique observado/executado pelo agente.
+Não houve etapa de confirmação para um OK do agente: ele não voltou a operar
+a interface; o próprio humano realizou o salvamento e comunicou o resultado.
+Nenhuma captura com segredo foi solicitada ou publicada nesta retomada.
+Fonte oficial consultada na preparação H5D:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+Ela documenta Ferramentas > Opções > MCP, Endereço e OK; o endereço é
+específico por aplicativo. Não utilizados Copy, Gerar ou configurações cliente.
+
+4. Fechamento e persistência final
+Solicitada confirmação de fechamento normal somente do editor dedicado.
+Usuário respondeu: "fechei tudo certo, so lento"; nenhum aviso inesperado
+relatado. CIM após essa resposta confirma ausência de terminal64.exe e
+MetaEditor64.exe no caminho Factory; PID dedicado 30640 ausente do conjunto.
+Rico terminal/editor presentes com mesmos PID, caminho e CreationDate do
+baseline H5D. Não afirmar funcionamento de conta ou conectividade de broker.
+Leitura após confirmação de fechamento:
+  MCP.MetaEditor/Endpoint=http://127.0.0.1:22355/mcp
+  MCP.MetaTrader/Endpoint=http://127.0.0.1:22356/mcp
+SHA256 final assistant.ini Factory:
+44BE37A6E50A93067D5050679DD324AF2B73A75B467B4AABE99CAD09BEA83818.
+Comparação com backup privado H5B: apenas as duas chaves Endpoint diferem,
+sendo Terminal a mudança histórica H5C e MetaEditor a mudança desta H5D.
+Demais campos permanecem iguais por comparação sem exposição de valores.
+Não houve edição direta de INI, alteração ou transferência de credenciais.
+
+5. Integridade e limites
+4781 registros / 4780 caminhos únicos comparados ao baseline pré-abertura:
+zero falhas de leitura; três arquivos únicos alterados, todos em dados Factory:
+Config/assistant.ini, Config/dnsperf.dat e logs/metaeditor.log.
+Duplicidade Config/config do INI representa o mesmo arquivo físico Windows.
+Alterações de estado/log observadas durante a fase; sem rastreamento de escrita
+para atribuir cada diferença a uma operação interna específica.
+Todos os demais arquivos do conjunto mantêm hashes, incluindo executáveis,
+MQL5 protegido anterior, arquivos/resultados/bloqueios da sessão histórica 3.3G,
+atalhos, configurações Rico e clientes Codex do projeto e global.
+Rico assistant.ini SHA256 final/antes idêntico:
+5584733CFCA66282E9746CB2D7564213FE3C54867867CEE31687F5C9D59AD5E3.
+Diferenças históricas anteriores à H5D descritas na retomada H5C não foram
+restauradas nem confundidas com alterações desta fase.
+Trecho acrescentado ao metaeditor.log inventariado: 332 bytes; zero linhas
+contendo compile ou liveupdate. Log terminal 20261124 sem acréscimo. Isso não
+constitui monitoramento contínuo nem prova absoluta de toda atividade do host.
+Inventário parcial, não atômico; arquivos novos ou fora do conjunto não têm
+garantia retroativa de integridade. Nenhum código/teste do produto modificado.
+
+6. Testes, portas e publicação
+470 testes offline aprovados em Python -B, guarda recusando import MetaTrader5
+e conferência de pacote ausente antes/depois. Resultado em evidência privada.
+Após fechamento, listeners relevantes somente Rico 22346/PID 26240 e
+22345/PID 19712, em 127.0.0.1; nenhum listener 22355 ou 22356 observado.
+Não executados HTTP, MCP, compilação, histórico, backtest, contas ou ordens.
+Terminal Factory não iniciado pelo agente e ausente nas capturas H5D.
+Nenhum cliente Codex criado/alterado, nenhum atalho público usado/modificado.
+Evidências em runs/phase33j_h5d_20261125, privadas e ignoradas pelo Git.
+Publicação somente deste relatório, README e allowlist .gitignore.
+SHA remoto e árvore limpa conferidos após commit/push e informados na entrega.
+
+7. PARADA OBRIGATÓRIA
+Configuração persistida e fechamento confirmados; homologação MCP pendente.
+Retenção após novo start e identidade/funcionamento de listeners Factory não
+testados. Nenhuma nova abertura ou conexão autorizada por esta conclusão.
+Aguardar nova autorização humana; não avançar automaticamente de fase.

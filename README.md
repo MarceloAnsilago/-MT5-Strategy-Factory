@@ -428,3 +428,12 @@ permanece em 22345. Processos dedicados ausentes; 470 testes offline aprovados.
 MCP Rico intacto; diferenças históricas em outros arquivos discriminadas no
 [relatório de retomada](FASE_33J_H5C_RETOMADA_VERIFICACAO.txt).
 Aguardar autorização humana para configurar o editor pela interface oficial.
+
+### Fase 3.3J-H5D — MetaEditor configurado manualmente
+
+Após interrupção por falta de resposta da interface, o usuário configurou o
+MetaEditor Factory em `http://127.0.0.1:22355/mcp` e o fechou normalmente.
+Persistência confirmada por leitura; Terminal Factory mantido em 22356.
+Processos dedicados ausentes; Rico e demais arquivos protegidos preservados
+no baseline H5D. **470 testes offline aprovados**. MCP não homologado.
+Consulte [FASE_33J_H5D_METAEDITOR_MCP.txt](FASE_33J_H5D_METAEDITOR_MCP.txt).
