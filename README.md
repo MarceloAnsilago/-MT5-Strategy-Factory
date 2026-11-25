@@ -501,3 +501,12 @@ proposto de 6 POSTs para futura H5J-B. **51 testes simulados e 470 testes offlin
 aprovados**. Nenhuma conexão, abertura, acesso ao cofre ou mudança de clientes.
 Rico e arquivos protegidos preservados; catálogo/workspace reais não homologados.
 Consulte [FASE_33J_H5J_A_PREPARACAO_FERRAMENTAS_MCP.txt](FASE_33J_H5J_A_PREPARACAO_FERRAMENTAS_MCP.txt).
+
+### Fase 3.3J-H5J-B — parada por versão negociada
+
+Único POST `initialize` retornou HTTP 200 e versão **2025-06-18**, fora do suporte
+2025-03-26 do verificador. Tentativa interrompida sem notificação, catálogo ou
+ferramenta; guarda consumida preservada. Factory fechada, Rico preservada e
+clientes desativados. **51 testes simulados e 470 testes offline aprovados**.
+Descoberta permanece pendente de revisão offline e nova autorização.
+Consulte [FASE_33J_H5J_B_HOMOLOGACAO_DESCOBERTA_MCP.txt](FASE_33J_H5J_B_HOMOLOGACAO_DESCOBERTA_MCP.txt).

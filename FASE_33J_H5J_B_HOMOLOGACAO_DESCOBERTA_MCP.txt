@@ -1,0 +1,161 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5J-B
+Homologação de descoberta MCP — INTERROMPIDA NA NEGOCIAÇÃO DE VERSÃO
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 13ace339f0937b5cc1572bff233b749d7c70d8a2.
+
+RESULTADO
+Exatamente 1 POST initialize executado, com resposta HTTP 200.
+Versão solicitada: 2025-03-26. Versão retornada pelo servidor: 2025-06-18.
+O verificador preparado só aceita 2025-03-26 e interrompeu por
+unsupported_negotiated_version. Não foi alterado para aceitar outra versão.
+Nenhuma notificação, tools/list, tools/call ou segunda tentativa.
+Catálogo/workspace NÃO homologados. Factory fechada pelo humano; Rico preservada.
+Clientes Factory permanecem desativados; guarda H5J-B consumida e preservada.
+
+1. Preparação e autorização
+Git inicialmente limpo na referência informada; fetch executado, sem commits
+posteriores nas referências consultadas antes desta publicação.
+H5J-A lido integralmente, H5I-B consultado; núcleo e adaptador privados
+inspecionados. Factory terminal/editor ausentes; clientes Factory disabled.
+Baseline ampliado de 4795 registros / 4794 caminhos únicos, incluindo código
+H5J-A, helper/cofre H5I-B, guardas anteriores e relatórios relevantes.
+Nenhuma diferença versus o conjunto protegido anterior antes da abertura.
+Nenhuma conexão ou leitura do cofre durante essa preparação.
+Rico identificada por PID/caminho/CreationDate:
+26240 — C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+19712 — C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Guardas H5F e H5I-B presentes e incluídas na comparação de integridade.
+
+Usuário confirmou expressamente abertura exclusiva, descoberta até 6 POSTs,
+credencial protegida Factory, sem retries/redirects/reconexão, com métodos
+initialize, notifications/initialized e tools/list na primeira parte. Qualquer
+tools/call dependeria de confirmação adicional, que NÃO foi solicitada/recebida,
+pois a execução não chegou ao catálogo nem a uma candidata revisável.
+
+2. Revisão do verificador e chamador
+Usados sem alteração os arquivos privados preparados na H5J-A:
+runs/phase33j_h5j_a_20261125/limited_verifier.py
+runs/phase33j_h5j_a_20261125/future_local_adapter.py.
+Revisados endpoint fixo 22355, ausência de proxy/redirect/retry, estados,
+sessão/versão, identidade antes de cada POST e limite global de seis.
+O chamador privado desta fase, supervised_runner.py, usa somente a interface
+controlada do núcleo, interrompe erros e não tenta outros métodos/versões.
+Manteria sessão em memória durante revisão humana se chegasse a essa etapa.
+Entradas reais do adaptador foram invocadas somente após autorização humana.
+Nenhuma ativação do cliente operacional Codex foi utilizada para testar.
+51 testes simulados H5J-A repetidos com sucesso; importação inerte e sanitização
+do chamador verificadas com material fictício antes de abrir o aplicativo.
+
+3. Abertura e identidade do listener
+Executável dedicado revalidado por hash e assinatura antes da abertura, build
+6328 preservado. Aberto uma única vez pelo caminho absoluto:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe.
+PID desta fase: 18112; EXE e horário de criação correlacionados por CIM.
+Janela identificada por caminho e handle 265740, Responding=True. Observação
+inicial mostrou editor sem documento aberto e sem diálogo inesperado.
+Não usados atalhos públicos nem janelas Rico. Terminal Factory ausente.
+Listener 127.0.0.1:22355 -> PID 18112, MetaEditor Factory.
+Listener 127.0.0.1:22345 -> PID 19712, MetaEditor Rico.
+Listener 127.0.0.1:22346 -> PID 26240, Terminal Rico.
+Identidades completas e horários de início capturados privadamente e validados
+novamente pelo núcleo imediatamente antes do único POST. Não presumida
+identidade apenas por porta. Nenhuma conexão realizada aos endpoints Rico.
+
+4. Credencial protegida e guarda exclusiva
+Helper H5I-B executado somente em processo filho com pipe privado. Credencial
+oficial da sessão Windows disponível e recuperada; registrado apenas booleano.
+Não importada, copiada, regenerada, substituída ou removida credencial.
+Não usado ApiKey do INI como alternativa. Pipe não registrado ou exibido.
+Cliente global, factory_terminal, rico_metaeditor e rico_terminal intactos;
+factory_metaeditor também não teve configuração alterada nesta H5J-B.
+
+Guarda criada por operação exclusiva antes da primeira requisição e antes
+da recuperação de credencial dentro do núcleo:
+runs/phase33j_h5j_b_20261125/H5JB_attempt_consumed.flag.
+Guarda contém somente indicação de tentativa consumida. Não foi removida ou
+reutilizada. Guardas anteriores mantêm seus hashes. Falha após consumo impede
+novo início automático; cinco POSTs não usados não autorizam reinicialização.
+
+5. Inicialização recebida e condição de parada
+Método enviado: initialize, em POST para http://127.0.0.1:22355/mcp.
+Código HTTP: 200.
+Envelope JSON-RPC de resposta válido e result estruturado.
+Protocolo solicitado: 2025-03-26.
+Protocolo negociado/retornado: 2025-06-18.
+Metadados serverInfo estruturalmente válidos; nenhuma identificação pessoal
+ou valor bruto de servidor registrado. Identidade local confirmada pela
+correlação listener/PID/EXE/início acima, sem consulta ao workspace.
+Capability tools anunciada: SIM.
+Cabeçalho de sessão fornecido: SIM; identificador não registrado.
+
+O núcleo exige versão suportada, não igualdade presumida. Receber versão
+diferente não é, por si só, erro do servidor: negociação pode selecionar outra
+versão. Neste caso ela está fora do subconjunto implementado, tornando a
+continuação incompatível com o verificador atual. Ele encerrou a tentativa.
+Não enviado cabeçalho posterior nem notificação para prosseguir sem suporte.
+Não se atribui o resultado a erro de credencial ou a um defeito MetaQuotes.
+HTTP 200 e resposta recebida não homologam a sequência operacional completa.
+
+6. Consumo exato e etapas não executadas
+initialize: 1 POST, HTTP 200, interrompido após validar a versão retornada.
+notifications/initialized: 0 POSTs — não enviada.
+tools/list: 0 POSTs — nenhuma página consultada.
+tools/call: 0 POSTs — nenhuma consulta realizada.
+TOTAL: 1 de no máximo 6 POSTs.
+Sem retry, fallback, reconexão, GET, DELETE ou RPC adicional de encerramento.
+Transporte local encerrado e referências de sessão/credencial descartadas;
+não persistidos identificadores de sessão ou cursores.
+
+Páginas de catálogo: 0. Ferramentas efetivamente descobertas: 0.
+Isso NÃO significa catálogo vazio: ele não foi consultado.
+Classificação das ferramentas: NÃO REALIZADA, por falta de catálogo.
+Definição sanitizada de candidata workspace: INDISPONÍVEL; nome documental
+get_workspace_info não foi presumido como presente no servidor.
+Confirmação humana para tools/call: NÃO RECEBIDA/NÃO SOLICITADA.
+Resultado da consulta workspace: NÃO EXECUTADA.
+Nenhum corpo bruto, header sensível, token, sessão, cursor, dados pessoais ou
+informações de conta registrados no resumo sanitizado da execução.
+
+7. Encerramento e integridade
+Após parada, solicitado fechamento normal somente do MetaEditor Factory.
+Usuário confirmou fechamento; nenhum aviso inesperado relatado.
+CIM final: MetaEditor/Terminal Factory ausentes; Rico mantém os mesmos PID,
+EXEs e CreationDate do baseline. Não realizado kill, reinício ou reabertura.
+Listeners finais relevantes somente Rico 22345/22346. Clientes Factory disabled.
+
+Conferidos 4795 registros / 4794 caminhos únicos, zero erros. Duas mudanças
+desde o início, ambas em dados Factory: Config/dnsperf.dat e logs/metaeditor.log.
+Alterações de estado/log observadas no uso/fechamento; sem rastreamento de
+escrita para atribuir cada diferença a uma operação interna específica.
+Demais arquivos do conjunto idênticos: configurações Rico, INIs MCP, Codex
+global/projeto, helpers H5E/H5I-B, núcleo/adaptador H5J-A, guardas anteriores,
+EXEs/MQL5 protegidos, resultados/bloqueios históricos 3.3G e atalhos.
+Nenhuma escrita MQL5, compilação, histórico, backtest, conta ou ordem realizada.
+470 testes offline do produto aprovados na preparação H5J-B em Python -B,
+guarda recusando import MetaTrader5 e pacote ausente antes/depois. Nenhum código
+ou teste versionado do produto alterado; suíte não repetida sem novo motivo.
+Capturas/inventários parciais e não atômicos, não monitoramento total do host.
+
+8. Pendências, recomendação e publicação
+Descoberta MCP permanece pendente. Fato novo: servidor negociou 2025-06-18,
+enquanto o verificador implementa somente 2025-03-26.
+Recomenda-se etapa OFFLINE explicitamente autorizada para estudar a versão
+retornada, revisar suporte de sessão/transportes/validação e ampliar testes.
+Não modificar a versão aceita apenas para contornar a parada. Nenhuma adaptação
+foi aplicada durante a tentativa ou após o resultado.
+Nova execução real exigirá autorização e política de guarda próprias; não
+apagar/reutilizar esta guarda para tentar novamente. Manter clientes disabled.
+Qualquer leitura de workspace continua dependendo de catálogo efetivo, revisão
+de definição/argumentos e confirmação humana adicional no fluxo autorizado.
+
+Publicação limitada a este relatório, README e allowlist .gitignore.
+Código/chamador, baselines e evidências privadas permanecem em runs, ignorados
+pelo Git. Credencial real não publicada; permanece sujeita à política de sessão
+Windows definida na H5I-B, sem alteração nesta fase.
+Commit/push, SHA remoto e árvore limpa conferidos na entrega.
+
+PARADA OBRIGATÓRIA
+Tentativa consumida e interrompida; não executar segunda inicialização,
+notificação, catálogo ou ferramenta. Factory fechada; clientes desativados.
+Não abrir Terminal, alterar Rico, criar/editar/compilar MQL5, executar backtest
+ou mercado. Não avançar H5K/H6/H7 automaticamente. Aguardar nova autorização.
