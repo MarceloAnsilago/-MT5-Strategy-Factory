@@ -466,3 +466,12 @@ da interface. Montagem Bearer e caracteres conferidos sem defeito demonstrado;
 causa definitiva ainda não confirmada. **8 verificações fictícias e 470 testes
 offline aprovados**. Nenhuma conexão, abertura ou correção; integridade preservada.
 Consulte [FASE_33J_H5G_DIAGNOSTICO_AUTENTICACAO.txt](FASE_33J_H5G_DIAGNOSTICO_AUTENTICACAO.txt).
+
+### Fase 3.3J-H5H — credenciais comparadas: DIFERENTES
+
+Comparação local em memória confirmou diferença entre a credencial atual obtida
+por Copiar na interface Factory e o campo do INI usado pelo helper H5E.
+Sem correção ou conexão MCP; a causa definitiva do HTTP 401 não foi demonstrada.
+Factory fechada, Rico preservada e clientes Factory desativados. **9 verificações
+fictícias e 470 testes offline aprovados**.
+Consulte [FASE_33J_H5H_COMPARACAO_CREDENCIAIS.txt](FASE_33J_H5H_COMPARACAO_CREDENCIAIS.txt).

@@ -1,0 +1,147 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5H
+Comparação supervisionada de credenciais MCP — CONCLUÍDA
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base Git: 147ef95794717b8291e38dff940010b1d86a07ca.
+
+RESULTADO: DIFERENTES
+A credencial atual obtida pela função oficial Copiar do MetaEditor Factory
+difere exatamente do valor [MCP.MetaEditor] ApiKey que o helper H5E utiliza.
+Confirma-se diferença entre essas representações. Não foi testado se o token
+oficial é aceito pelo servidor, nem demonstrada a causa definitiva do HTTP 401.
+Não alterados helper, INI, chaves, endpoints, permissões ou clientes.
+
+1. Estado inicial
+Git inicialmente limpo na base informada após fetch; nenhum commit posterior
+nas referências consultadas antes desta publicação. Relatórios H5E, H5F e H5G
+recuperados e lidos nesta sequência; evidências privadas preservadas.
+4784 registros / 4783 caminhos únicos sem diferenças em relação ao baseline
+anterior no início H5H. Factory terminal/editor ausentes. Rico ativa:
+PID 26240 — C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+PID 19712 — C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Clientes factory_metaeditor/factory_terminal desativados antes/depois.
+Não realizada requisição HTTP/MCP aos aplicativos locais.
+
+2. Preparação do método local
+Comparador temporário sem segredo embutido em
+runs/phase33j_h5h_20261125/compare_credentials.py, não versionado.
+Recebe somente PID e contador do clipboard em argumentos; nunca a credencial.
+Valida origin.txt exclusivo da instalação C:\estrategia\infra\mt5-factory e
+endpoint MetaEditor 22355 na área AEF1E6F57078EAB3775179FCBD94D671.
+Seleciona para comparação exclusivamente [MCP.MetaEditor] ApiKey do INI
+Factory. Não executa o helper original com valores reais nem o modifica.
+O helper inspecionado na sequência H5E/H5G usa diretamente esse mesmo campo.
+
+Origem oficial recebida do clipboard Windows apenas em memória via API nativa.
+Antes de usar Copiar: documentação consultada; Windows IsHistoryEnabled e
+IsRoamingEnabled retornaram false. Revalidado imediatamente antes da cópia;
+nenhuma configuração do Windows alterada. Não inferido estado por ausência
+de valor no registro; utilizados os indicadores da API documentada.
+Registrado somente contador de sequência antes da cópia, sem ler seu conteúdo.
+Ao comparar, exigida alteração do contador e proprietário do clipboard com
+PID do MetaEditor Factory. Não lido conteúdo de outro proprietário.
+Parser aceita configurações oficiais JSON/TOML como dados, sem executar
+comandos; seleciona somente entrada cujo URL é exatamente 22355/mcp.
+Extrai token do campo de autenticação, removendo somente a sintaxe do esquema
+Bearer. Não normaliza, decodifica ou corrige nenhuma das duas credenciais.
+Se houver entradas duplicadas, exige que concordem; formatos ausentes ou
+ambíguos resultam em INCONCLUSIVO, sem impressão do conteúdo.
+Comparação por hmac.compare_digest em memória, sem publicação de hashes.
+Nenhum valor real em argumento, arquivo temporário, chat, log ou repositório.
+Saída permitida do comparador: IGUAIS, DIFERENTES ou INCONCLUSIVO.
+Conteúdo recém-copiado da Factory limpo com EmptyClipboard ainda sob bloqueio;
+sucesso da limpeza exigido para retornar resultado de igualdade/diferença.
+Não consultado/limpo histórico de outros itens nem guardada cópia do clipboard.
+
+3. Validação prévia com dados fictícios
+Nove verificações aprovadas antes de abrir o MetaEditor:
+igualdade, diferença sensível à caixa, diferença de espaço sem normalização,
+seleção de endpoint em JSON, seleção em TOML, exportações combinadas
+consistentes, rejeição de exportações conflitantes, endpoint incorreto e
+token sem configuração estruturada. Nenhuma chave real usada nas simulações.
+Testes não acessaram clipboard, INI real ou rede; chamadas socket bloqueadas.
+Rotina real só executada após método preparado, testes e confirmação da
+interface pelo usuário. Não utilizados dados fictícios em configuração real.
+
+4. Identidade e abertura supervisionada
+Executável dedicado com assinatura Valid e hash preservado em relação aos
+baselines anteriores, build 6328; aberto uma única vez pelo caminho absoluto:
+C:\estrategia\infra\mt5-factory\MetaEditor64.exe.
+Processo PID 2152; caminho e CreationDate capturados por CIM. Janela retornada
+pela ferramenta de controle com caminho Factory, handle 331532; destacada.
+Responding=True. Terminal Factory ausente; não aberto manualmente.
+Não usados atalhos públicos; nenhuma interação com janelas Rico.
+Nenhum travamento/conta/compilação/atualização inesperados relatados ou
+observados nas capturas de processos/janelas desta fase; não houve monitoração
+contínua de toda atividade do host.
+
+5. Obtenção oficial e interação humana
+Ajuda oficial MetaQuotes consultada antes da cópia:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+Descreve Copy para fornecer configurações de cliente com autenticação; não
+se presumiu que o botão copiasse apenas uma chave sem estrutura.
+Usuário orientado a abrir Ferramentas > Opções > MCP na janela destacada,
+conferir http://127.0.0.1:22355/mcp e existência do botão Copiar, sem copiar,
+gerar ou salvar ainda. Confirmou "é isso mesmo".
+Sem captura da aba MCP ou extração de texto da interface com segredo.
+Após revalidar histórico/sincronização desativados, orientado a clicar somente
+Copiar e não colar em lugar algum. Usuário confirmou "feito".
+Comparador executado localmente, exigindo proprietário PID 2152, nova cópia,
+origem Factory e entrada específica 22355; retornou somente DIFERENTES.
+Não foi solicitado Gerar, OK ou mudança de configuração. Nenhuma credencial
+foi enviada para a Rico, usada como argumento ou aplicada a outro cliente.
+
+6. Resultado e implicações para H5G
+DIFERENTES: comparação exata realizada com origem oficial atual, não apenas
+inferência pela aparência hexadecimal ou pela captura antiga.
+A hipótese H5G de uso de representação persistida sem equivalência ao token
+oficial ganhou suporte direto. Não identificado mecanismo de armazenamento,
+ofuscação/criptografia, algoritmo de conversão ou tratamento reversível.
+Não tentada decodificação ou transformação para obter uma credencial válida.
+Distinção importante: diferença comprovada não é demonstração experimental
+de que corrigir a origem resolveria o 401; nenhuma autenticação foi testada.
+A H5F continua com uma única sondagem e sua guarda permanece preservada.
+
+7. Fechamento, integridade e testes
+Solicitado fechamento normal somente do editor dedicado, sem salvar alterações.
+Usuário confirmou "feito"; nenhum aviso inesperado relatado.
+CIM posterior: PID 2152 e demais processos Factory ausentes; Rico mantém
+PID, caminho e horário de início do baseline H5H. Nenhum encerramento forçado,
+reinicialização, segundo lançamento ou abertura de Terminal realizada.
+Endpoints finais preservados:
+Factory MetaEditor http://127.0.0.1:22355/mcp;
+Factory Terminal http://127.0.0.1:22356/mcp;
+Rico MetaEditor http://127.0.0.1:22345/mcp;
+Rico Terminal http://127.0.0.1:22346/mcp.
+Clientes Factory seguem desativados; clientes Rico e global Codex intactos.
+4784 registros / 4783 caminhos únicos conferidos, zero erros. Duas mudanças
+em dados Factory desde o início: Config/dnsperf.dat e logs/metaeditor.log.
+São alterações de estado/log observadas no uso/fechamento; sem rastreamento
+de escrita para atribuir cada diferença a uma operação interna específica.
+Demais hashes do conjunto iguais, incluindo INIs MCP, configurações Rico,
+helpers originais, EXEs/MQL5 protegido, resultados/bloqueios 3.3G e atalhos.
+Inventário parcial e não atômico; não garante arquivos fora desse conjunto.
+470 testes offline do produto aprovados em Python -B, guarda recusando import
+MetaTrader5 e pacote ausente antes/depois. Código/testes versionados intactos.
+Nenhuma chamada MCP/HTTP local, compilação, histórico, backtest ou ordem.
+
+8. Publicação e próxima ação
+Publicar somente este relatório, README e allowlist .gitignore. Comparador,
+testes fictícios e evidências privadas em runs/phase33j_h5h_20261125, ignorados
+pelo Git. Apenas resultado da igualdade registrado; sem comprimento, fragmentos,
+hashes ou representações reversíveis de credenciais reais.
+Commit/push, SHA remoto e árvore limpa conferidos na entrega.
+Recomendação futura: preparar sob autorização um mecanismo de credencial
+baseado na origem oficial e armazenamento seguro, sem pressupor que o campo
+persistido seja token utilizável. Revisar alteração antes de aplicar.
+Esta H5H não substitui a credencial do helper nem autoriza nova conexão.
+Qualquer correção, exportação persistente, ativação ou teste exige nova
+autorização específica, incluindo limite de requisições.
+
+PARADA OBRIGATÓRIA
+Comparação concluída: DIFERENTES. Factory fechada; clientes desativados.
+Não modificar helper/INI, regenerar chave, repetir initialize ou avançar H5I,
+H6 ou H7 automaticamente. Aguardar orientação humana.
+
+Referências do método clipboard consultadas:
+https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.datatransfer.clipboard
+https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclipboarddata
