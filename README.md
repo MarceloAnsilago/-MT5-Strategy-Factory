@@ -510,3 +510,12 @@ ferramenta; guarda consumida preservada. Factory fechada, Rico preservada e
 clientes desativados. **51 testes simulados e 470 testes offline aprovados**.
 Descoberta permanece pendente de revisão offline e nova autorização.
 Consulte [FASE_33J_H5J_B_HOMOLOGACAO_DESCOBERTA_MCP.txt](FASE_33J_H5J_B_HOMOLOGACAO_DESCOBERTA_MCP.txt).
+
+### Fase 3.3J-H5J-C — compatibilidade MCP atualizada offline
+
+Verificador privado atualizado para `2025-06-18` e legado `2025-03-26`, com
+validação da versão negociada, headers, sessão e saída estruturada limitada.
+**81 testes simulados e 470 testes offline aprovados**. Sem conexão, acesso ao
+cofre ou mudança de clientes. Guarda futura H5J-D preparada sem consumo;
+guardas anteriores, Rico e arquivos protegidos não envolvidos preservados.
+Consulte [FASE_33J_H5J_C_COMPATIBILIDADE_MCP_2025_06_18.txt](FASE_33J_H5J_C_COMPATIBILIDADE_MCP_2025_06_18.txt).

@@ -1,0 +1,214 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5J-C
+Compatibilidade OFFLINE MCP 2025-06-18 — CONCLUÍDA NO SUBCONJUNTO LIMITADO
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 2574bf79b1f61246056558287883d1de62ca6588.
+
+RESULTADO
+Núcleo, adaptador e chamador privados atualizados para aceitar as versões
+2025-03-26 e 2025-06-18, validando a versão efetivamente retornada em uma única
+negociação. Padrão solicitado passa a 2025-06-18; não há fallback/retry.
+81 testes simulados e 470 testes offline do produto aprovados.
+Nenhum aplicativo, cofre, endpoint local ou cliente operacional acionado.
+Suporte confirmado por simulação, NÃO homologação real do MetaEditor.
+
+1. Estado inicial e preservação
+Git inicialmente limpo na referência informada; fetch executado, sem commits
+posteriores nas referências consultadas antes desta publicação.
+H5J-A/H5J-B lidos integralmente na sequência e H5I-A/H5I-B consultados para
+preservar o contrato do helper/cofre de sessão. Núcleo, adaptador e chamador
+supervisionado inspecionados; cópias privadas anteriores preservadas.
+H5J-B havia consumido um POST e parado corretamente ao receber 2025-06-18,
+fora do suporte então implementado. Não repetida essa tentativa nesta fase.
+
+Factory terminal/editor ausentes antes/depois; clientes Factory desativados.
+Rico ativa, identificada sem interação por PID/caminho/CreationDate:
+26240 — C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+19712 — C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+Baseline de 4797 registros / 4796 caminhos únicos, sem diferenças versus
+final H5J-B no início. Inclui a guarda consumida H5J-B e o chamador histórico.
+Configurações/INIs e helpers protegidos conferidos por hash de arquivo; não
+selecionada, recuperada, exportada ou testada credencial real do cofre.
+
+2. Fontes oficiais estudadas
+Índices oficiais das duas versões e páginas vinculadas consultados:
+[A] https://modelcontextprotocol.io/specification/2025-03-26
+[B] https://modelcontextprotocol.io/specification/2025-06-18
+[C] https://modelcontextprotocol.io/specification/2025-06-18/changelog
+[D] https://modelcontextprotocol.io/specification/2025-03-26/basic/transports
+[E] https://modelcontextprotocol.io/specification/2025-06-18/basic/transports
+[F] https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle
+[G] https://modelcontextprotocol.io/specification/2025-06-18/basic/index
+[H] https://modelcontextprotocol.io/specification/2025-03-26/server/tools
+[I] https://modelcontextprotocol.io/specification/2025-06-18/server/tools
+Consulta à documentação pública não incluiu servidores locais.
+
+3. Matriz de diferenças relevantes
+Aspecto | 2025-03-26 | 2025-06-18 | Decisão no verificador
+Negociação [A/B/F] | Seleção de versão suportada | Mesmo mecanismo, nova revisão | Aceitar só as duas estudadas; guardar a efetivamente retornada.
+Header de versão [D/E] | Sem obrigação explícita equivalente | MCP-Protocol-Version obrigatório após initialize HTTP | Conferir envio e correspondência com a negociação.
+Lotes JSON-RPC [C/D/G] | Batching permitido no protocolo | Suporte a batching removido | Continuar rejeitando lotes nas duas, como subconjunto legado já restrito.
+IDs/envelope [G] | JSON-RPC 2.0 | JSON-RPC 2.0, ID correspondente | Validar exatamente IDs emitidos pelo cliente; excluir null/booleano/lote.
+HTTP/aviso inicial [D/E/F] | POST; JSON/SSE; aviso initialized | Fluxo preservado | RPC espera 200; notificação exige 202 vazio, sem ID.
+Sessões [D/E] | ID opcional, reutilizado quando fornecido | Mesma política fundamental | Manter só em memória; validar ASCII, continuidade e envio.
+Paginação [H/I] | tools/list e nextCursor | Mesmos métodos/cursor opaco | Até três páginas, sem inferir formatos de cursor.
+Saída de ferramenta [C/H/I] | Content não estruturado documentado | structuredContent e outputSchema formalizados | Validar subconjunto de schema; não ignorar schema desconhecido.
+Metadados [C/I] | name como identificador | title e _meta ampliados | name continua identificador; campos adicionais são dados, não autoridade.
+Mensagens de servidor [C/F] | Recursos opcionais | Elicitation acrescentada | Não anunciar elicitation/sampling; parar diante de pedidos inesperados.
+Autorização [C] | Fluxo OAuth anterior | Resource servers/indicators e segurança ampliados | Não alterar Bearer MetaQuotes/cofre ou declarar suporte OAuth completo.
+Operação/encerramento [C/E/F] | Regras de ciclo/sessão | Regras reforçadas | Não ampliar métodos; 404/timeout encerram sem recuperação automática.
+
+As semelhanças foram confrontadas nas páginas específicas, não inferidas
+somente pelos nomes dos métodos. O protocolo tem recursos além deste escopo.
+Não é implementação geral de todas as capacidades MCP/OAuth de nenhuma versão.
+
+4. Mudanças no núcleo privado
+Arquivo: runs/phase33j_h5j_a_20261125/limited_verifier.py.
+Conjunto fechado SUPPORTED_VERSIONS com março/junho; request padrão junho.
+Versão solicitada configurável somente entre as duas conhecidas. Resposta pode
+selecionar qualquer uma das duas; ela é validada e armazenada como contexto.
+Aceitar uma versão suportada retornada no mesmo initialize não é emitir
+fallback: nenhuma segunda inicialização é gerada. Versões desconhecidas,
+tipos inválidos e capabilities/metadados inválidos interrompem.
+
+Novo validador de contexto HTTP: initialize não reutiliza sessão/cabeçalho
+de versão anterior. Depois da negociação, junho exige header de versão;
+se presente, o valor sempre deve corresponder à negociação. O núcleo envia
+o header correto também no legado, embora a omissão no legado não seja
+tratada como obrigação nova do protocolo. Cabeçalhos duplicados/inconsistentes
+e sessão ausente quando estabelecida bloqueiam antes de enviar.
+Esses testes tratam cabeçalhos ENVIADOS, não inventam obrigação de o servidor
+retornar MCP-Protocol-Version em sua resposta; a versão vem de InitializeResult.
+
+Preservados JSON-RPC estrito, JSON UTF-8, parsing JSON/SSE limitado, id exato,
+ausência de lotes e rejeição de erros. SSE aceita evento message/padrão e
+comentários, mas tipo de evento/pedido de servidor inesperados encerram.
+Não há respostas implícitas a elicitation, sampling, ping ou outros métodos.
+Sessão opcional ausente continua válida no modo stateless; sessão inválida,
+alterada, ausente no envio estabelecido ou expirada não é recuperada.
+
+Schema de saída: se presente, a candidata só prossegue com subconjunto local
+explicitamente validado (objetos, propriedades/tipos simples, required,
+additionalProperties booleano e arrays limitados). $ref remoto, uniões ou
+palavras-chave não suportadas bloqueiam a chamada; não há resolução de rede.
+Para junho com outputSchema, exigir structuredContent e validar estrutura,
+tipos, obrigatórios e propriedades extras antes de confirmar identidade.
+Retorno sem schema continua no parsing restrito já previsto. Links/resources
+não são buscados; formatos não suportados param. Não relaxada a política de
+descrição/inputSchema para candidata workspace nem a confirmação humana.
+
+5. Adaptador e chamador
+Arquivo: runs/phase33j_h5j_a_20261125/future_local_adapter.py.
+Adaptador valida independentemente contexto/cabeçalhos antes do envio e
+retém versão/sessão de resposta inicial apenas em memória, usando o parser
+restrito compartilhado. Mantém endpoint exato, proxy desativado, sem redirect,
+retry, GET ou reconexão. Quotas por método reforçadas no núcleo e adaptador:
+1 initialize, 1 notifications/initialized, até 3 tools/list, até 1 tools/call.
+
+Arquivo: runs/phase33j_h5j_b_20261125/supervised_runner.py.
+Chamador ganhou injeção de transporte, identidade, credencial fictícia,
+guarda temporária e leitor de aprovação para testar todo o fluxo sem ambiente
+real. Sua via real agora exige gate explícito H5J-D e caminho de guarda novo;
+a invocação antiga H5J-B não inicia outra tentativa.
+Resultados de uma futura execução serão escritos na pasta da nova guarda,
+não sobre o resumo histórico H5J-B. A saída sanitizada para revisão inclui
+outputSchema quando existir. Não há tools/call antes da frase humana prevista.
+Após falha, nenhuma requisição posterior; credencial/sessão são descartadas
+das referências do processo sem RPC adicional de encerramento.
+
+6. Nova guarda preparada somente em código/plano
+Nome previsto: H5JD_attempt_consumed.flag.
+Caminho proposto: runs/phase33j_h5j_d_YYYYMMDD/H5JD_attempt_consumed.flag.
+Guarda H5J-B antiga é rejeitada como entrada do núcleo atualizado. Todas as
+guardas reais H5F/H5I-B/H5J-B mantêm seus hashes e permanecem consumidas.
+Nenhuma guarda real H5J-D foi criada/consumida ou removida nesta H5J-C.
+Somente guardas fictícias em diretórios temporários de teste foram exercitadas
+e removidas. Escrita de guarda continua limitada a runs, nunca MQL5.
+Falha após consumo impede reinício; orçamento restante não autoriza repetição.
+
+7. Testes simulados — 81 aprovados
+51 verificações de regressão mais 30 específicas de compatibilidade,
+adaptador e chamador. Nenhum socket/servidor aberto, nenhuma chamada ao helper
+real/cofre ou execução real de processo externo. Chamadas subprocess e sockets
+bloqueadas nos testes; adaptador exercitado com opener/respostas em memória.
+
+Cobertos nas duas revisões: negociação válida, seleção suportada diferente
+da solicitada sem segunda inicialização, versão desconhecida/tipo inválido;
+headers enviados corretos, junho ausente/incorreto/duplicado; sessão válida,
+opcional ausente, exigida ausente, alterada e expirada; inicialização inválida,
+notificação, catálogo simples/paginado, cursor inválido/repetido, duplicidades;
+ferramentas desconhecidas/modificadoras, schemas inesperados, revisão humana,
+orçamento/quota e guarda consumida; JSON-RPC inválido, batch, erros HTTP e
+transporte; SSE suportado, evento/pedido inesperado e elicitation bloqueados;
+schema de saída válido/inválido, structuredContent exigido, links não buscados;
+endpoint/listener/identidade divergentes e ausência de vazamento nos resumos.
+Casos de processo/socket de teste usam somente fakes, sem lançar servidores.
+
+Chamador validado end-to-end em simulação: junho -> initialized -> aviso ->
+tools/list -> catálogo -> pausa obrigatória. Leitor fictício de aprovação
+confere que só três POSTs ocorreram antes da pausa. Sem aprovação, nenhuma
+ferramenta é chamada. Com aprovação estritamente fictícia, um tools/call é
+permitido; erros/versão incompatível encerram antes de novos envios.
+Nenhuma dessas transcrições usou ou testou a credencial real da sessão Windows.
+Resultados privados em runs/phase33j_h5j_c_20261125/compatibility_tests_sanitized.json.
+
+8. Testes do produto e integridade
+470 testes offline aprovados em Python -B, guarda recusando import MetaTrader5,
+pacote ausente antes/depois. Produto/testes versionados não modificados.
+4797 registros / 4796 caminhos únicos conferidos: zero erros. Apenas três
+arquivos privados protegidos mudaram, conforme autorização desta fase:
+limited_verifier.py, future_local_adapter.py e supervised_runner.py acima.
+Testes ampliados e snapshots foram criados somente na pasta privada H5J-C.
+Todos os demais hashes iguais: Rico, INIs MCP, Codex global/projeto, helpers
+H5E/H5I-B, EXEs/MQL5 protegidos, histórico/resultados/bloqueios 3.3G e atalhos.
+Credencial real não lida, enumerada, atualizada, removida ou testada; sua
+disponibilidade no cofre não foi consultada. Nenhuma configuração de auth,
+endpoint, porta ou permissão alterada.
+Factory ausente e Rico com mesmos PID/caminho/início no início e no fim;
+clientes Factory permanecem desativados. Nenhuma compilação/backtest/operação.
+Inventário parcial e não atômico; não implica monitoramento completo do host.
+
+9. Plano para nova tentativa supervisionada — NÃO EXECUTADO
+Obter autorização específica H5J-D para abertura exclusiva do MetaEditor e
+fluxo limitado, sem presumir autorização pela execução anterior.
+Revalidar Git, código atualizado, arquivos protegidos, Rico, clientes disabled,
+EXE Factory e guardas. Revisar o chamador e argumentos novos antes de rodar.
+Obter confirmação humana antes da abertura; identificar PID/EXE/início/listener
+22355 e preservar Rico 22345/22346; Terminal Factory continua proibido.
+Somente em fase autorizada recuperar credencial H5I-B por pipe. Se ausente ou
+inválida, parar sem importação/regeneração. Criar guarda H5J-D exclusiva antes
+do primeiro envio e nunca remover guardas históricas para recomeçar.
+Solicitar junho por padrão, validar versão suportada efetivamente retornada,
+capabilities e sessão, e encaminhar contexto correto. Não testar versões em
+sequência. Teto continua 6 POSTs, com no máximo 3 páginas e uma consulta.
+Após catálogo completo, apresentar descrição/schema/outputSchema sanitizados
+e orçamento consumido; manter processo/sessão em memória e aguardar aprovação
+humana explícita antes de tools/call. Incerteza de schema/descrição permanece
+condição de parada, mesmo que a versão já seja reconhecida.
+Qualquer falha encerra sem retry, fallback, conexão extra ou recuperação de
+sessão. Pedir fechamento normal ao humano e conferir integridade ao final.
+Não ativar cliente operacional Codex nem usar requisições restantes para
+métodos diferentes. Não houve nenhuma dessas ações reais nesta fase offline.
+
+10. Limitações e publicação
+Compatibilidade validada com transcrições, não com servidor MetaQuotes real.
+Novas capacidades (OAuth completo, elicitation, sampling, recursos, callbacks,
+JSON Schema geral e recuperação de sessões) não são anunciadas/implementadas.
+Subconjunto restrito falha de forma segura em mensagens/formas desconhecidas.
+Timeout de socket é por operação, não garantia de prazo total com stream ou
+pausa humana. Credencial/sessão ficam legíveis em memória durante uso futuro;
+não se promete zeragem física de todas as cópias Python.
+Título/metadados e annotations não autorizam operações. Retornar versão aceita
+não prova que catálogo, schema ou workspace reais passarão pelas outras guardas.
+Não se afirma homologação operacional Codex, ferramentas ou Terminal Factory.
+
+Publicação só deste relatório, README e allowlist .gitignore. Código privado,
+snapshots, transcrições fictícias e inventários permanecem ignorados pelo Git.
+Nenhum segredo, hash de chave ou corpo real publicado. Commit/push, SHA remoto
+e árvore limpa conferidos na entrega. Código atualizado continua local e deverá
+ser conferido em uma futura execução, não reconstruído por suposição do Git.
+
+PARADA OBRIGATÓRIA
+H5J-C concluída exclusivamente offline. Não abrir aplicativos, acessar cofre,
+ativar clientes, consumir nova guarda ou executar HTTP/MCP. Não modificar MQL5,
+compilar, executar backtest/mercado ou avançar H5J-D/H5K/H6/H7 automaticamente.
+Aguardar nova autorização humana.
