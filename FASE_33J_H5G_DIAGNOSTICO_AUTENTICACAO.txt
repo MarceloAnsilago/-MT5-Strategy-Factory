@@ -1,0 +1,199 @@
+MT5 STRATEGY FACTORY — FASE 3.3J-H5G
+Investigação OFFLINE da autenticação MCP — HTTP 401
+25/11/2026 — America/Sao_Paulo — C:\estrategia
+Base: 4307e26f08e0a88faf18bfff9c2c9afcc27ee27b.
+
+RESULTADO
+Causa provável, confiança MODERADA: valor persistido em ApiKey usado pelo
+helper como se fosse o token pronto para uso, sem comprovar equivalência com
+a credencial fornecida pela interface oficial. O campo selecionado é correto;
+não há evidência de corrupção do valor por montagem, prefixo ou codificação.
+Não está demonstrado qual tratamento, se algum, o armazenamento exige.
+Nenhuma decodificação, exportação, correção ou nova tentativa realizada.
+HTTP 401 confirma rejeição de autenticação na H5F, não sua causa definitiva.
+
+1. Estado inicial e recuperação
+Git inicialmente limpo, HEAD e referência remota consultada após fetch no
+commit informado; nenhum commit posterior encontrado antes desta publicação.
+H5E e H5F lidos integralmente nesta sequência, scripts privados de autenticação
+e sondagem inspecionados sem executá-los contra configurações reais.
+Factory MetaEditor e Terminal encerrados antes/depois. Rico permanece:
+PID 26240 — C:\Program Files\Rico - MetaTrader 5\terminal64.exe;
+PID 19712 — C:\Program Files\Rico - MetaTrader 5\metaeditor64.exe.
+PID, EXE e horário de criação finais iguais ao baseline final H5F.
+Factory persistida: MetaEditor http://127.0.0.1:22355/mcp;
+Terminal http://127.0.0.1:22356/mcp. Clientes Factory desativados.
+Rico persistida: MetaEditor http://127.0.0.1:22345/mcp;
+Terminal http://127.0.0.1:22346/mcp. Configurações preservadas.
+
+2. Evidências H5E/H5F
+H5E parou em HTTPError na primeira inicialização; não preservou código HTTP.
+H5F executou uma única inicialização e preservou HTTP 401, Content-Type
+text/plain, Content-Length 0, sem corpo registrado. Nenhuma ferramenta chamada.
+Não se atribui retrospectivamente o status 401 à tentativa H5E sem evidência.
+Guarda da tentativa única H5F permanece existente; não removida nem reutilizada.
+
+3. Campo armazenado e características estruturais
+Área exclusiva Factory confirmada por origin.txt, associada à instalação
+C:\estrategia\infra\mt5-factory. Arquivo inspecionado somente por leitura:
+C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671\Config\assistant.ini
+Campo selecionado: [MCP.MetaEditor] ApiKey.
+INI UTF-16 com BOM; leitura utilizada pelo helper é compatível com o arquivo.
+Valor atual não vazio, ASCII, formado somente por caracteres hexadecimais,
+com quantidade par de caracteres. Nenhum comprimento, fragmento, hash de
+credencial, conversão ou conteúdo real é publicado.
+Comparação em memória: conteúdo após o sinal de atribuição no arquivo é
+igual à string retornada pelo parser. Não há espaços, quebras de linha,
+controles/caracteres de formato invisíveis, aspas externas ou Bearer prévio.
+Normalização NFC não modificaria o valor atual; não aplicada ao segredo.
+Formato semelhante também presente no backup pré-regeneração consultado,
+sem expor ou reutilizar seu valor.
+
+Uma captura histórica fornecida pelo usuário antes da regeneração mostrava
+na interface uma forma visual alfanumérica não restrita ao alfabeto hexadecimal.
+Essa observação qualitativa foi feita sem transcrição/extração da chave.
+É evidência histórica auxiliar de diferença entre formas de apresentação;
+não equivale a comparar o token atual exportado com o valor atual persistido.
+Nenhuma captura nova, leitura do clipboard ou exportação realizada nesta H5G.
+Ser hexadecimal NÃO prova, por si só, criptografia, ofuscação, hash ou algoritmo
+de conversão. Não identificado contrato oficial de representação do INI.
+
+4. Helper e origem da lacuna
+factory_headers.py H5E fixa a área Factory e valida origin.txt e endpoint.
+Invocação MetaEditor seleciona MCP.MetaEditor e exige 22355; não lê a Rico.
+ConfigParser(interpolation=None) evita interpolação; token é usado diretamente.
+Não há decode de hexadecimal/base64, alteração de caixa, strip explícito,
+escape de URL, concatenação de outra credencial ou transformação criptográfica.
+Acrescenta exatamente um esquema Bearer e um espaço antes da string lida.
+Rejeita valor vazio e CR/LF. JSON é entregue por pipe ao consumidor, sem
+segredo em código, argumentos ou saída de diagnóstico.
+Lacuna do helper criado na H5E: presumiu que ApiKey persistido equivalia ao
+token aceito, embora a documentação consultada só documente obtenção pela
+interface. Essa suposição não foi validada pela existência da seção correta.
+O helper não foi alterado ou executado com a credencial real nesta H5G.
+
+5. Cliente, cabeçalho e codificação
+probe_factory.py H5E e initialize_once.py H5F capturam a saída do mesmo helper,
+fazem json.loads e repassam o mapa ao urllib.request.Request. Não há segundo
+Bearer no consumidor nem alteração deliberada do valor entre essas etapas.
+O nome do cabeçalho pode ser normalizado pelo urllib sem mudar seu significado.
+Credencial atual ASCII não exige codificação multibyte do valor do cabeçalho.
+JSON UTF-8 transporta o payload MCP, não converte o token em parte do corpo.
+HTTP POST, URL fixa loopback, proxies de ambiente desativados e redirects
+recusados nos dois verificadores. Não foi demonstrada troca de destino.
+Não há captura histórica do cabeçalho efetivamente recebido pelo servidor;
+o teste offline confirma comportamento com dados fictícios, não a autenticação
+real ou o funcionamento interno do build 6328.
+
+6. Documentação oficial e limites
+MetaQuotes, ajuda MetaEditor Configuration, consultada em 25/11/2026:
+https://www.metatrader5.com/en/metaeditor/help/mcp_and_ai/configuration
+Documenta geração da chave na aba MCP, salvamento por OK e obtenção dos dados
+para clientes por Copy; orienta copiar novamente após alteração. Exemplos
+Claude Code/Codex usam esquema Bearer com token. Não especifica leitura direta
+de assistant.ini nem tratamento da representação persistida. Não determina
+que chave gerada tenha prefixo extra ou conversão adicional no cliente.
+Ajuda Terminal apresenta a mesma forma de autenticação, em endpoint distinto:
+https://www.metatrader5.com/en/terminal/help/mcp_and_ai/configuration
+Não encontrada nessas páginas diferença documentada de esquema Bearer entre
+Terminal e MetaEditor que explique a recusa. Isso não prova identidade de toda
+implementação interna ou das credenciais de cada aplicativo.
+Índice oficial de releases consultado e pesquisa focada não localizaram uma
+especificação de autenticação/armazenamento específica do build 6328:
+https://www.metatrader5.com/en/releasenotes/terminal
+Não presumir que a ajuda atual descreva exatamente cada detalhe desse build.
+
+Protocolo MCP, autorização 2025-03-26:
+https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization
+Documenta Bearer no cabeçalho e 401 para autenticação exigida/token inválido.
+Isso sustenta a categoria da falha, não especifica a serialização da chave
+MetaQuotes em disco. A descrição OAuth genérica não foi tratada como prova
+de que o servidor local exige OAuth, nem foram feitas descobertas HTTP.
+Nenhum artigo comunitário foi usado como contrato oficial do build ou prova
+definitiva de ofuscação/algoritmo de armazenamento.
+
+7. Hipóteses classificadas
+A. Credencial enviada não corresponde à esperada; representação persistida.
+   Favorável: HTTP 401; envio direto do INI; formato hexadecimal observado;
+   obtenção oficial orientada pela interface, sem contrato para o INI;
+   diferença qualitativa histórica entre apresentação e armazenamento.
+   Contrária/limite: não comparado token atual oficial com valor atual do INI;
+   tokens legítimos podem ser hexadecimais. Confiança MODERADA, principal hipótese.
+   Confirmar futuramente por comparação segura com dados oficiais da interface,
+   sem exibir valores; exige autorização para abertura/exportação hoje proibidas.
+
+B. Transformação indevida introduzida pelo helper ou parser.
+   Favorável: há parser e serialização entre arquivo e requisição.
+   Contrária: raw=parser; helper não transforma token; testes fictícios preservam
+   conteúdo. Confiança BAIXA para mutação acidental da string atual.
+   Confirmar com comparação controlada da origem oficial em fase autorizada;
+   esta fase já verificou a montagem local sem rede e sem corrigir o helper.
+
+C. Esquema Bearer incorreto, duplicado ou cabeçalho perdido.
+   Favorável: 401 admite ausência ou rejeição de autenticação.
+   Contrária: formato documentado, único prefixo e serialização fictícia íntegra;
+   sem proxy/redirect. Confiança BAIXA; não há captura do recebimento real.
+   Confirmação adicional no servidor/diagnóstico requer autorização específica;
+   não registrar o valor sensível nem realizar nova conexão automaticamente.
+
+D. Codificação, aspas ou caracteres invisíveis.
+   Favorável: INI em UTF-16 e múltiplas camadas de leitura merecem conferência.
+   Contrária: BOM tratado; ASCII íntegro, sem controles/espaços/aspas/NFC diferente.
+   Confiança MUITO BAIXA para os defeitos concretos pesquisados.
+   Comparação com fonte oficial futura exige autorização; não testar chave real
+   em simulação ou tentar encodings alternativos automaticamente.
+
+E. Particularidade/defeito do servidor, estado de regeneração ou versão.
+   Favorável: ajuda atual não especifica o build 6328; 401 ocorreu após troca.
+   Contrária: H5F já abriu novo processo após salvar/fechar; listener correto,
+   chave persistida; não há evidência local específica de defeito do servidor.
+   Confiança BAIXA a INDETERMINADA; hipótese residual, não diagnóstico de bug.
+   Confirmar por referência oficial/suporte sanitizado e, se necessário,
+   diagnóstico de runtime separadamente autorizado. Não reiniciar/atualizar aqui.
+
+F. Outra instalação, endpoint trocado ou credencial Rico selecionada.
+   Favorável: colisão histórica na H4 mostra por que identidade importa.
+   Contrária: H5F correlacionou 22355 com PID/EXE Factory; helper fixa área e
+   seção corretas; endpoints/clientes preservados. Confiança MUITO BAIXA.
+   Revalidação somente de leitura é possível; qualquer conexão futura requer
+   autorização. Não testar token Rico na Factory ou vice-versa.
+
+8. Testes offline
+Oito verificações usando exclusivamente credenciais fictícias e diretório
+temporário fictício: prefixo único e preservação de token; passagem JSON/Request;
+serialização HTTP em destino de memória; rejeição de app, origin, endpoint,
+credencial vazia e credencial multilinha incorretos. Todas passaram.
+Leitura de caminhos reais pelo helper foi substituída somente em memória no
+teste; arquivos originais não editados. socket/socket.create_connection bloqueados;
+nenhuma abertura HTTP, conexão ou servidor simulado executado. Nenhuma chave
+real utilizada nas simulações. Teste não prova aceitação pelo MetaEditor.
+470 testes do produto aprovados em Python -B, guarda recusando import MetaTrader5,
+pacote ausente antes/depois. Produto e testes versionados não modificados.
+
+9. Integridade e publicação
+4784 registros / 4783 caminhos únicos: zero diferenças versus final H5F no
+início; zero diferenças antes/depois desta investigação e zero erros de leitura.
+Configurações Rico, clientes global/local, helpers, EXEs, MQL5 protegido,
+resultados/bloqueios históricos 3.3G e atalhos preservados no conjunto inventariado.
+Nenhum aplicativo aberto/fechado pelo agente, nenhuma requisição local MCP/HTTP,
+nenhum teste real de autenticação, credencial exportada ou permissão alterada.
+Documentação oficial pública consultada pela web; não servidores locais.
+Evidências locais em runs/phase33j_h5g_20261125, ignoradas pelo Git.
+Inventário parcial e não atômico; não garante arquivos fora de seu escopo.
+Publicar somente relatório, README e allowlist .gitignore. Sem credenciais,
+fragmentos, hashes de chave, saídas reais de helper ou dados reversíveis.
+Commit/push, SHA remoto e árvore limpa conferidos na entrega.
+
+10. Recomendações e PARADA OBRIGATÓRIA
+Não modificar a autenticação com base apenas em aparência hexadecimal.
+Não propor decodificação por suposição, troca de Bearer ou nova regeneração.
+Futura etapa, sob nova autorização: identificar credencial oficial atual por
+interface própria da Factory e compará-la em ambiente seguro com a origem
+usada pelo helper, registrando apenas igualdade/diferença. Não publicar/copiar
+para Rico; não presumir autorização para exportar nesta H5G.
+Se a diferença for confirmada, preparar mecanismo de credencial baseado em
+origem oficial e armazenamento seguro, com alteração revisável e autorização
+antes de aplicar/ativar. Nova sondagem exige autorização própria e limite claro.
+Nenhuma dessas recomendações foi executada. Clientes Factory desativados;
+Factory fechada. Não corrigir, reabrir, repetir initialize ou avançar de fase.
+Aguardar orientação humana.

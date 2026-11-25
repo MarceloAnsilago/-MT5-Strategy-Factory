@@ -457,3 +457,12 @@ MetaEditor fechado manualmente; Terminal Factory não iniciado. Rico preservada
 no baseline H5F; clientes Factory permanecem desativados. **470 testes offline
 aprovados**. Nenhuma configuração ou credencial alterada nesta fase.
 Consulte [FASE_33J_H5F_DIAGNOSTICO_HTTP_MCP.txt](FASE_33J_H5F_DIAGNOSTICO_HTTP_MCP.txt).
+
+### Fase 3.3J-H5G — investigação offline da autenticação
+
+Hipótese principal, com confiança moderada: representação de `ApiKey` do INI
+enviada diretamente como token sem equivalência comprovada com a origem oficial
+da interface. Montagem Bearer e caracteres conferidos sem defeito demonstrado;
+causa definitiva ainda não confirmada. **8 verificações fictícias e 470 testes
+offline aprovados**. Nenhuma conexão, abertura ou correção; integridade preservada.
+Consulte [FASE_33J_H5G_DIAGNOSTICO_AUTENTICACAO.txt](FASE_33J_H5G_DIAGNOSTICO_AUTENTICACAO.txt).
