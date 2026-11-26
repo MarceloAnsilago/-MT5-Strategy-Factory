@@ -1,0 +1,9 @@
+{
+  "status": "offline_review_complete_real_call_not_authorized",
+  "protocol_version": "2025-06-18",
+  "mcp_calls_authorized": false,
+  "operational_guard_created": false,
+  "definition_sha256": "e7261a54334778f38f7f0caa56c3fc8d3a2cd7fa327ee8c9f28198bd755ddfa2",
+  "legacy_verifier_modified": false,
+  "privacy_policy": "minimize_do_not_log_community"
+}
