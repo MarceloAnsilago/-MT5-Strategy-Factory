@@ -1,0 +1,195 @@
+{
+  "plan_id": "SF-PROLONGADO-1",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "execution_enabled": false,
+  "project": "C:\\estrategia",
+  "boundary_proposal": "SF-OFFLINE-1",
+  "entry_requirement": "owner_approval_then_one_time_integration_validation_then_local_ATIVAR",
+  "mcp_dependency": false,
+  "implementation_stage": "planning_only_no_product_functions_implemented",
+  "synthetic_inputs_only_for_first_run": true,
+  "common_acceptance": [
+    "No rede, MCP, cofre, MetaTrader5, compilacao, Tester, push ou altera??o de arquivos protegidos.",
+    "Testes comportamentais independentes e regressao >=513 produto/81 compatibilidade/18 aceitacao; controlador >=130.",
+    "Artefatos sinteticos rotulados; nenhuma certificacao de cobertura, lucratividade ou execucao real.",
+    "Commit local apenas dos caminhos da tarefa apos validacao; manifesto de outputs e hashes."
+  ],
+  "task_selection": {
+    "ready_if": "all depends_on accepted",
+    "priority_order": [
+      "priority ascending",
+      "task id ascending"
+    ],
+    "materialize_without_new_scheduler": "topological offline blocks O01 O02 O03 O04 then O05 O06; operational lane excluded",
+    "technical_blocker": "mark proposed remaining task blocked with evidence; preserve its criteria; choose other independent ready task via audited plan revision when supported",
+    "security_or_budget_blocker": "global stop, never skip"
+  },
+  "tasks": [
+    {
+      "id": "SF-O01",
+      "priority": 1,
+      "depends_on": [],
+      "title": "Entrada local de dados com proveniencia e auditoria",
+      "paths": [
+        "strategy_factory/research/__init__.py",
+        "strategy_factory/research/local_dataset.py",
+        "tests/test_research_local_dataset.py",
+        "tests/fixtures/research/local_bars_synthetic.csv",
+        "docs/research/LOCAL_DATASETS.md"
+      ],
+      "reuse": [
+        "strategy_factory.history_audit.audit_snapshot",
+        "strategy_factory.history_audit.audit_collection",
+        "strategy_factory.dataset_policy.build_dataset_manifest"
+      ],
+      "acceptance": [
+        "Ler somente CSV/JSON indicado em manifesto aprovado; preservar bytes/hash e origem declarada; nenhuma descoberta automatica em runs ou discos.",
+        "Fixture sintetica PETR4 M1/M5; esquema explicito de colunas, separador, decimal e fuso; nao converter fuso desconhecido por suposicao.",
+        "Rejeitar timestamps invalidos, OHLC inconsistente, NaN/inf, duplicatas conflitantes e mistura de fuso; registrar lacunas sem preencher/sortear silenciosamente.",
+        "Emitir manifesto unverified/observed_partial e exposicao rastreada; dados parciais nao habilitam execucao.",
+        "Testes independentes com casos validos/invalidos, arquivo alterado, path escape e origem ausente."
+      ]
+    },
+    {
+      "id": "SF-O02",
+      "priority": 1,
+      "depends_on": [],
+      "title": "Catalogo e grade limitada de candidatos de estrategia",
+      "paths": [
+        "strategy_factory/research/candidate_catalog.py",
+        "tests/test_research_candidate_catalog.py",
+        "config/research/candidate_grid.example.json",
+        "docs/research/CANDIDATE_CATALOG.md"
+      ],
+      "reuse": [
+        "strategy_factory.generator.validate_spec",
+        "strategy_factory.generator.render",
+        "strategy_factory.generator.generate_many"
+      ],
+      "acceptance": [
+        "Compor familias MA, RSI e ADX ja suportadas pelo gerador; nao reimplementar suas regras nem mudar template/guarda Tester.",
+        "Grade deterministica, deduplicacao por ID/hash e maximo de 32 candidatos, cinco regras e 16 handles conforme limites existentes.",
+        "Volume minimo fixo e limites de risco existentes preservados; toda saida em artifacts/offline/<novo-id>, sem tocar MQL5 ou registro historico.",
+        "Reordenar chaves/regras semanticamente equivalentes conserva IDs e fontes; fixture golden derivada de especificacoes conhecidas.",
+        "Metadados registram fonte sem EX5/compilacao e status source_only; nenhum resultado financeiro inventado."
+      ]
+    },
+    {
+      "id": "SF-O03",
+      "priority": 1,
+      "depends_on": [],
+      "title": "Comparacao conservadora e rastreavel de experimentos",
+      "paths": [
+        "strategy_factory/research/experiment_comparison.py",
+        "tests/test_research_experiment_comparison.py",
+        "tests/fixtures/research/summaries_synthetic.json",
+        "docs/research/EXPERIMENT_COMPARISON.md"
+      ],
+      "reuse": [
+        "strategy_factory.analysis.compare_runs",
+        "strategy_factory.analysis.summarize_run",
+        "strategy_factory.traceability.build_traceability"
+      ],
+      "acceptance": [
+        "Usar resumos 1.1 sinteticos e manter desconhecidos como desconhecidos; custo/margem/proveniencia incompletos impedem promocao.",
+        "Comparacao exige contexto de dados/periodo/modelo/custos compativel; simulado nunca vira evid?ncia MT5 real.",
+        "Ordenacao deterministica, justificativa por criterio e desempate estavel; nao ranquear lucro fabricado de fonte sem execucao.",
+        "Casos independentes com contexto divergente, campos faltantes, valores nao finitos e resultados conhecidos fora da amostra final."
+      ]
+    },
+    {
+      "id": "SF-O04",
+      "priority": 2,
+      "depends_on": [],
+      "title": "Referencia e fonte de indicador ATR para pesquisa",
+      "paths": [
+        "strategy_factory/research/indicator_reference.py",
+        "src/mql5/Indicators/SF_ATR_Research.mq5",
+        "tests/test_research_indicator_reference.py",
+        "docs/research/INDICATOR_REFERENCE.md"
+      ],
+      "reuse": [
+        "existing source_only reporting conventions"
+      ],
+      "acceptance": [
+        "ATR/Wilder em vetor sintetico fixo com resultado esperado calculado independentemente, incluindo gap e warmup.",
+        "Proibir olhar candle futuro, aceitar periodos invalidos ou converter dado faltante em zero.",
+        "Fonte MQL5 sem OrderSend, CTrade, DLL, rede ou acesso a contas; nao instalar em terminal.",
+        "Testes Python e verificacao estatica nao sao declarados compilacao nem equivalencia nativa; status native_validation_pending."
+      ]
+    },
+    {
+      "id": "SF-O05",
+      "priority": 2,
+      "depends_on": [
+        "SF-O01",
+        "SF-O02",
+        "SF-O03"
+      ],
+      "title": "Pipeline offline reproduzivel de pesquisa",
+      "paths": [
+        "strategy_factory/research/pipeline.py",
+        "strategy_factory/research/cli.py",
+        "tests/test_research_pipeline.py",
+        "config/research/pipeline.example.json",
+        "docs/research/OFFLINE_PIPELINE.md"
+      ],
+      "reuse": [
+        "local_dataset",
+        "candidate_catalog",
+        "experiment_comparison",
+        "existing public audit and generation interfaces"
+      ],
+      "acceptance": [
+        "Comando python -m strategy_factory.research.cli executa fluxo local sintetico sem transporte injetavel/execucao real.",
+        "Nova pasta exclusiva por run, hashes de input/spec/fontes/resumos e plano de recursos limitado; nao sobrescrever execucao preexistente.",
+        "Dois runs com mesmas entradas reproduzem hashes de conteudo deterministico; timestamps de auditoria ficam separados.",
+        "Interrupcao deixa artefato incompleto identificado; retomada verifica hashes, sem repetir efeitos ou alterar dados historicos.",
+        "E2E independente inicia com fixture, produz candidatos source_only e relatorio explicavel; sem alegar backtest."
+      ]
+    },
+    {
+      "id": "SF-O06",
+      "priority": 3,
+      "depends_on": [
+        "SF-O05"
+      ],
+      "title": "Validacao integrada e entrega utilizavel do fluxo offline",
+      "paths": [
+        "tests/test_research_offline_e2e.py",
+        "docs/research/QUICKSTART.md",
+        "docs/research/RESEARCH_STATUS.md",
+        "examples/research_offline.py"
+      ],
+      "reuse": [
+        "research.cli",
+        "all protected validation interfaces"
+      ],
+      "acceptance": [
+        "Exemplo reproduzivel com fixture sintetica, limite de 32 candidatos e todos os outputs em pasta nova; medidas de tempo/tamanho observadas sem prometer desempenho futuro.",
+        "Documentar um comando exato que roda no espelho sem aplicativos MCP, mais rastreabilidade de cada output e status de validacao.",
+        "Registrar fontes MQL5 nao compiladas, dados nao certificados e riscos ainda desconhecidos.",
+        "Regression floors and independent negative boundary cases pass; relatorio mostra concluido/bloqueado por tarefa sem falsificar gates MCP."
+      ]
+    }
+  ],
+  "separate_operational_lane": [
+    {
+      "id": "SF-MCP-DIAG",
+      "depends_on_offline": [],
+      "required_for_offline": false,
+      "requires_specific_authorization": "new_workspace_mcp_session_and_one_reviewed_call_with_permission_projection",
+      "scope": "one get_workspace_info with new guard, exact contract and privacy; four planned/six max POSTs; zero retries/fallback; record only roots/flags",
+      "status": "awaiting_owner_specific_approval"
+    },
+    {
+      "id": "SF-MCP-RESTRICT",
+      "depends_on": [
+        "SF-MCP-DIAG"
+      ],
+      "required_for_offline": false,
+      "status": "requires_supported_server_restriction_or_separately_reviewed_isolation_plan"
+    }
+  ],
+  "after_plan": "prepare evidence-based next product backlog within boundary; no endless loop or invented work to fill budget"
+}
