@@ -1,0 +1,39 @@
+{
+  "base": {
+    "schema_version": "1.0",
+    "symbol": "PETR4",
+    "timeframe": "M5",
+    "entries": {
+      "long": [
+        {"kind": "price_ma", "period": 20, "method": "EMA", "relation": "above"},
+        {"kind": "ma_trend", "fast": 20, "slow": 50, "method": "EMA", "direction": "up"},
+        {"kind": "rsi_level", "period": 14, "level": 55, "relation": "above"},
+        {"kind": "adx_direction", "period": 14, "minimum": 25, "direction": "up"}
+      ],
+      "short": [
+        {"kind": "price_ma", "period": 20, "method": "EMA", "relation": "below"},
+        {"kind": "ma_trend", "fast": 20, "slow": 50, "method": "EMA", "direction": "down"},
+        {"kind": "rsi_level", "period": 14, "level": 45, "relation": "below"},
+        {"kind": "adx_direction", "period": 14, "minimum": 25, "direction": "down"}
+      ]
+    },
+    "exits": {
+      "long": [{"kind": "price_ma", "period": 20, "method": "EMA", "relation": "below"}],
+      "short": [{"kind": "price_ma", "period": 20, "method": "EMA", "relation": "above"}]
+    },
+    "risk": {
+      "volume_mode": "minimum",
+      "sl_percent": 1.2,
+      "tp_percent": 2.4,
+      "max_spread_points": 10,
+      "max_entries": 20,
+      "max_holding_bars": 36,
+      "deviation_points": 5
+    }
+  },
+  "axes": {
+    "entries.long.1.slow": [50, 60],
+    "entries.long.2.level": [55, 60],
+    "entries.long.3.minimum": [25, 30]
+  }
+}
