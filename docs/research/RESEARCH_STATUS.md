@@ -10,6 +10,7 @@
 | SF-O06 | Aceita independentemente em 27/11/2026 | E2E real no mesmo processo: duas chamadas do exemplo em pastas temporarias, fontes, hashes, manifesto, checkpoint, retomada e recusas. [Teste](../../tests/test_research_offline_e2e.py) |
 | Regression e acceptance | Aprovadas no espelho protegido MXC | 540 produto + 81 compatibilidade + 18 acceptance existente = 639; SF-O06: 640, sem pulos. Controlador: 173 aprovados. Evidencia: `C:/CodexAutoDev/reports/sf-o06-direct-acceptance.json`, incluindo espelho e hashes dos quatro arquivos. Execucao direta no Codex; AutoDev e checkpoint historico preservados. |
 | Validação nativa | Bloqueada neste escopo, `native_validation_pending` | Fontes MQL5 geradas e verificadas como texto, sem compilação ou backtest. |
+| SF-O07 — executor local | Implementação e testes offline; segunda homologação real pendente | Reutiliza configuração, parser e resumos existentes; bloqueio recuperável com guard do SO, recibos independentes por execução e recuperação explícita sem repetição. Fixtures sanitizadas da POC no build 6361. Não valida nativamente as estratégias de pesquisa. [Arquitetura e limites](../../README.md#sf-o07--executor-local-do-tester-homologação-do-adaptador-pendente) |
 | Homologação MCP | Bloqueada, gate sem aprovação nesta tarefa | O diagnóstico prévio registra impedimento operacional. Os testes offline verificam somente o pipeline sintético. [Diagnóstico](AUTODEV_START_OFFLINE.md#mcp--diagnóstico-separado-concluído) |
 
 Os dados sintéticos são não certificados. O manifesto registra

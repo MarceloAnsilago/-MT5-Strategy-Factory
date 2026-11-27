@@ -1,0 +1,10 @@
+{
+  "source_run": "controlled_tester_9c4fa87c3c0b46d8a082b8ef69013bf3",
+  "kind": "preserved_sanitized_native_evidence",
+  "build": 6361,
+  "sha256": {
+    "report.htm": "89e270f59aa4cdec673346d75a4cc8f78c95f8929a98dc584b6dbb8387bc6246",
+    "terminal.txt": "6a269d52afc504cb3987655977efd16fcf70a7099faa3d44750097fc70431119",
+    "tester.txt": "2de01079a67344e24665bff5329ce1050d54acb1676d9ed9be3c7c999eec1c74"
+  }
+}

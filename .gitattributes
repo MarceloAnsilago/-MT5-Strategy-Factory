@@ -50,3 +50,7 @@
 /MQL5/Experts/MT5StrategyFactory/Generated/** text eol=lf
 /strategy_factory/templates/*.mq5.in text eol=lf
 /config/generator/*.json text eol=lf
+# SF-O07 preserved native fixtures: hashes refer to these exact sanitized bytes.
+/tests/fixtures/local_tester/report.htm -text -filter -ident -working-tree-encoding whitespace=cr-at-eol
+/tests/fixtures/local_tester/terminal.txt -text -filter -ident -working-tree-encoding whitespace=cr-at-eol
+/tests/fixtures/local_tester/tester.txt -text -filter -ident -working-tree-encoding whitespace=cr-at-eol

@@ -529,3 +529,80 @@ Factory fechada, Rico preservada, clientes desativados e guarda consumida mantid
 **81 testes simulados e 470 testes offline aprovados**. Revisão offline futura
 exige nova autorização; workspace não homologado.
 Consulte [FASE_33J_H5J_D_DESCOBERTA_MCP.txt](FASE_33J_H5J_D_DESCOBERTA_MCP.txt).
+
+## SF-O07 — executor local do Tester (homologação do adaptador pendente)
+
+`strategy_factory.local_tester` reutiliza `BacktestConfig`, `analyze_report` e
+`summarize_run`. `LocalTesterExecutor` cria uma pasta exclusiva, INI sem
+credenciais, resultados, métricas, journals sanitizados e hashes. Os estados são
+`completed`, `failed`, `blocked` e `inconclusive`; simulações ficam marcadas
+`simulation: true`. Não grava resultados no catálogo SQLite de candidatos, que
+não oferece um contrato para esse tipo de execução. Cada pasta contém seu
+`run_summary.json`, compatível com a análise existente.
+
+O backend Windows `NativeLocalBackend` está separado e exige autorização explícita
+na construção e na execução (`simulate=False`, `authorized=True`). Importar os
+módulos não acessa o terminal. Não há CLI que habilite execução real por padrão.
+O adaptador não encerra processos: uma instância dedicada aberta bloqueia o início.
+Ele usa somente a dedicada `AEF1E6F57078EAB3775179FCBD94D671`, exige a origem
+correta, a identidade demo MetaQuotes verificada internamente e o EA sem negociação
+homologado, com fonte e EX5 fixados por SHA-256. Novos EAs exigem revisão própria.
+
+Uma única reserva de início é persistida antes da chamada nativa. O lock exclusivo
+da instalação fica em `runs/.sf_local_tester.lock`, independentemente da pasta da
+execução. Falha ambígua, timeout, relatório ausente ou mudança de build retêm o lock
+para reconciliação humana. Não se deve apagá-lo automaticamente nem tentar de novo.
+O lock coordena este executor; não bloqueia aplicações ou operadores externos.
+
+O registro de reserva inclui ID, token aleatório e hashes do pedido/INI. Um arquivo
+`.guard` permanente usa bloqueio não bloqueante do sistema operacional durante a
+execução e a recuperação; não é removido nem trocado por idade ou PID presumido.
+Após interrupção, `recover_lock(backend, directory,
+expected_lock_sha256=..., authorized=True)` permite abandonar explicitamente a
+reserva somente com revisão do hash, mesma execução, integridade dos artefatos e
+duas verificações seguras do ambiente. Se outro executor detém o guard, se o
+terminal está ativo ou se instalação/conta/build/hashes divergem, a recuperação
+recusa liberar o lock. Ela não encerra processos, não repete testes e não muda
+resultados antigos. Produz `recovery_<uuid>.json`; uma interrupção antes do resultado
+final pode ser abandonada sem inventar conclusão ou aprovação. Formatos antigos
+de lock desconhecidos exigem revisão própria e não são apagados automaticamente.
+
+Cada execução produz ainda um recibo exclusivo em `runs/receipts/<id>.json`,
+separado da pasta de artefatos, com hashes do resultado e do manifesto.
+O guard e a reserva permanecem ativos até a gravação desse recibo; erro de
+gravação conserva a reserva para recuperação explícita.
+`verify_run_artifacts(directory)` confere essa referência e todos os arquivos,
+sem consultar MT5. Journals e relatório continuam sendo fontes distintas de
+conclusão; o recibo não substitui essas evidências. Esses hashes detectam
+inconsistências, mas não são assinatura digital nem autenticação externa contra
+quem possa substituir todo o conjunto de arquivos.
+
+A referência nativa é a execução `controlled_tester_9c4fa87c3c0b46d8a082b8ef69013bf3`.
+Nela, LiveUpdate mudou o build 6328 para 6361. O novo adaptador fixa o build 6361 e
+o SHA-256 observado depois da atualização; mudanças posteriores bloqueiam ou tornam
+o resultado inconclusivo. O término do launcher não basta: são exigidos identidade
+nos journals, cenário no relatório, conclusão e zero negociações/ofertas. LiveUpdate
+não é desabilitado. Metadados de conta são usados apenas em memória; somente
+estatísticas numéricas do relatório são preservadas, além dos hashes de origem.
+
+Validação offline, sem iniciar processos MT5:
+
+```console
+python -B -m unittest discover -s tests -p test_local_tester.py -v
+```
+
+O backend nativo ainda precisa de segunda homologação real sob nova autorização.
+O preflight exige evidência demo recente (15 minutos), mesma identidade salva e
+terminal fechado manualmente. Serviços compilados na dedicada bloqueiam o início;
+é necessário revisar automatismos antes dessa homologação, sem removê-los para
+contornar o bloqueio. Nesta entrega não houve chamada nativa,
+compilação, backtest, acesso à Rico ou mudança de instalação/credenciais/MCP.
+SF-MCP-RESTRICT permanece bloqueada. A aprovação da primeira POC não aprova este
+adaptador reutilizável nem autoriza execuções futuras.
+
+O plano versionado da segunda homologação está em
+`config/tester/sf_o07_homologation.plan.json`, com autorização pendente e limite de
+uma tentativa. O backend recusa relatório preexistente com o novo ID. A coleta
+registra offsets, comprimentos e hashes dos trechos novos dos journals; arquivos
+truncados são recusados. Um relatório antigo ou journal de outra execução não
+constitui aprovação, mesmo quando o cenário solicitado é igual.

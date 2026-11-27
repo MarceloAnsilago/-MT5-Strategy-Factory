@@ -1,0 +1,31 @@
+RL	0	15:26:31.139	Terminal	exit with code 0
+HI	0	15:26:31.692	Network	'<account-redacted>': disconnected from MetaQuotes-Demo
+CS	0	15:26:31.734	Terminal	stopped with 0
+LK	0	15:26:31.736	Terminal	shutdown with 0
+PQ	0	15:26:46.391	Startup	successfully initialized from start config "C:\estrategia\runs\controlled_tester_9c4fa87c3c0b46d8a082b8ef69013bf3\tester.ini"
+ON	0	15:26:46.448	LiveUpdate	start "C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671\liveupdate\terminal64.exe" /update /path:"C:\estrategia\infra\mt5-factory"  /config:"C:\estrategia\runs\controlled_tester_9c4fa87c3c0b46d8a082b8ef69013bf3\tester.ini"
+CM	0	15:26:46.556	Terminal	exit with code 0
+CK	0	15:26:46.558	Terminal	stopped with 0
+DR	0	15:26:46.673	Terminal	shutdown with 0
+HK	0	15:26:53.267	Terminal	updating C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671\MQL5 folder
+PH	0	15:26:53.267	Terminal	3 files updated
+LG	0	15:26:53.300	Startup	successfully initialized from start config "C:\estrategia\runs\controlled_tester_9c4fa87c3c0b46d8a082b8ef69013bf3\tester.ini"
+PN	0	15:26:53.334	Terminal	MetaTrader 5 x64 build 6361 started for MetaQuotes Ltd.
+EE	0	15:26:53.334	Terminal	Windows 11 build <numeric-redacted>, 24 x AMD Ryzen 9 5900X 12-Core, AVX2, 21 / 31 Gb memory, 318 / 464 Gb disk, UAC, GMT-3
+LE	0	15:26:53.334	Terminal	C:\Users\User\AppData\Roaming\MetaQuotes\Terminal\AEF1E6F57078EAB3775179FCBD94D671
+IG	0	15:26:53.334	Terminal	launched with C:\estrategia\runs\controlled_tester_9c4fa87c3c0b46d8a082b8ef69013bf3\tester.ini
+RJ	0	15:26:53.335	MCP	started on 127.0.0.1:<numeric-redacted>
+LP	0	15:26:54.798	Network	'<account-redacted>': authorized on MetaQuotes-Demo through Access Point BR 1 (ping: 233.39 ms, build 6361)
+KO	0	15:26:55.147	Network	'<account-redacted>': terminal synchronized with MetaQuotes Ltd.: 0 positions, 0 orders, <numeric-redacted> symbols, 0 spreads
+RN	0	15:26:55.147	Network	'<account-redacted>': trading has been enabled, demo account - hedging mode
+FE	0	15:26:55.147	Network	'<account-redacted>': balance management has been disabled - demo account
+PF	0	15:26:55.339	Tester	automatic testing started
+PQ	0	15:26:55.339	AutoTesting	EURUSD: preliminary downloading of M1 history started
+GF	0	15:26:55.541	AutoTesting	EURUSD: 80% history downloaded
+JN	0	15:26:56.591	AutoTesting	EURUSD: 90% history downloaded
+ME	0	15:26:57.749	AutoTesting	EURUSD: preliminary downloading of M1 history completed in 0:00:02.407
+FH	0	15:26:59.575	Tester	last test passed with result "successfully finished" in 0:00:00.050
+DN	0	15:27:00.457	Terminal	exit with code 0
+LG	0	15:27:01.377	Network	'<account-redacted>': disconnected from MetaQuotes-Demo
+EM	0	15:27:01.415	Terminal	stopped with 0
+NI	0	15:27:01.525	Terminal	shutdown with 0

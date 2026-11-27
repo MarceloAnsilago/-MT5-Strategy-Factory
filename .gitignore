@@ -93,6 +93,7 @@ logs/
 !/tests/test_tester.py
 # Execucoes, relatorios e locks permanecem privados e fora do Git.
 /runs/
+!/tests/test_local_tester.py
 !/tests/test_financial.py
 !/tests/fixtures/
 /tests/fixtures/*
@@ -178,3 +179,9 @@ logs/
 !/FASE_33J_H5J_B_HOMOLOGACAO_DESCOBERTA_MCP.txt
 !/FASE_33J_H5J_C_COMPATIBILIDADE_MCP_2025_06_18.txt
 !/FASE_33J_H5J_D_DESCOBERTA_MCP.txt
+!/tests/fixtures/local_tester/
+/tests/fixtures/local_tester/*
+!/tests/fixtures/local_tester/report.htm
+!/tests/fixtures/local_tester/terminal.txt
+!/tests/fixtures/local_tester/tester.txt
+!/tests/fixtures/local_tester/provenance.json

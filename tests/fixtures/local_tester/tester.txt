@@ -1,0 +1,51 @@
+RJ	0	15:20:36.261	Tester	Cloud servers switched off
+FP	0	15:26:53.886	Tester	Cloud servers switched off
+IE	0	15:26:55.179	Tester	Local network farm switched off
+OL	0	15:26:55.179	Tester	"MT5StrategyFactory\Homologacao_001\MT5SF_Homologacao_001.ex5" X64
+FH	0	15:26:55.339	Tester	EURUSD: preliminary downloading of M1 history started
+CG	0	15:26:55.541	Tester	EURUSD: 80% history downloaded
+DH	0	15:26:56.591	Tester	EURUSD: 90% history downloaded
+MR	0	15:26:57.749	Tester	EURUSD: preliminary downloading of M1 history completed in 0:00:02.407
+JN	0	15:26:57.749	Tester	EURUSD: history data begins from 2021.12.16 00:00
+RH	0	15:26:57.749	Tester	EURUSD: history data begins from 2021.12.16 00:00
+KS	0	15:26:57.784	Core 01	agent process started on 127.0.0.1:3000
+DG	0	15:26:57.784	Core 01	connecting to 127.0.0.1:3000
+FR	0	15:26:58.295	Core 01	connected
+HK	0	15:26:58.301	Core 01	authorized (agent build 6361)
+CQ	0	15:26:58.311	Tester	EURUSD,M5 (MetaQuotes-Demo): testing of Experts\MT5StrategyFactory\Homologacao_001\MT5SF_Homologacao_001.ex5 from 2023.11.01 00:00 to 2023.11.02 00:00
+NN	0	15:26:58.328	Core 01	common synchronization completed
+PF	0	15:26:58.371	Core 01	EURUSD: history for 2022 year synchronized
+CO	0	15:26:58.410	Core 01	EURUSD: history for 2023 year synchronized
+EL	0	15:26:58.410	Core 01	EURUSD: history synchronization completed [3149 Kb]
+OI	0	15:26:58.410	Core 01	EURUSD: 3.08 Mb of history processed in 0:00:00.078
+RR	0	15:26:58.462	Tester	quality of analyzed history is 100%
+JF	0	15:26:58.466	Core 01	MetaTester 5 started on 127.0.0.1:3000
+DL	0	15:26:58.466	Core 01	cloud network mode is off
+CH	0	15:26:58.466	Core 01	initialization finished
+QQ	0	15:26:58.466	Core 01	login (build 6361)
+CM	0	15:26:58.466	Core 01	9148 bytes of account info loaded
+CJ	0	15:26:58.466	Core 01	1478 bytes of tester parameters loaded
+JN	0	15:26:58.466	Core 01	196 bytes of input parameters loaded
+LK	0	15:26:58.466	Core 01	<numeric-redacted> bytes of symbols list loaded (<numeric-redacted> symbols)
+LJ	0	15:26:58.466	Core 01	expert file added: Experts\MT5StrategyFactory\Homologacao_001\MT5SF_Homologacao_001.ex5. 6832 bytes loaded
+II	0	15:26:58.466	Core 01	<numeric-redacted> Mb available, 268 blocks set for ticks generating
+QM	0	15:26:58.466	Core 01	initial deposit <numeric-redacted>.00 USD, leverage 1:1
+DH	0	15:26:58.466	Core 01	successfully initialized
+IN	0	15:26:58.466	Core 01	70 Kb of total initialization data received
+ND	0	15:26:58.466	Core 01	AMD Ryzen 9 5900X 12-Core, <numeric-redacted> MB
+QQ	0	15:26:58.466	Core 01	EURUSD: symbol to be synchronized
+HD	0	15:26:58.466	Core 01	EURUSD: symbol synchronized, 3720 bytes of symbol info received
+ML	0	15:26:58.466	Core 01	EURUSD: load 3.08 Mb of history data to synchronize in 0:00:00.087
+QO	0	15:26:58.466	Core 01	EURUSD: history synchronized from 2022.01.03 to 2023.11.02
+KD	0	15:26:58.466	Core 01	EURUSD,M5: history cache allocated for <numeric-redacted> bars and contains <numeric-redacted> bars from 2022.01.03 00:05 to 2023.10.31 23:55
+NG	0	15:26:58.466	Core 01	EURUSD,M5: history begins from 2022.01.03 00:05
+LE	0	15:26:58.466	Core 01	EURUSD,M5 (MetaQuotes-Demo): 1 minutes OHLC ticks generating
+ON	0	15:26:58.466	Core 01	EURUSD,M5: testing of Experts\MT5StrategyFactory\Homologacao_001\MT5SF_Homologacao_001.ex5 from 2023.11.01 00:00 to 2023.11.02 00:00 started
+IJ	0	15:26:58.466	Core 01	2023.11.01 00:00:00   MT5 Strategy Factory: homologacao inicializada.
+HS	0	15:26:58.466	Core 01	final balance <numeric-redacted>.00 USD
+NK	0	15:26:58.466	Core 01	EURUSD,M5: 5725 ticks, 288 bars generated. Environment synchronized in 0:00:00.115. Test passed in 0:00:00.050.
+DE	0	15:26:58.466	Core 01	EURUSD,M5: total time from login to stop testing 0:00:00.165 (including 0:00:00.115 for history data synchronization)
+JF	0	15:26:58.466	Core 01	171 Mb memory used including 7 Mb of history data, 64 Mb of tick data
+FD	0	15:26:58.466	Core 01	log file "C:\Users\User\AppData\Roaming\MetaQuotes\Tester\AEF1E6F57078EAB3775179FCBD94D671\Agent-127.0.0.1-3000\logs\<numeric-redacted>.log" written
+RE	0	15:26:58.489	Tester	automatic testing finished
+FL	0	15:26:58.489	Core 01	connection closed
