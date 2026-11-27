@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "candidate_limit": 8,
+  "inputs": {
+    "bars": "tests/fixtures/research/local_bars_synthetic.csv",
+    "summaries": "tests/fixtures/research/summaries_synthetic.json",
+    "grid": "config/research/candidate_grid.example.json"
+  }
+}
