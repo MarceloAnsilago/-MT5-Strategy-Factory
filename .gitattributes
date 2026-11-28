@@ -54,3 +54,6 @@
 /tests/fixtures/local_tester/report.htm -text -filter -ident -working-tree-encoding whitespace=cr-at-eol
 /tests/fixtures/local_tester/terminal.txt -text -filter -ident -working-tree-encoding whitespace=cr-at-eol
 /tests/fixtures/local_tester/tester.txt -text -filter -ident -working-tree-encoding whitespace=cr-at-eol
+# SF-O08 deterministic source hashes are calculated over UTF-8/LF.
+/src/mql5/Experts/SFO08/MT5SF_Homologacao_002.mq5 text eol=lf
+/strategy_factory/templates/homologation_002_sfo08.mq5.in text eol=lf

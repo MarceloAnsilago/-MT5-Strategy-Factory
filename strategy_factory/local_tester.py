@@ -16,6 +16,7 @@ import uuid
 from .analysis import summarize_run, write_artifact
 from .reports import analyze_report, normalized, TableCells
 from .tester import BacktestConfig
+from .local_profiles import HOMOLOGATION_001, checked_profile, profile_record, validate_scenario
 
 INSTALLATION = PureWindowsPath('C:/estrategia/infra/mt5-factory')
 DATA = PureWindowsPath('C:/Users/User/AppData/Roaming/MetaQuotes/Terminal/AEF1E6F57078EAB3775179FCBD94D671')
@@ -71,7 +72,9 @@ class InstallationLock:
                   'token': uuid.uuid4().hex,
                   'created_at_utc': datetime.now(timezone.utc).isoformat(),
                   'inputs': {name: sha((directory / name).read_bytes())
-                             for name in ('request.json', 'tester.ini')}}
+                             for name in ('request.json', 'tester.ini', 'profile.json',
+                                          'sf_o08_' + directory.name[6:] + '.set')
+                             if (directory / name).exists()}}
         encoded = json.dumps(record, sort_keys=True).encode('utf-8')
         try:
             with self.path.open('xb') as stream:
@@ -127,7 +130,9 @@ def recover_lock(backend, directory, *, expected_lock_sha256, authorized=False):
         if (record.get('schema_version') != 1 or record.get('run_id') != directory.name or
                 not re.fullmatch(r'local_[0-9a-f]{32}', directory.name) or
                 record.get('installation') != str(INSTALLATION) or record.get('data') != str(DATA) or
-                set(record.get('inputs', {})) != {'request.json', 'tester.ini'}):
+                not {'request.json', 'tester.ini'} <= set(record.get('inputs', {})) or
+                not set(record.get('inputs', {})) <= {'request.json', 'tester.ini', 'profile.json',
+                                                     'sf_o08_' + directory.name[6:] + '.set'}):
             raise ValueError('lock_context_mismatch')
         for name, expected in record['inputs'].items():
             if sha(regular_path(directory / name).read_bytes()) != expected:
@@ -143,7 +148,7 @@ def recover_lock(backend, directory, *, expected_lock_sha256, authorized=False):
             if receipt.exists():
                 verify_run_artifacts(directory)
         for _ in range(2):
-            if preflight(backend.inspect()) is not None:
+            if preflight(backend.inspect(), profile=getattr(backend, 'profile', HOMOLOGATION_001)) is not None:
                 raise ValueError('recovery_environment_not_safe')
         # Receipt is written first. If interrupted, the reservation stays in place
         # and a later recovery must again verify its exact hash and environment.
@@ -198,25 +203,41 @@ def regular_path(path):
     return path
 
 
-def validate_request(config, expected_sha256):
+def validate_request(config, expected_sha256, *, profile=HOMOLOGATION_001):
     if not isinstance(config, BacktestConfig):
         raise ValueError('BacktestConfig_required')
-    # Restrict this first adapter to the reviewed, non-trading EA. A new EA needs
-    # its own review; an arbitrary caller-supplied hash is not an allowlist.
-    if PureWindowsPath(config.expert) != EXPERT or expected_sha256 != EA_SHA256:
+    checked_profile(profile)
+    if PureWindowsPath(config.expert) != profile.expert or expected_sha256 != profile.compiled_sha256:
         raise ValueError('unreviewed_EA_or_installation')
     if '..' in PureWindowsPath(config.expert).parts:
         raise ValueError('path_traversal')
     for value in (config.from_date, config.to_date):
         if date.fromisoformat(value).isoformat() != value:
             raise ValueError('canonical_ISO_date_required')
+    validate_scenario(config, profile)
 
 
-def render_ini(config, report_name):
-    validate_request(config, EA_SHA256)
+def render_ini(config, report_name, *, profile=HOMOLOGATION_001):
+    validate_request(config, checked_profile(profile).compiled_sha256, profile=profile)
+    inputs = 'sf_o08_' + report_name[6:-4] + '.set' if profile.positive_operations else None
+    return render_dedicated_ini(config, report_name, inputs_name=inputs)
+
+
+def render_dedicated_ini(config, report_name, *, inputs_name=None):
+    """Pure offline renderer; does not admit an EA to the runtime allowlist."""
+    if not isinstance(config, BacktestConfig):
+        raise ValueError('BacktestConfig_required')
+    path = PureWindowsPath(config.expert)
+    if '..' in path.parts or not path.is_relative_to(DATA / 'MQL5/Experts'):
+        raise ValueError('expert_outside_dedicated_installation')
+    for value in (config.from_date, config.to_date):
+        if date.fromisoformat(value).isoformat() != value:
+            raise ValueError('canonical_ISO_date_required')
     if not re.fullmatch(r'local_[0-9a-f]{32}\.htm', report_name):
         raise ValueError('invalid_report_name')
-    expert = EXPERT.relative_to(DATA / 'MQL5/Experts')
+    if inputs_name is not None and not re.fullmatch(r'sf_o08_[0-9a-f]{32}\.set', inputs_name):
+        raise ValueError('invalid_inputs_name')
+    expert = path.relative_to(DATA / 'MQL5/Experts')
     settings = dict(Expert=str(expert), Symbol=config.symbol, Period=config.timeframe,
                     FromDate=config.from_date.replace('-', '.'),
                     ToDate=config.to_date.replace('-', '.'), Model=MODELS[config.model],
@@ -225,13 +246,16 @@ def render_ini(config, report_name):
                     Optimization=0, ForwardMode=0, UseLocal=1, UseRemote=0,
                     UseCloud=0, Visual=0, Report=report_name, ReplaceReport=0,
                     ShutdownTerminal=1)
+    if inputs_name is not None:
+        settings['ExpertParameters'] = inputs_name
     return ('[Experts]\nAllowLiveTrading=0\nAllowDllImport=0\nEnabled=0\n'
             'Account=1\nProfile=1\n[Tester]\n' +
             ''.join(f'{key}={value}\n' for key, value in settings.items()))
 
 
-def preflight(snapshot):
+def preflight(snapshot, *, profile=HOMOLOGATION_001):
     """Only fixed safe fields reach disk; account identifiers never leave backend."""
+    checked_profile(profile)
     if snapshot.get('installation') != str(INSTALLATION) or snapshot.get('data') != str(DATA):
         return 'installation_mismatch'
     if snapshot.get('origin_matches') is not True:
@@ -244,7 +268,7 @@ def preflight(snapshot):
         return 'startup_services_not_reviewed'
     if snapshot.get('ea_exists') is not True:
         return 'ea_missing'
-    if snapshot.get('ea_sha256') != EA_SHA256 or snapshot.get('source_sha256') != SOURCE_SHA256:
+    if snapshot.get('ea_sha256') != profile.compiled_sha256 or snapshot.get('source_sha256') != profile.source_sha256:
         return 'ea_hash_mismatch'
     if snapshot.get('build') != BUILD or snapshot.get('exe_sha256') != EXE_SHA256:
         return 'unreviewed_build_or_executable'
@@ -268,8 +292,24 @@ def sanitize_journal(text):
     return '\n'.join(result)
 
 
-def evaluate(config, run_name, terminal, tester, report, *, final_snapshot, quiescent):
+def report_context_matches(report, *, expert, symbol, timeframe, from_date, to_date):
+    """Shared strict PT/EN HTML context check; duplicate labels fail closed."""
+    cells = TableCells(); cells.feed(report)
+    labels = {}
+    for row in cells.rows:
+        for i in range(len(row) - 1):
+            if not row[i].strip().endswith(':'):
+                continue
+            labels.setdefault(normalized(row[i]), []).append(row[i + 1])
+    expected = [('ativo', 'symbol', symbol), ('expert advisor (robo)', 'expert', expert),
+                ('periodo', 'period', f'{timeframe} ({from_date.replace("-", ".")} - {to_date.replace("-", ".")})')]
+    return all(labels.get(pt, labels.get(en, [])) == [value] for pt, en, value in expected)
+
+
+def evaluate(config, run_name, terminal, tester, report, *, final_snapshot, quiescent,
+             profile=HOMOLOGATION_001):
     """A report or launcher exit alone never proves a completed native run."""
+    validate_request(config, checked_profile(profile).compiled_sha256, profile=profile)
     metrics = analyze_report(report)['metrics'] if report is not None else None
     result = {'status': 'inconclusive', 'reason': 'insufficient_evidence', 'metrics': metrics}
     if not quiescent or final_snapshot.get('busy') is not False:
@@ -282,8 +322,8 @@ def evaluate(config, run_name, terminal, tester, report, *, final_snapshot, quie
         return dict(result, reason='final_identity_not_verified')
     if (final_snapshot.get('build') != BUILD or final_snapshot.get('exe_sha256') != EXE_SHA256):
         return dict(result, reason='unexpected_build_change')
-    if (final_snapshot.get('ea_sha256') != EA_SHA256 or
-            final_snapshot.get('source_sha256') != SOURCE_SHA256):
+    if (final_snapshot.get('ea_sha256') != profile.compiled_sha256 or
+            final_snapshot.get('source_sha256') != profile.source_sha256):
         return dict(result, reason='ea_changed_during_run')
     if (str(DATA) not in terminal or f'{run_name}\\tester.ini' not in terminal or
             f'build {BUILD} started' not in terminal):
@@ -293,7 +333,7 @@ def evaluate(config, run_name, terminal, tester, report, *, final_snapshot, quie
     if report is None:
         return dict(result, reason='report_missing')
     start = (f'{config.symbol},{config.timeframe}: testing of Experts\\'
-             f'{EXPERT.relative_to(DATA / "MQL5/Experts")} from '
+             f'{profile.expert.relative_to(DATA / "MQL5/Experts")} from '
              f'{config.from_date.replace("-", ".")} 00:00 to '
              f'{config.to_date.replace("-", ".")} 00:00 started')
     if (start not in tester or tester.count('automatic testing finished') != 1 or
@@ -307,21 +347,21 @@ def evaluate(config, run_name, terminal, tester, report, *, final_snapshot, quie
         return dict(result, reason='tick_model_not_proven')
     if 'cloud network mode is off' not in tester.lower():
         return dict(result, reason='cloud_disabled_not_proven')
-    cells = TableCells(); cells.feed(report)
-    labels = {}
-    for row in cells.rows:
-        for i in range(len(row) - 1):
-            if not row[i].strip().endswith(':'):
-                continue
-            key = normalized(row[i])
-            labels.setdefault(key, []).append(row[i + 1])
-    expected = [('ativo', 'symbol', config.symbol),
-                ('expert advisor (robo)', 'expert', EXPERT.stem),
-                ('periodo', 'period', f'{config.timeframe} ({config.from_date.replace("-", ".")} - {config.to_date.replace("-", ".")})')]
-    if any(labels.get(pt, labels.get(en, [])) != [value] for pt, en, value in expected):
+    if not report_context_matches(report, expert=profile.expert.stem, symbol=config.symbol,
+                                  timeframe=config.timeframe, from_date=config.from_date,
+                                  to_date=config.to_date):
         return dict(result, reason='report_scenario_mismatch')
     if metrics['trades'] is None or metrics['deals'] is None:
         return dict(result, reason='trade_counts_unavailable')
+    if profile.positive_operations:
+        from .homologation_002 import assess_evidence
+        assessment = assess_evidence(report, tester, run_id=run_name, config=config)
+        if assessment['issues']:
+            failed = bool({'ea_halted', 'order_rejection_or_error', 'order_not_fully_confirmed'} & set(assessment['issues']))
+            return dict(result, status='failed' if failed else 'inconclusive',
+                        reason='sf_o08_acceptance_not_met', assessment=assessment)
+        return dict(result, status='completed', reason='dedicated_tester_and_positive_operations_proven',
+                    assessment=assessment)
     if metrics['trades'] != 0 or metrics['deals'] != 0:
         return dict(result, status='failed', reason='unexpected_trading_activity')
     return dict(result, status='completed', reason='dedicated_tester_and_zero_trades_proven')
@@ -336,12 +376,14 @@ class LocalTesterExecutor:
     def __init__(self, backend):
         self.backend = backend
 
-    def run(self, config, *, state_root, expected_sha256=EA_SHA256,
+    def run(self, config, *, state_root, expected_sha256=None,
             simulate=True, authorized=False, timeout=120):
-        validate_request(config, expected_sha256)
+        profile = checked_profile(getattr(self.backend, 'profile', HOMOLOGATION_001))
+        validate_request(config, profile.compiled_sha256 if expected_sha256 is None else expected_sha256,
+                         profile=profile)
         if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 600:
             raise ValueError('invalid_timeout')
-        if self.backend.simulated is not simulate or (not simulate and not authorized):
+        if self.backend.simulated is not simulate or (not simulate and authorized is not True):
             raise PermissionError('native_execution_requires_separate_human_authorization')
         root = regular_path(state_root)
         if not simulate and root != Path('C:/estrategia/runs').absolute():
@@ -349,9 +391,12 @@ class LocalTesterExecutor:
         root.mkdir(parents=True, exist_ok=True)
         name = 'local_' + uuid.uuid4().hex
         directory = root / name; directory.mkdir()
-        ini = render_ini(config, name + '.htm')
+        ini = render_ini(config, name + '.htm', profile=profile)
         (directory / 'tester.ini').write_text(ini, encoding='ascii')
         write_artifact(directory / 'request.json', asdict(config))
+        write_artifact(directory / 'profile.json', profile_record(profile))
+        if profile.positive_operations:
+            (directory / ('sf_o08_' + name[6:] + '.set')).write_text('InpRunId=' + name + '\n', encoding='ascii', newline='\n')
         lock = InstallationLock(self.backend.lock_path)
         result = {'status': 'blocked', 'reason': 'installation_locked', 'simulation': simulate,
                   'sf_mcp_restrict': 'blocked', 'launches': 0, 'run_id': name}
@@ -363,7 +408,7 @@ class LocalTesterExecutor:
                 before = self.backend.inspect()
                 result['observed_before'] = {key: before.get(key) for key in (
                     'build', 'exe_sha256', 'ea_sha256', 'source_sha256')}
-                reason = preflight(before)
+                reason = preflight(before, profile=profile)
                 if reason:
                     result['reason'] = reason
                 else:
@@ -377,7 +422,7 @@ class LocalTesterExecutor:
                     result['observed_after'] = {key: final.get(key) for key in (
                         'build', 'exe_sha256', 'ea_sha256', 'source_sha256')}
                     outcome = evaluate(config, name, terminal, tester, report,
-                                       final_snapshot=final, quiescent=captured['quiescent'])
+                                       final_snapshot=final, quiescent=captured['quiescent'], profile=profile)
                     result.update(outcome)
                     release = captured['quiescent'] and outcome['status'] in ('completed', 'failed')
                     summary_report = {'statistics': outcome['metrics']} if outcome['metrics'] else None

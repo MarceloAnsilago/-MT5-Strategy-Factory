@@ -606,3 +606,77 @@ uma tentativa. O backend recusa relatório preexistente com o novo ID. A coleta
 registra offsets, comprimentos e hashes dos trechos novos dos journals; arquivos
 truncados são recusados. Um relatório antigo ou journal de outra execução não
 constitui aprovação, mesmo quando o cenário solicitado é igual.
+
+## SF-O08 — Homologacao_002 com operações no Tester (compilacao aprovada)
+
+O fonte novo fica em `src/mql5/Experts/SFO08/MT5SF_Homologacao_002.mq5`.
+Ele não substitui o Homologacao_001 nem o Homologacao_002 histórico long-only
+EMA 9/21 em `MQL5/Experts/MT5StrategyFactory/Homologacao_002/`.
+
+Esta versão usa EMA 5/20 de fechamento, EURUSD/M5 e lote fixo 0,01. Compra no
+cruzamento para cima e vende no cruzamento para baixo, lendo somente shifts 2 e 1.
+Cada candle é consumido antes de qualquer requisição. No sinal contrário, fecha
+a posição própria pelo ticket e só agenda a direção oposta se o fechamento estiver
+integralmente confirmado. A reversão pode abrir no próximo candle, se a nova
+média fechada ainda confirmar aquela direção; caso contrário, é cancelada.
+Nunca fecha e reabre no mesmo candle. Não há progressão, grid ou martingale.
+O lote não é arredondado para cima: símbolo incompatível bloqueia a inicialização.
+Não foram adicionados SL/TP não solicitados; a saída é pelo sinal contrário ou
+pela liquidação final do Tester. Isso limita o escopo à homologação simulada,
+sem qualquer alegação de proteção financeira ou resultado comercial.
+
+`MQL_TESTER`, conta demo, símbolo/timeframe e ID de execução são obrigatórios.
+Gráfico operacional, conta real/contest, otimização e forward são recusados antes
+dos indicadores. Cada requisição revalida o Tester e a propriedade da exposição;
+retorno falso, retcode diferente de DONE, preenchimento parcial ou estado inesperado
+interrompem novas requisições. Não há negociação em OnDeinit.
+
+`strategy_factory.homologation_002` reutiliza identidade canônica do gerador,
+`BacktestConfig`, o renderizador dedicado de INI e os parsers/validação financeira
+existentes. O gerador geral continua exigindo volume mínimo e SL/TP; seu contrato
+e template não foram alterados. A versão SF-O08 tem um template próprio, determinístico.
+`prepare_offline(output_root)` escreve um pacote exclusivo sob `artifacts/`,
+incluindo fonte, INI, SET com InpRunId, manifesto e hashes. O SET deve ser revisado
+e instalado futuramente em MQL5/Profiles/Tester, exclusivamente na dedicada.
+
+Os markers `SFO08 INIT/ORDER/STAT/END` vinculam estratégia, especificação e execução.
+O avaliador offline exige compras/vendas/fechamentos confirmados, contagens positivas,
+ausência de rejeições/erros e consistência entre relatório e telemetria. Ofertas,
+negociações, ordens e contadores de requisições são campos distintos. Dados ausentes
+continuam indisponíveis; profit factor sem perdas não é inventado. Nenhum resultado
+de referência Python é apresentado como backtest nativo.
+
+```console
+python -B -m unittest discover -s tests -p test_homologation_002_sfo08.py -v
+```
+
+Os testes exercitam um modelo de referência independente e contratos estáticos do
+fonte. Não compilam nem executam MQL5; paridade com iMA, regras da corretora,
+preenchimentos e eventos do Tester precisam de homologação nativa posterior.
+A compilacao nativa de MT5SF_Homologacao_002 foi concluida e aprovada com
+**0 erros e 0 avisos**, conforme confirmacao do responsavel pelo projeto.
+SHA-256 do EX5: `b97c50a3a04f679dbadabd32ceaee19cb232f8ffd342761300094a32b7ce5b6d`.
+O binario nao e versionado. **O EA ainda NAO esta homologado para backtests reais.**
+
+O plano `config/tester/sf_o08_homologation.plan.json` mantem a execucao nativa
+nao autorizada. A allowlist aceita Homologacao_001 por padrao e SF-O08 apenas por
+selecao explicita do perfil com hashes e cenario fixos. Selecionar um perfil ou
+preparar INI/SET nao autoriza execucao: backend nativo e executor exigem autorizacao
+humana explicita, alem das verificacoes de instalacao dedicada, conta demo, hashes,
+exclusividade e evidencia. A aceitacao de zero operacoes do Homologacao_001 permanece
+separada dos criterios positivos da SF-O08.
+
+O intervalo unico e **01/11/2023 inclusivo a 02/11/2023 exclusivo**, EURUSD/M5,
+M1 OHLC. As fixtures sanitizadas da SF-O07 comprovam historico anterior para
+aquecimento e 288 barras geradas nesse intervalo. A data 15/11 apareceu na
+preparacao posterior do perfil/pacote, sem evidencia registrada de cobertura ou
+justificativa. A escolha usa cobertura historica comprovada e o objetivo funcional,
+sem selecao por lucro. Compras, vendas e fechamentos positivos continuam
+obrigatorios; cobertura insuficiente torna a tentativa inconclusiva, sem ampliacao
+automatica do periodo. A homologacao real exige autorizacao separada.
+SF-MCP-RESTRICT permanece bloqueada.
+
+Revisao offline da SF-O08: 29 testes especificos, 40 regressoes SF-O07 e
+609 testes da suite completa aprovados. A revisao inclui perfil, pacote e SET
+com bytes LF, bloqueio sem autorizacao humana, identidade dedicada/demo e hashes.
+Nenhum backtest nativo foi executado nesta revisao; o EX5 nao foi acessado ou alterado.

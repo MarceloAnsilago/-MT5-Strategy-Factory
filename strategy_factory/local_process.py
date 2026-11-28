@@ -13,6 +13,7 @@ import subprocess
 import time
 
 from .local_tester import DATA, EXPERT, INSTALLATION, regular_path, sha
+from .local_profiles import HOMOLOGATION_001, checked_profile, profile_record
 
 
 def read_text(path):
@@ -32,10 +33,11 @@ class NativeLocalBackend:
     simulated = False
     lock_path = Path('C:/estrategia/runs/.sf_local_tester.lock')
 
-    def __init__(self, *, authorized=False):
+    def __init__(self, *, authorized=False, profile=HOMOLOGATION_001):
         if authorized is not True:
             raise PermissionError('native_backend_requires_human_authorization')
         self._authorized = True
+        self.profile = checked_profile(profile)
         if os.name != 'nt':
             raise RuntimeError('Windows_required')
         self.installation = regular_path(str(INSTALLATION))
@@ -100,7 +102,7 @@ class NativeLocalBackend:
     def inspect(self):
         build = int(self._powershell(
             "(Get-Item -LiteralPath 'C:\\estrategia\\infra\\mt5-factory\\terminal64.exe').VersionInfo.FilePrivatePart"))
-        expert = regular_path(str(EXPERT))
+        expert = regular_path(str(self.profile.expert))
         source = regular_path(expert.with_suffix('.mq5'))
         services = regular_path(self.data / 'MQL5/Services')
         services_present = any(services.rglob('*.ex5')) if services.exists() else False
@@ -131,17 +133,22 @@ class NativeLocalBackend:
         if directory.parent != Path('C:/estrategia/runs').absolute():
             raise ValueError('native_output_directory_not_allowed')
         request = json.loads(read_text(directory / 'request.json'))
-        expected_ini = render_ini(BacktestConfig(**request), directory.name + '.htm')
+        profile = checked_profile(getattr(self, 'profile', HOMOLOGATION_001))
+        if json.loads(read_text(directory / 'profile.json')) != profile_record(profile):
+            raise ValueError('prepared_profile_changed')
+        expected_ini = render_ini(BacktestConfig(**request), directory.name + '.htm', profile=profile)
         if read_text(directory / 'tester.ini') != expected_ini:
             raise ValueError('prepared_ini_changed')
         # Recheck immediately before launch under the executor's installation lock.
-        if preflight(self.inspect()) is not None:
+        if preflight(self.inspect(), profile=profile) is not None:
             raise PermissionError('prelaunch_identity_changed')
         report_name = directory.name + '.htm'
         require_fresh_report(self.data / report_name, self.installation / report_name)
         self._offsets = {p: p.stat().st_size for p in self._logs()}
         if self._identity() != self._account:
             raise PermissionError('demo_identity_changed')
+        if profile.positive_operations:
+            stage_inputs(directory, self.data)
         startup = subprocess.STARTUPINFO()
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
@@ -201,3 +208,19 @@ class NativeLocalBackend:
                 'raw_hashes': raw_hashes,
                 'journal_ranges': journal_ranges,
                 'quiescent': not self._busy() and self._identity() == self._account}
+
+
+def stage_inputs(directory, data):
+    """One fresh run-bound SET, only after native preflight under installation lock."""
+    if regular_path(data) != regular_path(str(DATA)):
+        raise ValueError('inputs_data_directory_not_allowed')
+    if not re.fullmatch(r'local_[0-9a-f]{32}', directory.name):
+        raise ValueError('invalid_run_id')
+    name = 'sf_o08_' + directory.name[6:] + '.set'
+    content = regular_path(directory / name).read_bytes()
+    if content != ('InpRunId=' + directory.name + '\n').encode('ascii'):
+        raise ValueError('prepared_inputs_changed')
+    target = regular_path(data / 'MQL5/Profiles/Tester' / name)
+    # No overwrite, directory creation or cleanup of an earlier execution.
+    with target.open('xb') as stream:
+        stream.write(content)

@@ -1,0 +1,96 @@
+{
+  "phase": "SF-O08",
+  "status": "compiled_pending_separate_native_homologation_authorization",
+  "compile_authorized": false,
+  "native_execution_authorized": false,
+  "source": "src\\mql5\\Experts\\SFO08\\MT5SF_Homologacao_002.mq5",
+  "target_ex5": "C:\\Users\\User\\AppData\\Roaming\\MetaQuotes\\Terminal\\AEF1E6F57078EAB3775179FCBD94D671\\MQL5\\Experts\\MT5StrategyFactory\\SFO08\\Homologacao_002\\MT5SF_Homologacao_002.ex5",
+  "specification": {
+    "schema_version": "1.0",
+    "phase": "SF-O08",
+    "strategy_id": "SF-O08-H002-EMA5-20-v1",
+    "symbol": "EURUSD",
+    "timeframe": "M5",
+    "method": "EMA",
+    "fast": 5,
+    "slow": 20,
+    "volume": "0.01",
+    "closed_shifts": [
+      2,
+      1
+    ],
+    "exit": "opposite_cross_close_then_defer_one_bar",
+    "same_bar_reentry": false,
+    "tester_only": true,
+    "demo_only": true,
+    "optimization": false,
+    "forward": false
+  },
+  "metadata": {
+    "strategy_id": "SF-O08-H002-EMA5-20-v1",
+    "spec_sha256": "6a7be176395f20b0c22c15682f6f896ce04840dd917718502f306c27bee8da74",
+    "magic": 117080296143199,
+    "source_sha256": "228f06328b9aa1bcf86fb86004e9907caf11f24ced46aeb2257e1f549e335787",
+    "template_sha256": "6f9b4e2d25b185342c4b9f5482798488728d83b81c946aaae0ae8c91d2fe2b10",
+    "compiled_sha256": "b97c50a3a04f679dbadabd32ceaee19cb232f8ffd342761300094a32b7ce5b6d",
+    "status": "compiled_native_homologation_pending",
+    "live_execution_enabled": false
+  },
+  "protected_sources_sha256": {
+    "MQL5/Experts/MT5StrategyFactory/Homologacao_001/MT5SF_Homologacao_001.mq5": "78bd1d4b04ebe2805738081a193148df2a8bc2777820f27fc27b7a2eb3f6d22c",
+    "MQL5/Experts/MT5StrategyFactory/Homologacao_002/MT5SF_Homologacao_002.mq5": "85a937a811617b64a3fc57a089c9b35576ecf4653de3abaa214f04d77fed4136"
+  },
+  "terminal_build_reference": 6361,
+  "scenario": {
+    "symbol": "EURUSD",
+    "timeframe": "M5",
+    "from_date": "2023-11-01",
+    "to_date_exclusive": "2023-11-02",
+    "model": "m1 ohlc",
+    "deposit": 10000,
+    "currency": "USD",
+    "leverage": 1,
+    "optimization": false,
+    "forward": false,
+    "remote": false,
+    "cloud": false,
+    "visual": false
+  },
+  "compile_plan": [
+    "Completed: native compilation approved with zero errors and zero warnings; EX5 SHA-256 pinned in compilation and metadata. No recompilation authorized by this plan."
+  ],
+  "executor_integration_gate": {
+    "current_allowlist": "Homologacao_001 default; explicit SF_O08 profile accepted with pinned source/EX5 and scenario. Profile selection is not execution authorization.",
+    "new_compiled_sha256": "b97c50a3a04f679dbadabd32ceaee19cb232f8ffd342761300094a32b7ce5b6d",
+    "required": "Separate explicit human authorization for one native attempt is required by both NativeLocalBackend and LocalTesterExecutor. Verify dedicated installation, demo identity, hashes, fresh SET and positive operations; preserve Homologacao_001 zero-operation acceptance."
+  },
+  "native_plan": [
+    "Obtain separate approval for one native attempt after compilation and profile review.",
+    "Verify dedicated AEF1 identity, build, recent demo authorization, hashes, no active terminal/services and no retained reservation.",
+    "Generate fresh run ID, INI and SET. Stage SET only in dedicated MQL5/Profiles/Tester; no account/credential fields.",
+    "Use EURUSD/M5 2023-11-01 to 2023-11-02 exclusive, M1 OHLC, no optimization/forward/remote/cloud/visual. No automatic retries or parameter changes.",
+    "Preserve fresh report, journal ranges, telemetry and hashes through existing local-executor locking/evidence infrastructure.",
+    "Require native completion, matching source/EX5/strategy/run, buys>0, sells>0, closes>0, trades>0, deals>0, rejected=0, errors=0, halted=0 and financial consistency.",
+    "If no trades, no coverage of both directions, insufficient data, rejection or missing metrics: do not approve and do not extend dates automatically.",
+    "Preserve unknown metrics; profit factor is unavailable when gross loss is zero. Stop for human assessment."
+  ],
+  "references": [
+    "https://www.mql5.com/en/docs/series/copybuffer",
+    "https://www.mql5.com/en/docs/standardlibrary/tradeclasses/ctrade/ctradepositionclose",
+    "https://www.mql5.com/en/docs/constants/environment_state/accountinformation"
+  ],
+  "sf_mcp_restrict": "blocked",
+  "compilation": {
+    "status": "approved",
+    "errors": 0,
+    "warnings": 0,
+    "ex5_sha256": "b97c50a3a04f679dbadabd32ceaee19cb232f8ffd342761300094a32b7ce5b6d",
+    "evidence": "Compilation outcome and digest confirmed by project owner; no recompilation or binary access in this review."
+  },
+  "scenario_rationale": {
+    "selected": "2023-11-01 inclusive to 2023-11-02 exclusive",
+    "evidence": "tests/fixtures/local_tester/tester.txt: synchronized EURUSD history through 2023-11-02, prior M5 history and 288 generated bars. SF-O07 plan uses the same interval.",
+    "rejected_alternative": "2023-11-15 appeared in later interrupted profile/package preparation without recorded coverage evidence or technical rationale.",
+    "objective": "Functional EMA5/20 buy/sell/close coverage, not profitability. One day has native history evidence and warm-up; actual directional coverage remains unproven until separate homologation. Insufficient coverage is inconclusive; never extend dates automatically."
+  }
+}

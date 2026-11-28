@@ -185,3 +185,13 @@ logs/
 !/tests/fixtures/local_tester/terminal.txt
 !/tests/fixtures/local_tester/tester.txt
 !/tests/fixtures/local_tester/provenance.json
+!/tests/test_homologation_002_sfo08.py
+!/src/
+/src/*
+!/src/mql5/
+/src/mql5/*
+!/src/mql5/Experts/
+/src/mql5/Experts/*
+!/src/mql5/Experts/SFO08/
+/src/mql5/Experts/SFO08/*
+!/src/mql5/Experts/SFO08/MT5SF_Homologacao_002.mq5
