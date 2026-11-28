@@ -656,7 +656,8 @@ preenchimentos e eventos do Tester precisam de homologação nativa posterior.
 A compilacao nativa de MT5SF_Homologacao_002 foi concluida e aprovada com
 **0 erros e 0 avisos**, conforme confirmacao do responsavel pelo projeto.
 SHA-256 do EX5: `b97c50a3a04f679dbadabd32ceaee19cb232f8ffd342761300094a32b7ce5b6d`.
-O binario nao e versionado. **O EA ainda NAO esta homologado para backtests reais.**
+O binario nao e versionado. O estado da tentativa nativa e da reanalise offline
+esta registrado abaixo; nenhuma execucao futura esta autorizada por este documento.
 
 O plano `config/tester/sf_o08_homologation.plan.json` mantem a execucao nativa
 nao autorizada. A allowlist aceita Homologacao_001 por padrao e SF-O08 apenas por
@@ -676,7 +677,59 @@ obrigatorios; cobertura insuficiente torna a tentativa inconclusiva, sem ampliac
 automatica do periodo. A homologacao real exige autorizacao separada.
 SF-MCP-RESTRICT permanece bloqueada.
 
-Revisao offline da SF-O08: 29 testes especificos, 40 regressoes SF-O07 e
+Checkpoint anterior a tentativa nativa: 29 testes especificos, 40 regressoes SF-O07 e
 609 testes da suite completa aprovados. A revisao inclui perfil, pacote e SET
 com bytes LF, bloqueio sem autorizacao humana, identidade dedicada/demo e hashes.
 Nenhum backtest nativo foi executado nesta revisao; o EX5 nao foi acessado ou alterado.
+
+### SF-O08 - encerramento da correcao offline do parser
+
+A unica tentativa nativa autorizada, `local_2fbcf19e8dd240fcbb248ac2090258c5`,
+concluiu o Tester. Seu `result.json` e recibo permanecem **inconclusive**, sem
+reescrita retroativa. O bloqueio foi `balance_drawdown_relative_report_unavailable`.
+O HTML original e os artefatos locais foram conferidos pelos hashes registrados.
+
+O MT5 apresentou `Rebaixamento Relativo do Saldo :`, com espaco antes de `:`.
+A normalizacao retirava os dois-pontos, mas mantinha o espaco final. A correcao
+adiciona `rstrip()` apos remover `:`, para todos os rotulos, sem condicao por EA,
+execucao, idioma ou valores. Duplicidades e campos ausentes continuam inconclusivos.
+Os testes incluem somente linhas numericas sanitizadas do HTML, com hash de origem,
+variacoes de espaco/tab/NBSP, decimal com virgula, ambiguidades e arredondamento.
+
+A reanalise exclusivamente offline retornou **offline_evidence_consistent**,
+sem issues nos criterios especificos SF-O08. Classificacao proposta:
+**APROVADO COM RESSALVAS**, limitada a homologacao funcional deste cenario:
+EURUSD/M5, 01/11/2023 a 02/11/2023 exclusivo, M1 OHLC e lote 0,01.
+Foram reconciliadas 15 entradas (8 compras e 7 vendas), 14 fechamentos pelo EA,
+um fechamento final pelo Tester, 15 operacoes completas e 30 negocios.
+Houve 29 requisicoes do EA com retcode 10009, nenhuma rejeicao/erro e 14 reversoes
+em candle posterior. O HTML lista 30 ordens de mercado, incluindo a liquidacao
+final do Tester; ordens, negocios e operacoes completas nao sao intercambiaveis.
+
+O resultado liquido foi -US$ 2,82. O drawdown absoluto e US$ 5,23 para saldo e
+US$ 5,59 para patrimonio. O relativo no HTML e 0,06% (US$ 6,47) para saldo e
+0,08% (US$ 8,47) para patrimonio. A telemetria registra 0,0646919782% e
+0,0846756134%, respectivamente, compativeis com o arredondamento do HTML e com a
+tolerancia existente de 0,01 ponto percentual, sem alteracao de tolerancias.
+Os montantes entre parenteses do drawdown relativo nao substituem o absoluto.
+Nenhuma metrica ausente foi preenchida com telemetria ou calculos de outra origem.
+
+A validacao financeira geral permanece **inconclusive**, sem comparacoes
+divergentes: faltam pares completos de relatorio/referencia para `win_rate`,
+`expected_payoff`, `initial_balance`, `final_balance`, `gross_profit`, `gross_loss`,
+`orders`, `positions`, `winning_trades`, `losing_trades` e `history_quality`.
+Isso nao significa que todos esses campos estejam ausentes do HTML: alguns estao
+presentes somente em uma origem. O parser tambem mantem indisponiveis no relatorio
+`expected_payoff`, `final_balance`, `orders`, `positions` e `period_results`.
+A proposta funcional nao equivale a validacao financeira integral, certificacao de
+lucratividade, autorizacao para conta real ou aprovacao de outros periodos/estrategias.
+
+A trilha local fica em
+`artifacts/sf_o08_offline_audit_a9cb3428822246b799398cedf9b91d46/reanalysis.json`,
+com manifesto `audit_sha256.json`; esses arquivos privados nao sao versionados.
+Os originais em `runs/`, o relatorio nativo, o recibo e a reserva de seguranca
+permanecem intactos. A reserva continua retida: nenhuma recuperacao, liberacao ou
+nova tentativa e autorizada por este encerramento. SF-MCP-RESTRICT segue bloqueada.
+
+Validacao da correcao: **613 testes completos aprovados**, incluindo 33 SF-O08,
+29 financeiros e 40 SF-O07. Nenhum backtest foi repetido para esta reanalise.

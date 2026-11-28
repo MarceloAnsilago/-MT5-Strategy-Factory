@@ -9,7 +9,7 @@ from pathlib import Path
 
 def normalized(value):
     return ''.join(c for c in unicodedata.normalize('NFKD', value.lower())
-                   if not unicodedata.combining(c)).strip().rstrip(':')
+                   if not unicodedata.combining(c)).strip().rstrip(':').rstrip()
 
 
 ALIASES = {

@@ -316,4 +316,50 @@ class ProfileReconciliationTests(unittest.TestCase):
             self.assertEqual(list(Path(tmp).iterdir()), [])
 
 
+class NativeReportWhitespaceTests(unittest.TestCase):
+    # Numeric rows only, extracted from the existing native HTML (no account data).
+    # Source SHA-256: f70a7abfcb8da971ca75b9e0524b2b899f58a5eb07f43d9d1a68fa1d7f52706b
+    NATIVE_DRAWDOWN_ROWS = '<table><tr><td>Lucro L\xedquido Total:</td><td>-2.82</td><td>Rebaixamento Absoluto do Saldo :</td><td>5.23</td><td>Rebaixamento Absoluto do Capital L\xedquido:</td><td>5.59</td></tr><tr><td>Lucro Bruto:</td><td>4.36</td><td>Rebaixamento M\xe1ximo do Saldo :</td><td>6.47 (0.06%)</td><td>Rebaixamento M\xe1ximo do Capital L\xedquido:</td><td>8.47 (0.08%)</td></tr><tr><td>Perda Bruta:</td><td>-7.18</td><td>Rebaixamento Relativo do Saldo :</td><td>0.06% (6.47)</td><td>Rebaixamento Relativo do Capital L\xedquido:</td><td>0.08% (8.47)</td></tr></table>'
+
+    def test_native_balance_and_equity_absolute_and_relative_are_distinct(self):
+        from strategy_factory.reports import analyze_report
+        parsed = analyze_report(self.NATIVE_DRAWDOWN_ROWS)
+        expected = dict(balance_drawdown_absolute=5.23, balance_drawdown_relative=.06,
+                        equity_drawdown_absolute=5.59, equity_drawdown_relative=.08)
+        for key, value in expected.items():
+            self.assertEqual(parsed['metrics'][key], value)
+        self.assertEqual(parsed['source_values']['balance_drawdown_relative'], ['0.06% (6.47)'])
+        self.assertNotEqual(parsed['metrics']['balance_drawdown_absolute'], 6.47)
+        self.assertIsNone(parsed['metrics']['orders'])
+
+    def test_native_rounding_matches_without_replacing_report_precision(self):
+        from strategy_factory.financial import validate_financial
+        reference = {'statistics':dict(balance_drawdown_absolute=5.23,
+            balance_drawdown_relative=.0646919782, equity_drawdown_absolute=5.59,
+            equity_drawdown_relative=.0846756134)}
+        result = validate_financial(self.NATIVE_DRAWDOWN_ROWS, run_id='offline-fixture',
+            native_reference=reference, reference_run_id='offline-fixture')
+        for key in reference['statistics']:
+            check = next(c for c in result['checks'] if c['source']=='native_reference' and c['metric']==key)
+            self.assertEqual(check['status'], 'match')
+        self.assertEqual(result['report']['metrics']['balance_drawdown_relative'], .06)
+        self.assertEqual(result['report']['metrics']['equity_drawdown_relative'], .08)
+        self.assertIsNone(result['report']['metrics']['deals'])
+
+    def test_label_whitespace_is_general_across_all_aliases(self):
+        from strategy_factory.reports import ALIASES, normalized
+        for aliases in ALIASES.values():
+            for label in aliases:
+                for spacing in (' ', '\t', '\u00a0'):
+                    self.assertEqual(normalized(spacing+label+spacing+':'+spacing), label)
+
+    def test_comma_decimal_duplicate_and_missing_labels_fail_closed(self):
+        from strategy_factory.reports import analyze_report
+        html = '<table><tr><td>Balance Drawdown Relative : </td><td>0,06% (6,47)</td></tr></table>'
+        self.assertEqual(analyze_report(html)['metrics']['balance_drawdown_relative'], .06)
+        self.assertIsNone(analyze_report(html+html)['metrics']['balance_drawdown_relative'])
+        self.assertIsNone(analyze_report(html.replace('Relative', 'Maximal'))['metrics']['balance_drawdown_relative'])
+        self.assertIsNone(analyze_report(html.replace('0,06%', '0,06% 0,08%'))['metrics']['balance_drawdown_relative'])
+
+
 if __name__=='__main__': unittest.main()
